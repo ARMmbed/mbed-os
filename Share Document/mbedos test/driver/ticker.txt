@@ -1,0 +1,51 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-DRIVERS-TESTS-TESTS-MBED_DRIVERS-TICKER
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-drivers-tests-tests-mbed_drivers-ticker
+        test filtered in 'mbed-os-drivers-tests-tests-mbed_drivers-ticker'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-drivers-tests-tests-mbed_drivers-ticker' ................................. OK in 42.91 sec
+        test case: 'Test attach for 100ms and time measure' .......................................... OK in 0.18 sec
+        test case: 'Test attach for 10ms and time measure' ........................................... OK in 0.08 sec
+        test case: 'Test attach for 500ms and time measure' .......................................... OK in 0.56 sec
+        test case: 'Test detach' ..................................................................... OK in 0.74 sec
+        test case: 'Test multi call and time measure' ................................................ OK in 1.05 sec
+        test case: 'Test multi ticker' ............................................................... OK in 0.27 sec
+        test case: 'Test timers: 1x ticker' .......................................................... OK in 11.71 sec
+        test case: 'Test timers: 2x ticker' .......................................................... OK in 10.41 sec
+mbedgt: test case summary: 8 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.3582156887
+mbedgt: test suite report:
+| target             | platform_name | test suite                                      | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|-------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | OK     | 42.91              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                      | test case
+        | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|-------------------------------------------------|----------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test attach for 100ms and time measure | 1      | 0      | OK     | 0.18               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test attach for 10ms and time measure  | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test attach for 500ms and time measure | 1      | 0      | OK     | 0.56               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test detach
+        | 1      | 0      | OK     | 0.74               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test multi call and time measure       | 1      | 0      | OK     | 1.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test multi ticker
+        | 1      | 0      | OK     | 0.27               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test timers: 1x ticker
+        | 1      | 0      | OK     | 11.71              |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-tests-tests-mbed_drivers-ticker | Test timers: 2x ticker
+        | 1      | 0      | OK     | 10.41              |
+mbedgt: test case results: 8 OK
+mbedgt: completed in 48.29 sec

@@ -1,0 +1,58 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-drivers-usb-tests-tests-usb_device-serial
+        test filtered in 'mbed-os-drivers-usb-tests-tests-usb_device-serial'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100520069540000134e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-drivers-usb-tests-tests-usb_device-serial' ............................... OK in 33.41 sec
+        test case: 'CDC RX multiple bytes' ........................................................... OK in 0.24 sec
+        test case: 'CDC RX multiple bytes concurrent' ................................................ OK in 0.45 sec
+        test case: 'CDC RX single bytes' ............................................................. OK in 0.27 sec
+        test case: 'CDC RX single bytes concurrent' .................................................. OK in 0.47 sec
+        test case: 'CDC USB reconnect' ............................................................... OK in 0.13 sec
+        test case: 'CDC loopback' .................................................................... OK in 0.32 sec
+        test case: 'Serial USB reconnect' ............................................................ OK in 0.14 sec
+        test case: 'Serial getc' ..................................................................... OK in 0.24 sec
+        test case: 'Serial line coding change' ....................................................... OK in 0.78 sec
+        test case: 'Serial printf/scanf' ............................................................. OK in 0.58 sec
+        test case: 'Serial terminal reopen' .......................................................... OK in 0.35 sec
+mbedgt: test case summary: 11 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.8171764873
+mbedgt: test suite report:
+| target             | platform_name | test suite                                        | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|---------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | OK     | 33.41              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                        | test case
+    | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|---------------------------------------------------|----------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | CDC RX multiple bytes            | 1      | 0      | OK     | 0.24               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | CDC RX multiple bytes concurrent | 1      | 0      | OK     | 0.45               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | CDC RX single bytes
+    | 1      | 0      | OK     | 0.27               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | CDC RX single bytes concurrent   | 1      | 0      | OK     | 0.47               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | CDC USB reconnect
+    | 1      | 0      | OK     | 0.13               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | CDC loopback
+    | 1      | 0      | OK     | 0.32               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | Serial USB reconnect
+    | 1      | 0      | OK     | 0.14               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | Serial getc
+    | 1      | 0      | OK     | 0.24               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | Serial line coding change        | 1      | 0      | OK     | 0.78               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | Serial printf/scanf
+    | 1      | 0      | OK     | 0.58               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-serial | Serial terminal reopen           | 1      | 0      | OK     | 0.35               |
+mbedgt: test case results: 11 OK
+mbedgt: completed in 37.45 sec

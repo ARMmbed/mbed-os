@@ -1,0 +1,60 @@
+Build successes
+   APM32_F407IGARMC6MBED-BUILD
+   APM32_F407IGARMC6MBED-OS-DRIVERS-TESTS-TESTS-MBED_DRIVERS-TIMEOUT
+mbedgt greentea test automation tool ver. 1.7.4
+mbedgt test specification file '.BUILDtestsAPM32_F407IGARMtest_spec.json' (specified with --test-spec option)
+mbedgt using '.BUILDtestsAPM32_F407IGARMtest_spec.json' from current directory!
+mbedgt detecting connected mbed-enabled devices...
+mbedgt detected 1 device
+mbedgt processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note switch set to --parallel 1)
+mbedgt test case filter (specified with -n option)
+        mbed-os-drivers-tests-tests-mbed_drivers-timeout
+        test filtered in 'mbed-os-drivers-tests-tests-mbed_drivers-timeout'
+mbedgt running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt mbed-host-test-runner started
+mbedgt checking for GCOV data...
+mbedgt test on hardware with target id 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt test suite 'mbed-os-drivers-tests-tests-mbed_drivers-timeout' ................................ OK in 37.05 sec
+        test case '1 s delay accuracy' .............................................................. OK in 1.04 sec
+        test case '1 s delay during sleep' .......................................................... OK in 1.05 sec
+        test case '10 ms delay accuracy' ............................................................ OK in 0.06 sec
+        test case '5 s delay accuracy' .............................................................. OK in 5.05 sec
+        test case 'Callback called once' ............................................................ OK in 0.06 sec
+        test case 'Callback not called when cancelled' .............................................. OK in 0.08 sec
+        test case 'Callback override' ............................................................... OK in 0.08 sec
+        test case 'Multiple timeouts running in parallel' ........................................... OK in 0.08 sec
+        test case 'Reschedule in callback' .......................................................... OK in 0.10 sec
+        test case 'Timing drift' .................................................................... OK in 11.53 sec
+        test case 'Zero delay' ...................................................................... OK in 0.05 sec
+mbedgt test case summary 11 passes, 0 failures
+mbedgt all tests finished!
+mbedgt shuffle seed 0.8288638912
+mbedgt test suite report
+ target              platform_name  test suite                                        result  elapsed_time (sec)  copy_method 
+------------------------------------------------------------------------------------------------------------------------------
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  OK      37.05               default     
+mbedgt test suite results 1 OK
+mbedgt test case report
+ target              platform_name  test suite                                        test case
+         passed  failed  result  elapsed_time (sec) 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  1 s delay accuracy
+         1       0       OK      1.04               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  1 s delay during sleep                 1       0       OK      1.05               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  10 ms delay accuracy
+         1       0       OK      0.06               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  5 s delay accuracy
+         1       0       OK      5.05               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Callback called once
+         1       0       OK      0.06               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Callback not called when cancelled     1       0       OK      0.08               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Callback override
+         1       0       OK      0.08               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Multiple timeouts running in parallel  1       0       OK      0.08               
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Reschedule in callback                 1       0       OK      0.1                
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Timing drift
+         1       0       OK      11.53              
+ APM32_F407IG-ARMC6  APM32_F407IG   mbed-os-drivers-tests-tests-mbed_drivers-timeout  Zero delay
+         1       0       OK      0.05               
+mbedgt test case results 11 OK
+mbedgt completed in 42.46 sec

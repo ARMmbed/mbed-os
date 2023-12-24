@@ -1,0 +1,103 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.8.15
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-hal-tests-tests-mbed_hal-ticker
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-ticker'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-ticker' ......................................... OK in 35.62 sec
+        test case: 'legacy insert event head' ........................................................ OK in 0.05 sec
+        test case: 'legacy insert event in overflow range' ........................................... OK in 0.06 sec
+        test case: 'legacy insert event multiple overflow' ........................................... OK in 0.08 sec
+        test case: 'legacy insert event outside overflow range' ...................................... OK in 0.06 sec
+        test case: 'legacy insert event overflow' .................................................... OK in 0.05 sec
+        test case: 'legacy insert event tail' ........................................................ OK in 0.06 sec
+        test case: 'test_frequencies_and_masks' ...................................................... OK in 0.44 sec
+        test case: 'test_insert_event_us_head' ....................................................... OK in 0.06 sec
+        test case: 'test_insert_event_us_in_overflow_range' .......................................... OK in 0.06 sec
+        test case: 'test_insert_event_us_multiple_random' ............................................ OK in 0.06 sec
+        test case: 'test_insert_event_us_outside_overflow_range' ..................................... OK in 0.06 sec
+        test case: 'test_insert_event_us_tail' ....................................................... OK in 0.05 sec
+        test case: 'test_insert_event_us_underflow' .................................................. OK in 0.06 sec
+        test case: 'test_irq_handler_insert_immediate_in_irq' ........................................ OK in 0.06 sec
+        test case: 'test_irq_handler_insert_non_immediate_in_irq' .................................... OK in 0.08 sec
+        test case: 'test_irq_handler_multiple_event_multiple_dequeue' ................................ OK in 0.07 sec
+        test case: 'test_irq_handler_multiple_event_single_dequeue' .................................. OK in 0.08 sec
+        test case: 'test_irq_handler_multiple_event_single_dequeue_overflow' ......................... OK in 0.07 sec
+        test case: 'test_irq_handler_single_event' ................................................... OK in 0.05 sec
+        test case: 'test_irq_handler_single_event_spurious' .......................................... OK in 0.07 sec
+        test case: 'test_legacy_insert_event_multiple_random' ........................................ OK in 0.06 sec
+        test case: 'test_match_interval_passed' ...................................................... OK in 0.06 sec
+        test case: 'test_match_interval_passed_table' ................................................ OK in 0.06 sec
+        test case: 'test_remove_event_head' .......................................................... OK in 0.05 sec
+        test case: 'test_remove_event_invalid' ....................................................... OK in 0.06 sec
+        test case: 'test_remove_event_tail' .......................................................... OK in 0.05 sec
+        test case: 'test_remove_random' .............................................................. OK in 0.05 sec
+        test case: 'test_set_interrupt_past_time' .................................................... OK in 0.04 sec
+        test case: 'test_set_interrupt_past_time_with_delay' ......................................... OK in 0.06 sec
+        test case: 'test_suspend_resume' ............................................................. OK in 0.04 sec
+        test case: 'test_ticker_max_value' ........................................................... OK in 0.04 sec
+        test case: 'ticker initialization' ........................................................... OK in 0.05 sec
+        test case: 'ticker multiple initialization' .................................................. OK in 0.07 sec
+        test case: 'ticker read' ..................................................................... OK in 0.05 sec
+        test case: 'ticker read overflow' ............................................................ OK in 0.06 sec
+        test case: 'update overflow guard' ........................................................... OK in 0.06 sec
+        test case: 'update overflow guard in case of spurious interrupt' ............................. OK in 0.08 sec
+mbedgt: test case summary: 37 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.6903167848
+mbedgt: test suite report:
+| target             | platform_name | test suite                              | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|-----------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | OK     | 35.62              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                              | test case                                               | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|-----------------------------------------|---------------------------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | legacy insert event head                                | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | legacy insert event in overflow range                   | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | legacy insert event multiple overflow                   | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | legacy insert event outside overflow range              | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | legacy insert event overflow                            | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | legacy insert event tail                                | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_frequencies_and_masks                              | 1      | 0      | OK     | 0.44               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_insert_event_us_head                               | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_insert_event_us_in_overflow_range                  | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_insert_event_us_multiple_random                    | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_insert_event_us_outside_overflow_range             | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_insert_event_us_tail                               | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_insert_event_us_underflow                          | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_insert_immediate_in_irq                | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_insert_non_immediate_in_irq            | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_multiple_event_multiple_dequeue        | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_multiple_event_single_dequeue          | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_multiple_event_single_dequeue_overflow | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_single_event                           | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_irq_handler_single_event_spurious                  | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_legacy_insert_event_multiple_random                | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_match_interval_passed                              | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_match_interval_passed_table                        | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_remove_event_head                                  | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_remove_event_invalid                               | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_remove_event_tail                                  | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_remove_random                                      | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_set_interrupt_past_time                            | 1      | 0      | OK     | 0.04               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_set_interrupt_past_time_with_delay                 | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_suspend_resume                                     | 1      | 0      | OK     | 0.04               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | test_ticker_max_value                                   | 1      | 0      | OK     | 0.04               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | ticker initialization                                   | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | ticker multiple initialization                          | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | ticker read                                             | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | ticker read overflow                                    | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | update overflow guard                                   | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-ticker | update overflow guard in case of spurious interrupt     | 1      | 0      | OK     | 0.08               |
+mbedgt: test case results: 37 OK
+mbedgt: completed in 39.40 sec

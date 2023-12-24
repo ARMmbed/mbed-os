@@ -1,0 +1,31 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.8.15
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-hal-tests-tests-mbed_hal-common_tickers_freq
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-common_tickers_freq'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-common_tickers_freq' ............................ OK in 28.78 sec
+        test case: 'Microsecond ticker frequency test' ............................................... OK in 11.68 sec
+mbedgt: test case summary: 1 pass, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.6779680090
+mbedgt: test suite report:
+| target             | platform_name | test suite                                           | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|------------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-common_tickers_freq | OK     | 28.78              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                           | test case                         | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|------------------------------------------------------|-----------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-common_tickers_freq | Microsecond ticker frequency test | 1      | 0      | OK     | 11.68              |
+mbedgt: test case results: 1 OK
+mbedgt: completed in 34.09 sec

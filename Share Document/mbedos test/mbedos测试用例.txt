@@ -1,0 +1,543 @@
+Test Case:
+    Name: mbed-os-connectivity-lorawan-tests-tests-lorawan-loraradio
+    Path: .\mbed-os\connectivity\lorawan\tests\TESTS\lorawan\loraradio
+Test Case:
+    Name: mbed-os-connectivity-mbedtls-tests-tests-mbedtls-multi
+    Path: .\mbed-os\connectivity\mbedtls\tests\TESTS\mbedtls\multi
+Test Case:
+    Name: mbed-os-connectivity-mbedtls-tests-tests-mbedtls-sanity
+    Path: .\mbed-os\connectivity\mbedtls\tests\TESTS\mbedtls\sanity
+Test Case:
+    Name: mbed-os-connectivity-mbedtls-tests-tests-mbedtls-selftest
+    Path: .\mbed-os\connectivity\mbedtls\tests\TESTS\mbedtls\selftest
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-netsocket-dns
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\netsocket\dns
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-netsocket-nidd
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\netsocket\nidd
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-netsocket-tcp
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\netsocket\tcp
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-netsocket-tls
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\netsocket\tls
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-netsocket-udp
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\netsocket\udp
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-network-emac
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\network\emac
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-network-interface
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\network\interface
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-network-l3ip
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\network\l3ip
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-network-multihoming
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\network\multihoming
+Test Case:
+    Name: mbed-os-connectivity-netsocket-tests-tests-network-wifi
+    Path: .\mbed-os\connectivity\netsocket\tests\TESTS\network\wifi
+Test Case:
+    Name: mbed-os-connectivity-nfc-tests-tests-nfc-eeprom
+    Path: .\mbed-os\connectivity\nfc\tests\TESTS\nfc\eeprom
+Test Case:
+    Name: mbed-os-drivers-device_key-tests-tests-device_key-functionality
+    Path: .\mbed-os\drivers\device_key\tests\TESTS\device_key\functionality
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-buffered_serial
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\buffered_serial
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-c_strings
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\c_strings
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-crc
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\crc
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-dev_null
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\dev_null
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-echo
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\echo
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-flashiap
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\flashiap
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-generic_tests
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\generic_tests
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-lp_ticker
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\lp_ticker
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-lp_timeout
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\lp_timeout
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-lp_timer
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\lp_timer
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-mem_trace
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\mem_trace
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-race_test
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\race_test
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-reset_reason
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\reset_reason
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-rtc
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\rtc
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-sleep_lock
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\sleep_lock
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-stl_features
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\stl_features
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-ticker
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\ticker
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-timeout
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\timeout
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-timer
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\timer
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-timerevent
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\timerevent
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-unbuffered_serial
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\unbuffered_serial
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-watchdog
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\watchdog
+Test Case:
+    Name: mbed-os-drivers-tests-tests-mbed_drivers-watchdog_reset
+    Path: .\mbed-os\drivers\tests\TESTS\mbed_drivers\watchdog_reset
+Test Case:
+    Name: mbed-os-drivers-usb-tests-tests-usb_device-basic
+    Path: .\mbed-os\drivers\usb\tests\TESTS\usb_device\basic
+Test Case:
+    Name: mbed-os-drivers-usb-tests-tests-usb_device-hid
+    Path: .\mbed-os\drivers\usb\tests\TESTS\usb_device\hid
+Test Case:
+    Name: mbed-os-drivers-usb-tests-tests-usb_device-msd
+    Path: .\mbed-os\drivers\usb\tests\TESTS\usb_device\msd
+Test Case:
+    Name: mbed-os-drivers-usb-tests-tests-usb_device-serial
+    Path: .\mbed-os\drivers\usb\tests\TESTS\usb_device\serial
+Test Case:
+    Name: mbed-os-events-tests-tests-events-equeue
+    Path: .\mbed-os\events\tests\TESTS\events\equeue
+Test Case:
+    Name: mbed-os-events-tests-tests-events-queue
+    Path: .\mbed-os\events\tests\TESTS\events\queue
+Test Case:
+    Name: mbed-os-events-tests-tests-events-timing
+    Path: .\mbed-os\events\tests\TESTS\events\timing
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-basic_test
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\basic_test
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-basic_test_default
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\basic_test_default
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\case_async_validate
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-case_control_async
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\case_control_async
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-case_control_repeat
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\case_control_repeat
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-case_selection
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\case_selection
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-case_setup_failure
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\case_setup_failure
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-case_teardown_failure
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\case_teardown_failure
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-control_type
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\control_type
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-minimal_async_scheduler
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\minimal_async_scheduler
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-minimal_scheduler
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\minimal_scheduler
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-test_assertion_failure_test_setup
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\test_assertion_failure_test_setup
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-test_setup_case_selection_failure
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\test_setup_case_selection_failure
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-test_setup_failure
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\test_setup_failure
+Test Case:
+    Name: mbed-os-features-frameworks-utest-tests-unit_tests-test_skip
+    Path: .\mbed-os\features\frameworks\utest\TESTS\unit_tests\test_skip
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-common_tickers
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\common_tickers
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-common_tickers_freq
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\common_tickers_freq
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-crc
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\crc
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-critical_section
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\critical_section
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-flash
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\flash
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-lp_ticker
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\lp_ticker
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-minimum_requirements
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\minimum_requirements
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-mpu
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\mpu
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-ospi
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\ospi
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-pinmap
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\pinmap
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-qspi
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\qspi
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-reset_reason
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\reset_reason
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-rtc
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\rtc
+Test Case:a
+    Name: mbed-os-hal-tests-tests-mbed_hal-rtc_reset
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\rtc_reset
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-rtc_time
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\rtc_time
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-rtc_time_conv
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\rtc_time_conv
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-sleep
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\sleep
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-sleep_manager
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\sleep_manager
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-sleep_manager_racecondition
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\sleep_manager_racecondition
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-stack_size_unification
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\stack_size_unification
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-ticker
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\ticker
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-trng
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\trng
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-us_ticker
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\us_ticker
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-watchdog
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\watchdog
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-watchdog_reset
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\watchdog_reset
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal-watchdog_timing
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal\watchdog_timing
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\analogin
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-gpio
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\gpio
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-gpio_irq
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\gpio_irq
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-i2c
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\i2c
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-pwm
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\pwm
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-spi
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\spi
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-uart
+    Path: .\mbed-os\hal\tests\TESTS\mbed_hal_fpga_ci_test_shield\uart
+Test Case:
+    Name: mbed-os-hal-tests-tests-mbed_timing_fpga_ci_test_shield-watchdog
+    Path: .\mbed-os\hal\tests\TESTS\mbed_timing_fpga_ci_test_shield\watchdog
+Test Case:
+    Name: mbed-os-hal-tests-tests-pin_names-arduino_uno
+    Path: .\mbed-os\hal\tests\TESTS\pin_names\arduino_uno
+Test Case:
+    Name: mbed-os-hal-tests-tests-pin_names-generic
+    Path: .\mbed-os\hal\tests\TESTS\pin_names\generic
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_functional-callback
+    Path: .\mbed-os\platform\tests\TESTS\mbed_functional\callback
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_functional-callback_big
+    Path: .\mbed-os\platform\tests\TESTS\mbed_functional\callback_big
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_functional-callback_small
+    Path: .\mbed-os\platform\tests\TESTS\mbed_functional\callback_small
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_micro-attributes
+    Path: .\mbed-os\platform\tests\TESTS\mbed_micro\attributes
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_micro-call_before_main
+    Path: .\mbed-os\platform\tests\TESTS\mbed_micro\call_before_main
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_micro-cpp
+    Path: .\mbed-os\platform\tests\TESTS\mbed_micro\cpp
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_micro-div
+    Path: .\mbed-os\platform\tests\TESTS\mbed_micro\div
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_micro-static_assert
+    Path: .\mbed-os\platform\tests\TESTS\mbed_micro\static_assert
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-atomic
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\atomic
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-circularbuffer
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\CircularBuffer
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-crash_reporting
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\crash_reporting
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-critical_section
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\critical_section
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-error_handling
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\error_handling
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-filehandle
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\FileHandle
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-minimal-printf
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\minimal-printf
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-sharedptr
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\SharedPtr
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-singletonptr
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\SingletonPtr
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-stats_cpu
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\stats_cpu
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-stats_heap
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\stats_heap
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-stats_sys
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\stats_sys
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-stats_thread
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\stats_thread
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-stream
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\Stream
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-system_reset
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\system_reset
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-transaction
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\Transaction
+Test Case:
+    Name: mbed-os-platform-tests-tests-mbed_platform-wait_ns
+    Path: .\mbed-os\platform\tests\TESTS\mbed_platform\wait_ns
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-basic
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\basic
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-condition_variable
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\condition_variable
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-event_flags
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\event_flags
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-heap_and_stack
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\heap_and_stack
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-kernel_tick_count
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\kernel_tick_count
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-mail
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\mail
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-malloc
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\malloc
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-memorypool
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\MemoryPool
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-mutex
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\mutex
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-queue
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\queue
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-semaphore
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\semaphore
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-signals
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\signals
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-systimer
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\systimer
+Test Case:
+    Name: mbed-os-rtos-tests-tests-mbed_rtos-threads
+    Path: .\mbed-os\rtos\tests\TESTS\mbed_rtos\threads
+Test Case:
+    Name: mbed-os-storage-blockdevice-tests-tests-blockdevice-buffered_block_device
+    Path: .\mbed-os\storage\blockdevice\tests\TESTS\blockdevice\buffered_block_device
+Test Case:
+    Name: mbed-os-storage-blockdevice-tests-tests-blockdevice-flashsim_block_device
+    Path: .\mbed-os\storage\blockdevice\tests\TESTS\blockdevice\flashsim_block_device
+Test Case:
+    Name: mbed-os-storage-blockdevice-tests-tests-blockdevice-general_block_device
+    Path: .\mbed-os\storage\blockdevice\tests\TESTS\blockdevice\general_block_device
+Test Case:
+    Name: mbed-os-storage-blockdevice-tests-tests-blockdevice-heap_block_device
+    Path: .\mbed-os\storage\blockdevice\tests\TESTS\blockdevice\heap_block_device
+Test Case:
+    Name: mbed-os-storage-blockdevice-tests-tests-blockdevice-mbr_block_device
+    Path: .\mbed-os\storage\blockdevice\tests\TESTS\blockdevice\mbr_block_device
+Test Case:
+    Name: mbed-os-storage-blockdevice-tests-tests-blockdevice-util_block_device
+    Path: .\mbed-os\storage\blockdevice\tests\TESTS\blockdevice\util_block_device
+Test Case:
+    Name: mbed-os-storage-filesystem-fat-tests-tests-fat-fat_filesystem
+    Path: .\mbed-os\storage\filesystem\fat\tests\TESTS\fat\fat_filesystem
+Test Case:
+    Name: mbed-os-storage-filesystem-fat-tests-tests-fat-multipart_fat_filesystem
+    Path: .\mbed-os\storage\filesystem\fat\tests\TESTS\fat\multipart_fat_filesystem
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem-dirs
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem\dirs
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem-files
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem\files
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem-interspersed
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem\interspersed
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem-seek
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem\seek
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_integration-format
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_integration\format
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_recovery-resilience
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_recovery\resilience
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_recovery-resilience_functional
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_recovery\resilience_functional
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_recovery-wear_leveling
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_recovery\wear_leveling
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_retarget-dirs
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_retarget\dirs
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_retarget-files
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_retarget\files
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_retarget-interspersed
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_retarget\interspersed
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefs-tests-tests-filesystem_retarget-seek
+    Path: .\mbed-os\storage\filesystem\littlefs\tests\TESTS\filesystem_retarget\seek
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem-dirs
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem\dirs
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem-files
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem\files
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem-interspersed
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem\interspersed
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem-seek
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem\seek
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_integration-format
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_integration\format
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_recovery-resilience
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_recovery\resilience
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_recovery-resilience_functional
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_recovery\resilience_functional
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_recovery-wear_leveling
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_recovery\wear_leveling
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_retarget-dirs
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_retarget\dirs
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_retarget-files
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_retarget\files
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_retarget-interspersed
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_retarget\interspersed
+Test Case:
+    Name: mbed-os-storage-filesystem-littlefsv2-tests-tests-filesystem_retarget-seek
+    Path: .\mbed-os\storage\filesystem\littlefsv2\tests\TESTS\filesystem_retarget\seek
+Test Case:
+    Name: mbed-os-storage-filesystem-tests-tests-filesystem-general_filesystem
+    Path: .\mbed-os\storage\filesystem\tests\TESTS\filesystem\general_filesystem
+Test Case:
+    Name: mbed-os-storage-kvstore-direct_access_devicekey-tests-tests-direct_access_devicekey-tdb
+    Path: .\mbed-os\storage\kvstore\direct_access_devicekey\tests\TESTS\direct_access_devicekey\tdb
+Test Case:
+    Name: mbed-os-storage-kvstore-filesystemstore-tests-tests-filesystemstore-general
+    Path: .\mbed-os\storage\kvstore\filesystemstore\tests\TESTS\filesystemstore\general
+Test Case:
+    Name: mbed-os-storage-kvstore-securestore-tests-tests-securestore-whitebox
+    Path: .\mbed-os\storage\kvstore\securestore\tests\TESTS\securestore\whitebox
+Test Case:
+    Name: mbed-os-storage-kvstore-tdbstore-tests-tests-tdbstore-whitebox
+    Path: .\mbed-os\storage\kvstore\tdbstore\tests\TESTS\tdbstore\whitebox
+Test Case:
+    Name: mbed-os-storage-kvstore-tests-tests-kvstore-general_tests_phase_1
+    Path: .\mbed-os\storage\kvstore\tests\TESTS\kvstore\general_tests_phase_1
+Test Case:
+    Name: mbed-os-storage-kvstore-tests-tests-kvstore-general_tests_phase_2
+    Path: .\mbed-os\storage\kvstore\tests\TESTS\kvstore\general_tests_phase_2
+Test Case:
+    Name: mbed-os-storage-kvstore-tests-tests-kvstore-static_tests
+    Path: .\mbed-os\storage\kvstore\tests\TESTS\kvstore\static_tests
+Test Case:
+    Name: mbed-os-tests-integration-fs-single
+    Path: .\mbed-os\TESTS\integration\fs-single
+Test Case:
+    Name: mbed-os-tests-integration-fs-threaded
+    Path: .\mbed-os\TESTS\integration\fs-threaded
+Test Case:
+    Name: mbed-os-tests-integration-net-single
+    Path: .\mbed-os\TESTS\integration\net-single
+Test Case:
+    Name: mbed-os-tests-integration-net-threaded
+    Path: .\mbed-os\TESTS\integration\net-threaded
+Test Case:
+    Name: mbed-os-tests-integration-stress-net-fs
+    Path: .\mbed-os\TESTS\integration\stress-net-fs

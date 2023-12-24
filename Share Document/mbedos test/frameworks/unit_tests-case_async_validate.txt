@@ -1,0 +1,42 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-FEATURES-FRAMEWORKS-UTEST-TESTS-UNIT_TESTS-CASE_ASYNC_VALIDATE
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate
+        test filtered in 'mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate' .......... OK in 17.59 sec
+        test case: 'Validate: Attributed Validation: Cancel Repeat' .................................. OK in 0.18 sec
+        test case: 'Validate: Attributed Validation: Enable Repeat Handler' .......................... OK in 0.19 sec
+        test case: 'Validate: Multiple Premature Validation' ......................................... OK in 0.06 sec
+        test case: 'Validate: Multiple Validation' ................................................... OK in 0.16 sec
+        test case: 'Validate: Premature Validation' .................................................. OK in 0.07 sec
+        test case: 'Validate: Simple Validation' ..................................................... OK in 0.05 sec
+mbedgt: test case summary: 6 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.2147205651
+mbedgt: test suite report:
+| target             | platform_name | test suite                                                             | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|------------------------------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | OK     | 17.59              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                                             | test case                                              | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|------------------------------------------------------------------------|--------------------------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | Validate: Attributed Validation: Cancel Repeat         | 1      | 0      | OK     | 0.18               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | Validate: Attributed Validation: Enable Repeat Handler | 2      | 0      | OK     | 0.19               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | Validate: Multiple Premature Validation                | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | Validate: Multiple Validation                          | 1      | 0      | OK     | 0.16               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | Validate: Premature Validation                         | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-features-frameworks-utest-tests-unit_tests-case_async_validate | Validate: Simple Validation                            | 1      | 0      | OK     | 0.05               |
+mbedgt: test case results: 6 OK
+mbedgt: completed in 23.06 sec

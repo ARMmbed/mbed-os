@@ -1,0 +1,43 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-PLATFORM-TESTS-TESTS-MBED_PLATFORM-CRITICAL_SECTION
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-platform-tests-tests-mbed_platform-critical_section
+        test filtered in 'mbed-os-platform-tests-tests-mbed_platform-critical_section'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-platform-tests-tests-mbed_platform-critical_section' ..................... OK in 15.53 sec
+        test case: 'Test critical section C API' ..................................................... OK in 0.07 sec
+        test case: 'Test critical section C API nested lock' ......................................... OK in 0.06 sec
+        test case: 'Test critical section C++ API constructor/destructor' ............................ OK in 0.08 sec
+        test case: 'Test critical section C++ API constructor/destructor nested lock' ................ OK in 0.09 sec
+        test case: 'Test critical section C++ API enable/disable' .................................... OK in 0.08 sec
+        test case: 'Test critical section C++ API enable/disable nested lock' ........................ OK in 0.08 sec
+mbedgt: test case summary: 6 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.9459796249
+mbedgt: test suite report:
+| target             | platform_name | test suite                                                  | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|-------------------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | OK     | 15.53              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                                  | test case
+                                              | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|-------------------------------------------------------------|------------------------------------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | Test critical section C API                                      | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | Test critical section C API nested lock                          | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | Test critical section C++ API constructor/destructor             | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | Test critical section C++ API constructor/destructor nested lock | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | Test critical section C++ API enable/disable                     | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-platform-tests-tests-mbed_platform-critical_section | Test critical section C++ API enable/disable nested lock         | 1      | 0      | OK     | 0.08               |
+mbedgt: test case results: 6 OK
+mbedgt: completed in 19.14 sec

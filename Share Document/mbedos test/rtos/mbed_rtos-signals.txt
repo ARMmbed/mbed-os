@@ -1,0 +1,79 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-RTOS-TESTS-TESTS-MBED_RTOS-SIGNALS
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-rtos-tests-tests-mbed_rtos-signals
+        test filtered in 'mbed-os-rtos-tests-tests-mbed_rtos-signals'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-rtos-tests-tests-mbed_rtos-signals' ...................................... OK in 26.28 sec
+        test case: 'Validate all flags clear in one shot' ............................................ OK in 0.06 sec
+        test case: 'Validate all flags clear in one shot using ticker callback' ...................... OK in 0.10 sec
+        test case: 'Validate all flags set in one shot' .............................................. OK in 0.07 sec
+        test case: 'Validate all flags set one by one in loop' ....................................... OK in 0.06 sec
+        test case: 'Validate flags_wait return status if timeout specified: 0[ms] all flags' ......... OK in 0.09 sec
+        test case: 'Validate flags_wait return status if timeout specified: 0[ms] no flags' .......... OK in 0.12 sec
+        test case: 'Validate flags_wait return status if timeout specified: 1[ms] all flags' ......... OK in 0.09 sec
+        test case: 'Validate flags_wait return status if timeout specified: 1[ms] no flags' .......... OK in 0.11 sec
+        test case: 'Validate if any flags are set on just created thread' ............................ OK in 0.09 sec
+        test case: 'Validate if any flags are set on ticker callback' ................................ OK in 0.08 sec
+        test case: 'Validate if flags_wait_all_for accumulate flags and return correctly when all flags set'  OK in 0.11 sec
+        test case: 'Validate if flags_wait_all_for return correctly when all flags set' .............. OK in 0.09 sec
+        test case: 'Validate if main thread flags_wait_all_for accumulate flags and return correctly when all flags set by ticker callback'  OK in 0.16 sec
+        test case: 'Validate if setting same flag twice cause any unwanted behaviour' ................ OK in 0.09 sec
+        test case: 'Validate if setting same flag twice cause any unwanted behaviour when ticker callbacks set'  OK in 0.12 sec
+        test case: 'Validate that call flags_clear(NO_SIGNALS) doesn't change thread flags and return actual flags'  OK in 0.13 sec
+        test case: 'Validate that call flags_set with prohibited flag doesn't change thread flags' ... OK in 0.11 sec
+        test case: 'Validate that call of flags_wait_all_for return correctly when thread has all flags already set'  OK in 0.12 sec
+        test case: 'Validate that main thread call of flags_wait_all_for return correctly when ticker callback set all flags'  OK in 0.12 sec
+        test case: 'Validate that ticker callback flags_clear(NO_SIGNALS) doesn't change main thread flags and return actual flags'  OK in 0.15 sec
+        test case: 'Validate ticker callback flags_wait return status if timeout specified: 0[ms] all flags'  OK in 0.12 sec
+        test case: 'Validate ticker callback flags_wait return status if timeout specified: 0[ms] no flags'  OK in 0.13 sec
+        test case: 'Validate ticker callback flags_wait return status if timeout specified: 1[ms] all flags'  OK in 0.13 sec
+        test case: 'Validate ticker callback flags_wait return status if timeout specified: 1[ms] no flags'  OK in 0.11 sec
+mbedgt: test case summary: 24 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.9583823704
+mbedgt: test suite report:
+| target             | platform_name | test suite                                 | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|--------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | OK     | 26.28              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                 | test case
+                                                                                   | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate all flags clear in one shot                                                                                   | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate all flags clear in one shot using ticker callback                                                             | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate all flags set in one shot                                                                                     | 1      | 0      | OK     | 0.07               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate all flags set one by one in loop                                                                              | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate flags_wait return status if timeout specified: 0[ms] all flags                                                | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate flags_wait return status if timeout specified: 0[ms] no flags                                                 | 1      | 0      | OK     | 0.12               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate flags_wait return status if timeout specified: 1[ms] all flags                                                | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate flags_wait return status if timeout specified: 1[ms] no flags                                                 | 1      | 0      | OK     | 0.11               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if any flags are set on just created thread                                                                   | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if any flags are set on ticker callback                                                                       | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if flags_wait_all_for accumulate flags and return correctly when all flags set                                | 1      | 0      | OK     | 0.11               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if flags_wait_all_for return correctly when all flags set                                                     | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if main thread flags_wait_all_for accumulate flags and return correctly when all flags set by ticker callback | 1      | 0      | OK     | 0.16               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if setting same flag twice cause any unwanted behaviour                                                       | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate if setting same flag twice cause any unwanted behaviour when ticker callbacks set                             | 1      | 0      | OK     | 0.12               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate that call flags_clear(NO_SIGNALS) doesn't change thread flags and return actual flags                         | 1      | 0      | OK     | 0.13               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate that call flags_set with prohibited flag doesn't change thread flags                                          | 1      | 0      | OK     | 0.11               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate that call of flags_wait_all_for return correctly when thread has all flags already set                        | 1      | 0      | OK     | 0.12               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate that main thread call of flags_wait_all_for return correctly when ticker callback set all flags               | 1      | 0      | OK     | 0.12               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate that ticker callback flags_clear(NO_SIGNALS) doesn't change main thread flags and return actual flags         | 1      | 0      | OK     | 0.15               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate ticker callback flags_wait return status if timeout specified: 0[ms] all flags                                | 1      | 0      | OK     | 0.12               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate ticker callback flags_wait return status if timeout specified: 0[ms] no flags                                 | 1      | 0      | OK     | 0.13               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate ticker callback flags_wait return status if timeout specified: 1[ms] all flags                                | 1      | 0      | OK     | 0.13               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-signals | Validate ticker callback flags_wait return status if timeout specified: 1[ms] no flags                                 | 1      | 0      | OK     | 0.11               |
+mbedgt: test case results: 24 OK
+mbedgt: completed in 31.96 sec

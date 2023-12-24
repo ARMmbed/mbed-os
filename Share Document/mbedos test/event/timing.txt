@@ -1,0 +1,36 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-EVENTS-TESTS-TESTS-EVENTS-TIMING
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-events-tests-tests-events-timing
+        test filtered in 'mbed-os-events-tests-tests-events-timing'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-events-tests-tests-events-timing' ........................................ OK in 76.96 sec
+        test case: 'Testing accuracy of equeue semaphore' ............................................ OK in 20.13 sec
+        test case: 'Testing accuracy of equeue tick' ................................................. OK in 20.05 sec
+        test case: 'Testing accuracy of timer' ....................................................... OK in 20.06 sec
+mbedgt: test case summary: 3 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.2680283584
+mbedgt: test suite report:
+| target             | platform_name | test suite                               | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-events-tests-tests-events-timing | OK     | 76.96              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                               | test case                            | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|------------------------------------------|--------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-events-tests-tests-events-timing | Testing accuracy of equeue semaphore | 1      | 0      | OK     | 20.13              |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-events-tests-tests-events-timing | Testing accuracy of equeue tick      | 1      | 0      | OK     | 20.05              |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-events-tests-tests-events-timing | Testing accuracy of timer            | 1      | 0      | OK     | 20.06              |
+mbedgt: test case results: 3 OK
+mbedgt: completed in 82.84 sec

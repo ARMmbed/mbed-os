@@ -1,0 +1,85 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.8.15
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        *tests-mbed_hal-watchdog*
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-watchdog_reset'
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-watchdog'
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-watchdog_timing'
+mbedgt: running 3 tests for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-watchdog_reset' ................................. OK in 22.42 sec
+        test case: 'Kicking the Watchdog prevents reset' ............................................. OK in 0.06 sec
+        test case: 'Watchdog reset' .................................................................. OK in 0.04 sec
+        test case: 'Watchdog reset in sleep mode' .................................................... OK in 0.06 sec
+        test case: 'Watchdog started again' .......................................................... OK in 0.13 sec
+mbedgt: test case summary: 1 pass, 0 failures
+mbedgt: utest test case summary mismatch: utest reported passes and failures miscount!
+        reported by utest: passes = 1, failures 0)
+        test case result count: passes = 4, failures 0)
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-watchdog' ....................................... OK in 30.50 sec
+        test case: 'Init, 100 ms' .................................................................... OK in 0.04 sec
+        test case: 'Init, max_timeout' ............................................................... OK in 0.04 sec
+        test case: 'Platform feature max_timeout is valid' ........................................... OK in 0.06 sec
+        test case: 'Stopped watchdog can be started again' ........................................... OK in 0.14 sec
+        test case: 'Update config with multiple init calls' .......................................... OK in 0.06 sec
+        test case: 'Watchdog can be stopped' ......................................................... OK in 0.11 sec
+mbedgt: test case summary: 0 passes, 0 failures
+mbedgt: utest test case summary mismatch: utest reported passes and failures miscount!
+        reported by utest: passes = 0, failures 0)
+        test case result count: passes = 6, failures 0)
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-watchdog_timing' ................................ OK in 45.03 sec
+        test case: 'Timing, 1000 ms' ................................................................. OK in 0.05 sec
+        test case: 'Timing, 200 ms' .................................................................. OK in 0.05 sec
+        test case: 'Timing, 3000 ms' ................................................................. OK in 0.05 sec
+        test case: 'Timing, 500 ms' .................................................................. OK in 0.05 sec
+        test case: 'timeout accuracy' ................................................................ OK in 0.05 sec
+mbedgt: test case summary: 1 pass, 0 failures
+mbedgt: utest test case summary mismatch: utest reported passes and failures miscount!
+        reported by utest: passes = 1, failures 0)
+        test case result count: passes = 5, failures 0)
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.8243530196
+mbedgt: test suite report:
+| target             | platform_name | test suite                                       | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|--------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | OK     | 30.5
+      | default     |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_reset  | OK     | 22.42              | default     |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_timing | OK     | 45.03              | default     |
+mbedgt: test suite results: 3 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                       | test case
+                 | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|--------------------------------------------------|----------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | Init, 100 ms
+                 | 1      | 0      | OK     | 0.04               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | Init, max_timeout                      | 1      | 0      | OK     | 0.04               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | Platform feature max_timeout is valid  | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | Stopped watchdog can be started again  | 1      | 0      | OK     | 0.14               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | Update config with multiple init calls | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog        | Watchdog can be stopped                | 1      | 0      | OK     | 0.11               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_reset  | Kicking the Watchdog prevents reset    | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_reset  | Watchdog reset                         | 1      | 0      | OK     | 0.04               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_reset  | Watchdog reset in sleep mode           | 1      | 0      | OK     | 0.06               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_reset  | Watchdog started again                 | 1      | 0      | OK     | 0.13               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_timing | Timing, 1000 ms                        | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_timing | Timing, 200 ms                         | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_timing | Timing, 3000 ms                        | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_timing | Timing, 500 ms                         | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-watchdog_timing | timeout accuracy                       | 1      | 0      | OK     | 0.05               |
+mbedgt: test case results: 15 OK
+mbedgt: completed in 101.60 sec

@@ -1,0 +1,71 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-RTOS-TESTS-TESTS-MBED_RTOS-MEMORYPOOL
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-rtos-tests-tests-mbed_rtos-memorypool
+        test filtered in 'mbed-os-rtos-tests-tests-mbed_rtos-memorypool'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-rtos-tests-tests-mbed_rtos-memorypool' ................................... OK in 23.43 sec
+        test case: 'Test: fail (out of free blocks).' ................................................ OK in 0.05 sec
+        test case: 'Test: free() - robust (free called with invalid param - NULL).' .................. OK in 0.09 sec
+        test case: 'Test: free() - robust (free called with invalid param).' ......................... OK in 0.08 sec
+        test case: 'Test: free() - success, 4 bytes b_type, q_size equal to 1.' ...................... OK in 0.10 sec
+        test case: 'Test: free() - success, 4 bytes b_type, q_size equal to 3.' ...................... OK in 0.10 sec
+        test case: 'Test: free() - success, complex b_type, q_size equal to 1.' ...................... OK in 0.10 sec
+        test case: 'Test: free() - success, complex b_type, q_size equal to 3.' ...................... OK in 0.09 sec
+        test case: 'Test: re-allocation of the first block, basic type.' ............................. OK in 0.10 sec
+        test case: 'Test: re-allocation of the first block, complex type.' ........................... OK in 0.09 sec
+        test case: 'Test: re-allocation of the last block, basic type.' .............................. OK in 0.08 sec
+        test case: 'Test: re-allocation of the last block, complex type.' ............................ OK in 0.09 sec
+        test case: 'Test: timeout' ................................................................... OK in 0.15 sec
+        test case: 'Test: try_alloc()/try_calloc() - success, 1 bytes b_type, q_size equal to 1.' .... OK in 0.10 sec
+        test case: 'Test: try_alloc()/try_calloc() - success, 1 bytes b_type, q_size equal to 3.' .... OK in 0.09 sec
+        test case: 'Test: try_alloc()/try_calloc() - success, 4 bytes b_type, q_size equal to 1.' .... OK in 0.09 sec
+        test case: 'Test: try_alloc()/try_calloc() - success, 4 bytes b_type, q_size equal to 3.' .... OK in 0.10 sec
+        test case: 'Test: try_alloc()/try_calloc() - success, complex b_type, q_size equal to 1.' .... OK in 0.09 sec
+        test case: 'Test: try_alloc()/try_calloc() - success, complex b_type, q_size equal to 3.' .... OK in 0.10 sec
+        test case: 'Test: wait forever' .............................................................. OK in 0.10 sec
+mbedgt: test case summary: 19 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.4268062821
+mbedgt: test suite report:
+| target             | platform_name | test suite                                    | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|-----------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | OK     | 23.43              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                    | test case
+                                            | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|-----------------------------------------------|------------------------------------------------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: fail (out of free blocks).                                             | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: free() - robust (free called with invalid param - NULL).               | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: free() - robust (free called with invalid param).                      | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: free() - success, 4 bytes b_type, q_size equal to 1.                   | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: free() - success, 4 bytes b_type, q_size equal to 3.                   | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: free() - success, complex b_type, q_size equal to 1.                   | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: free() - success, complex b_type, q_size equal to 3.                   | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: re-allocation of the first block, basic type.                          | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: re-allocation of the first block, complex type.                        | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: re-allocation of the last block, basic type.                           | 1      | 0      | OK     | 0.08               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: re-allocation of the last block, complex type.                         | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: timeout
+                                            | 1      | 0      | OK     | 0.15               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: try_alloc()/try_calloc() - success, 1 bytes b_type, q_size equal to 1. | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: try_alloc()/try_calloc() - success, 1 bytes b_type, q_size equal to 3. | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: try_alloc()/try_calloc() - success, 4 bytes b_type, q_size equal to 1. | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: try_alloc()/try_calloc() - success, 4 bytes b_type, q_size equal to 3. | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: try_alloc()/try_calloc() - success, complex b_type, q_size equal to 1. | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: try_alloc()/try_calloc() - success, complex b_type, q_size equal to 3. | 1      | 0      | OK     | 0.1                |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-rtos-tests-tests-mbed_rtos-memorypool | Test: wait forever
+                                            | 1      | 0      | OK     | 0.1                |
+mbedgt: test case results: 19 OK
+mbedgt: completed in 29.17 sec

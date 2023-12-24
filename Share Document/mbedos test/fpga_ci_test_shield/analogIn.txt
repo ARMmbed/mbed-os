@@ -1,0 +1,35 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.8.15
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin' ................... OK in 21.81 sec
+        test case: 'AnalogIn (direct init) - read test' .............................................. OK in 1.49 sec
+        test case: 'AnalogIn - init test' ............................................................ OK in 1.48 sec
+        test case: 'AnalogIn - read test' ............................................................ OK in 1.50 sec
+mbedgt: test case summary: 3 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.3769958116
+mbedgt: test suite report:
+| target             | platform_name | test suite                                                    | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|---------------------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin | OK     | 21.81              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                                    | test case                          | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|---------------------------------------------------------------|------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin | AnalogIn (direct init) - read test | 1      | 0      | OK     | 1.49               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin | AnalogIn - init test               | 1      | 0      | OK     | 1.48               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal_fpga_ci_test_shield-analogin | AnalogIn - read test               | 1      | 0      | OK     | 1.5                |
+mbedgt: test case results: 3 OK
+mbedgt: completed in 29.17 sec

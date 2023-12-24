@@ -1,0 +1,32 @@
+Build successes:
+  * APM32_F407IG::ARMC6::MBED-BUILD
+  * APM32_F407IG::ARMC6::MBED-OS-STORAGE-BLOCKDEVICE-TESTS-TESTS-BLOCKDEVICE-BUFFERED_BLOCK_DEVICE
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-storage-blockdevice-tests-tests-blockdevice-buffered_block_device
+        test filtered in 'mbed-os-storage-blockdevice-tests-tests-blockdevice-buffered_block_device'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-storage-blockdevice-tests-tests-blockdevice-buffered_block_device' ....... OK in 13.49 sec
+        test case: 'BufferedBlockDevice functionality test' .......................................... OK in 0.25 sec
+mbedgt: test case summary: 1 pass, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.5099723647
+mbedgt: test suite report:
+| target             | platform_name | test suite                                                                | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|---------------------------------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-storage-blockdevice-tests-tests-blockdevice-buffered_block_device | OK     | 13.49              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                                                | test case                              | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|---------------------------------------------------------------------------|----------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-storage-blockdevice-tests-tests-blockdevice-buffered_block_device | BufferedBlockDevice functionality test | 1      | 0      | OK     | 0.25               |
+mbedgt: test case results: 1 OK
+mbedgt: completed in 17.17 sec

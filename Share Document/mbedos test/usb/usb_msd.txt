@@ -1,0 +1,37 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.7.4
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        mbed-os-drivers-usb-tests-tests-usb_device-msd
+        test filtered in 'mbed-os-drivers-usb-tests-tests-usb_device-msd'
+mbedgt: running 1 test for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-drivers-usb-tests-tests-usb_device-msd' .................................. OK in 86.81 sec
+        test case: 'mount/unmount and data test - Heap block device' ................................. OK in 19.35 sec
+        test case: 'mount/unmount test - Heap block device' .......................................... OK in 50.54 sec
+        test case: 'storage initialization' .......................................................... OK in 0.07 sec
+mbedgt: test case summary: 3 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.9134640761
+mbedgt: test suite report:
+| target             | platform_name | test suite                                     | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-msd | OK     | 86.81              | default     |
+mbedgt: test suite results: 1 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                     | test case
+                | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|------------------------------------------------|-------------------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-msd | mount/unmount and data test - Heap block device | 1      | 0      | OK     | 19.35              |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-msd | mount/unmount test - Heap block device          | 1      | 0      | OK     | 50.54              |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-drivers-usb-tests-tests-usb_device-msd | storage initialization
+                | 1      | 0      | OK     | 0.07               |
+mbedgt: test case results: 3 OK
+mbedgt: completed in 90.43 sec

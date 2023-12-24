@@ -1,0 +1,55 @@
+[mbed] Working path "C:\Users\Administrator\Mbed Programs\example_blinky" (library)
+[mbed] Program path "C:\Users\Administrator\Mbed Programs\example_blinky"
+mbedgt: greentea test automation tool ver. 1.8.15
+mbedgt: test specification file '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' (specified with --test-spec option)
+mbedgt: using '.\BUILD\tests\APM32_F407IG\ARM\test_spec.json' from current directory!
+mbedgt: detecting connected mbed-enabled devices...
+mbedgt: detected 1 device
+mbedgt: processing target 'APM32_F407IG' toolchain 'ARMC6' compatible platforms... (note: switch set to --parallel 1)
+mbedgt: test case filter (specified with -n option)
+        *tests-mbed_hal-sleep*
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-sleep'
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-sleep_manager_racecondition'
+        test filtered in 'mbed-os-hal-tests-tests-mbed_hal-sleep_manager'
+mbedgt: running 3 tests for platform 'APM32_F407IG' and toolchain 'ARMC6'
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-sleep' .......................................... OK in 15.73 sec
+        test case: 'sleep - source of wake-up - us ticker' ........................................... OK in 1.42 sec
+mbedgt: test case summary: 1 pass, 0 failures
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-sleep_manager_racecondition' .................... OK in 30.06 sec
+        test case: 'deep sleep lock/unlock is IRQ safe' .............................................. OK in 10.07 sec
+        test case: 'deep sleep lock/unlock is thread safe' ........................................... OK in 2.59 sec
+mbedgt: test case summary: 2 passes, 0 failures
+mbedgt: mbed-host-test-runner: started
+mbedgt: checking for GCOV data...
+mbedgt: test on hardware with target id: 1801000100280036540000144e543443a5a5a5a597969908
+mbedgt: test suite 'mbed-os-hal-tests-tests-mbed_hal-sleep_manager' .................................. OK in 18.52 sec
+        test case: 'deep sleep lock/unlock' .......................................................... OK in 0.05 sec
+        test case: 'deep sleep locked USHRT_MAX times' ............................................... OK in 0.09 sec
+mbedgt: test case summary: 2 passes, 0 failures
+mbedgt: all tests finished!
+mbedgt: shuffle seed: 0.0421953680
+mbedgt: test suite report:
+| target             | platform_name | test suite                                                   | result | elapsed_time (sec) | copy_method |
+|--------------------|---------------|--------------------------------------------------------------|--------|--------------------|-------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep                       | OK     | 15.73              | default     |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep_manager               | OK     | 18.52              | default     |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep_manager_racecondition | OK     | 30.06              | default     |
+mbedgt: test suite results: 3 OK
+mbedgt: test case report:
+| target             | platform_name | test suite                                                   | test case
+  | passed | failed | result | elapsed_time (sec) |
+|--------------------|---------------|--------------------------------------------------------------|---------------------------------------|--------|--------|--------|--------------------|
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep                       | sleep - source of wake-up - us ticker | 1      | 0      | OK     | 1.42               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep_manager               | deep sleep lock/unlock
+  | 1      | 0      | OK     | 0.05               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep_manager               | deep sleep locked USHRT_MAX times     | 1      | 0      | OK     | 0.09               |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep_manager_racecondition | deep sleep lock/unlock is IRQ safe    | 1      | 0      | OK     | 10.07              |
+| APM32_F407IG-ARMC6 | APM32_F407IG  | mbed-os-hal-tests-tests-mbed_hal-sleep_manager_racecondition | deep sleep lock/unlock is thread safe | 1      | 0      | OK     | 2.59               |
+mbedgt: test case results: 5 OK
+mbedgt: completed in 67.99 sec
