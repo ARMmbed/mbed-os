@@ -1036,6 +1036,7 @@ nsapi_error_t AT_CellularSMS::list_messages()
     int index = 0;
     int length = 0;
     char *pdu = NULL;
+    char buffer[32]; // 32 > SMS_STATUS_SIZE, SMS_MAX_PHONE_NUMBER_SIZE, SMS_MAX_TIME_STAMP_SIZE
 
     _at.resp_start("+CMGL:");
     while (_at.info_resp()) {
@@ -1058,8 +1059,18 @@ nsapi_error_t AT_CellularSMS::list_messages()
             // +CMGL: <index>,<stat>,<oa/da>,[<alpha>],[<scts>][,<tooa/toda>,<length>]<CR><LF><data>[<CR><LF>
             // +CMGL: <index>,<stat>,<da/oa>,[<alpha>],[<scts>][,<tooa/toda>,<length>]<CR><LF><data>[...]]
             index = _at.read_int();
-            (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
-            (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
+            _at.read_string(buffer, SMS_STATUS_SIZE);
+            _at.read_string(buffer, SMS_MAX_PHONE_NUMBER_SIZE);
+            _at.skip_param(); // <alpha>
+            _at.read_string(buffer, SMS_MAX_TIME_STAMP_SIZE);
+            _at.read_int();
+            int size = _at.read_int(); // length
+            _at.consume_to_stop_tag(); //  consume until <CR><LF> end of header
+            if (size > 0) {
+                // we can not use skip param because we already consumed stop tag
+                _at.skip_param_bytes(size, 1);
+            }
+            _at.consume_to_stop_tag_even_found(); // consume until <CR><LF> -> data
         }
 
         if (index >= 0) {

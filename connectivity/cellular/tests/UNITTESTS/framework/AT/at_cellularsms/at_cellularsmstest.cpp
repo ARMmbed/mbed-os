@@ -155,8 +155,16 @@ TEST_F(TestAT_CellularSMS, test_AT_CellularSMS_get_sms)
     ATHandler_stub::resp_info_false_counter = 1;
     ATHandler_stub::resp_info_true_counter2 = 2;
     ATHandler_stub::int_value = 11;
-    ATHandler_stub::read_string_index = 4;
-    ATHandler_stub::read_string_table[4] = "";
+    ATHandler_stub::read_string_index = (3 * 2) + (2 * 2); // 3 read_string in list_messages + 2 read_string in read_sms_from_index
+    ATHandler_stub::read_string_table[10] = "";
+    // list_messages
+    ATHandler_stub::read_string_table[9] = "1"; // status
+    ATHandler_stub::read_string_table[8] = "+00611223344"; // phone
+    ATHandler_stub::read_string_table[7] = "24/12/12,11:15:00+04"; // timestamp
+    ATHandler_stub::read_string_table[6] = "1"; // status
+    ATHandler_stub::read_string_table[5] = "+00611223344"; // phone
+    ATHandler_stub::read_string_table[4] = "24/12/12,11:15:00+04"; // timestamp
+    // read_sms_from_index
     ATHandler_stub::read_string_table[3] = "REC READ";
     ATHandler_stub::read_string_table[2] = "09/01/12,11:15:00+04";
     ATHandler_stub::read_string_table[1] = "REC READ";
