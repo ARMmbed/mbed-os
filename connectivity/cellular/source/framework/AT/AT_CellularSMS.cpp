@@ -703,6 +703,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char *buf, uint16_t len, char *pho
     }
 
     _at.lock();
+    _at.set_at_timeout(10s);
 
     nsapi_size_or_error_t err = list_messages();
     if (err == NSAPI_ERROR_OK) {
@@ -716,6 +717,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char *buf, uint16_t len, char *pho
                     *buf_size = info->msg_size;
                 }
                 free_linked_list();
+                _at.restore_at_timeout();
                 _at.unlock();
                 return NSAPI_ERROR_PARAMETER;
             }
@@ -740,6 +742,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char *buf, uint16_t len, char *pho
 
     free_linked_list();
 
+    _at.restore_at_timeout();
     _at.unlock();
 
     // update error only when there really was an error, otherwise we return the length
