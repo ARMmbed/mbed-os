@@ -420,6 +420,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
     }
 
     _at.lock();
+    _at.set_at_timeout(10s);
 
     int write_size = 0;
 
@@ -437,6 +438,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
                 // sending can be cancelled by giving <ESC> character (IRA 27).
                 _at.cmd_start(ESC);
                 _at.cmd_stop();
+                _at.restore_at_timeout();
                 _at.unlock();
                 return write_size;
             }
@@ -482,6 +484,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
             pdu_str = create_pdu(phone_number, message + i * concatenated_sms_length, pdu_len,
                                  sms_count, i + 1, header_len);
             if (!pdu_str) {
+                _at.restore_at_timeout();
                 _at.unlock();
                 return NSAPI_ERROR_NO_MEMORY;
             }
@@ -509,6 +512,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
                     // sending can be cancelled by giving <ESC> character (IRA 27).
                     _at.cmd_start(ESC);
                     _at.cmd_stop();
+                    _at.restore_at_timeout();
                     _at.unlock();
                     delete [] pdu_str;
                     return msg_write_len;
@@ -523,6 +527,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
             delete [] pdu_str;
             remaining_len -= concatenated_sms_length;
             if (_at.get_last_error() != NSAPI_ERROR_OK) {
+                _at.restore_at_timeout();
                 return _at.unlock_return_error();
             }
         }
@@ -530,6 +535,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
 
     _sms_message_ref_number++;
     nsapi_error_t ret = _at.get_last_error();
+    _at.restore_at_timeout();
     _at.unlock();
 
     return (ret == NSAPI_ERROR_OK) ? msg_len : ret;
