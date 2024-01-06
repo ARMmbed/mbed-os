@@ -30,11 +30,83 @@ file(GENERATE
 	CONTENT "${header_content}"
 )
 
+# add a link option to wrap the given function name; i.e. -Wl:wrap=FUNCNAME for gcc
+function(pico_wrap_function TARGET FUNCNAME)
+    target_link_options(${TARGET} INTERFACE "LINKER:--wrap=${FUNCNAME}")
+endfunction()
+
+# Following is copied from src/rp2_common/pico_float/CMakeLists.txt
+function(wrap_float_functions TARGET)
+	pico_wrap_function(${TARGET} __aeabi_fadd)
+	pico_wrap_function(${TARGET} __aeabi_fdiv)
+	pico_wrap_function(${TARGET} __aeabi_fmul)
+	pico_wrap_function(${TARGET} __aeabi_frsub)
+	pico_wrap_function(${TARGET} __aeabi_fsub)
+	pico_wrap_function(${TARGET} __aeabi_cfcmpeq)
+	pico_wrap_function(${TARGET} __aeabi_cfrcmple)
+	pico_wrap_function(${TARGET} __aeabi_cfcmple)
+	pico_wrap_function(${TARGET} __aeabi_fcmpeq)
+	pico_wrap_function(${TARGET} __aeabi_fcmplt)
+	pico_wrap_function(${TARGET} __aeabi_fcmple)
+	pico_wrap_function(${TARGET} __aeabi_fcmpge)
+	pico_wrap_function(${TARGET} __aeabi_fcmpgt)
+	pico_wrap_function(${TARGET} __aeabi_fcmpun)
+	pico_wrap_function(${TARGET} __aeabi_i2f)
+	pico_wrap_function(${TARGET} __aeabi_l2f)
+	pico_wrap_function(${TARGET} __aeabi_ui2f)
+	pico_wrap_function(${TARGET} __aeabi_ul2f)
+	pico_wrap_function(${TARGET} __aeabi_f2iz)
+	pico_wrap_function(${TARGET} __aeabi_f2lz)
+	pico_wrap_function(${TARGET} __aeabi_f2uiz)
+	pico_wrap_function(${TARGET} __aeabi_f2ulz)
+	pico_wrap_function(${TARGET} __aeabi_f2d)
+	pico_wrap_function(${TARGET} sqrtf)
+	pico_wrap_function(${TARGET} cosf)
+	pico_wrap_function(${TARGET} sinf)
+	pico_wrap_function(${TARGET} tanf)
+	pico_wrap_function(${TARGET} atan2f)
+	pico_wrap_function(${TARGET} expf)
+	pico_wrap_function(${TARGET} logf)
+
+	pico_wrap_function(${TARGET} ldexpf)
+	pico_wrap_function(${TARGET} copysignf)
+	pico_wrap_function(${TARGET} truncf)
+	pico_wrap_function(${TARGET} floorf)
+	pico_wrap_function(${TARGET} ceilf)
+	pico_wrap_function(${TARGET} roundf)
+	pico_wrap_function(${TARGET} sincosf) # gnu
+	pico_wrap_function(${TARGET} asinf)
+	pico_wrap_function(${TARGET} acosf)
+	pico_wrap_function(${TARGET} atanf)
+	pico_wrap_function(${TARGET} sinhf)
+	pico_wrap_function(${TARGET} coshf)
+	pico_wrap_function(${TARGET} tanhf)
+	pico_wrap_function(${TARGET} asinhf)
+	pico_wrap_function(${TARGET} acoshf)
+	pico_wrap_function(${TARGET} atanhf)
+	pico_wrap_function(${TARGET} exp2f)
+	pico_wrap_function(${TARGET} log2f)
+	pico_wrap_function(${TARGET} exp10f)
+	pico_wrap_function(${TARGET} log10f)
+	pico_wrap_function(${TARGET} powf)
+	pico_wrap_function(${TARGET} powintf) #gnu
+	pico_wrap_function(${TARGET} hypotf)
+	pico_wrap_function(${TARGET} cbrtf)
+	pico_wrap_function(${TARGET} fmodf)
+	pico_wrap_function(${TARGET} dremf)
+	pico_wrap_function(${TARGET} remainderf)
+	pico_wrap_function(${TARGET} remquof)
+	pico_wrap_function(${TARGET} expm1f)
+	pico_wrap_function(${TARGET} log1pf)
+	pico_wrap_function(${TARGET} fmaf)
+endfunction()
+
 # Now, add includes and headers from the Pico SDK
 target_include_directories(mbed-raspberrypi
     INTERFACE
         .
 		pico-sdk/src/rp2_common/hardware_adc/include
+		pico-sdk/src/rp2_common/hardware_divider/include
 		pico-sdk/src/rp2_common/hardware_gpio/include
 		pico-sdk/src/rp2_common/hardware_resets/include
 		pico-sdk/src/rp2_common/hardware_pwm/include
@@ -54,6 +126,7 @@ target_include_directories(mbed-raspberrypi
 		pico-sdk/src/rp2_common/pico_platform/include
 		pico-sdk/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/include/
 		pico-sdk/src/rp2_common/pico_bootrom/include
+		pico-sdk/src/rp2_common/pico_float/include
 		pico-sdk/src/rp2_common/hardware_claim/include
 		pico-sdk/src/common/pico_sync/include
 		pico-sdk/src/common/pico_time/include
@@ -89,6 +162,11 @@ target_sources(mbed-raspberrypi
 		pico-sdk/src/common/pico_time/time.c
 		pico-sdk/src/common/pico_sync/lock_core.c
 		pico-sdk/src/rp2_common/cmsis/stub/CMSIS/Device/RaspberryPi/RP2040/Source/system_RP2040.c
+		pico-sdk/src/rp2_common/pico_float/float_aeabi.S
+		pico-sdk/src/rp2_common/pico_float/float_init_rom.c
+		pico-sdk/src/rp2_common/pico_float/float_math.c
+		pico-sdk/src/rp2_common/pico_float/float_v1_rom_shim.S
+		pico-sdk/src/rp2_common/hardware_divider/divider.S
 )
 
 target_compile_definitions(mbed-raspberrypi
@@ -109,5 +187,8 @@ target_sources(mbed-rp2040
 	INTERFACE
 		pico-sdk/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/rp2040_usb_device_enumeration.c
 )
+
+# Enable usage of the RPi Pico optimized floating point routines
+wrap_float_functions(mbed-rp2040)
 
 add_subdirectory(TARGET_RP2040 EXCLUDE_FROM_ALL)

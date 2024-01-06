@@ -1,3 +1,6 @@
+# Copyright (c) 2024 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 """
 This script can be used to reimport a newer version of the RPi Pico SDK.
 
@@ -65,6 +68,7 @@ FILES_DIRS_TO_COPY: List[pathlib.Path] = [
     pathlib.Path("pico_sdk_version.cmake"),
     pathlib.Path("src") / "rp2_common" / "hardware_base",
     pathlib.Path("src") / "rp2_common" / "hardware_adc",
+    pathlib.Path("src") / "rp2_common" / "hardware_divider",
     pathlib.Path("src") / "rp2_common" / "hardware_resets",
     pathlib.Path("src") / "rp2_common" / "hardware_pwm",
     pathlib.Path("src") / "rp2_common" / "hardware_flash",
@@ -83,6 +87,7 @@ FILES_DIRS_TO_COPY: List[pathlib.Path] = [
     pathlib.Path("src") / "rp2_common" / "hardware_rtc",
     pathlib.Path("src") / "rp2_common" / "pico_bootrom",
     pathlib.Path("src") / "rp2_common" / "pico_platform",
+    pathlib.Path("src") / "rp2_common" / "pico_float",
     pathlib.Path("src") / "rp2_common" / "cmsis" / "stub",
     pathlib.Path("src") / "common" / "pico_time",
     pathlib.Path("src") / "common" / "pico_sync",
