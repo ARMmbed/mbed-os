@@ -61,9 +61,9 @@ private:
     uint8_t *spi_tx_data = NULL;
     uint16_t spi_tx_len  = 0;
 
-    int32_t TransmitReceive(uint8_t *txdata, uint8_t *rxdata, uint32_t datalen, uint32_t timeout);
+    int32_t TransmitReceive(uint8_t *txdata, CacheAlignedBuffer<uint8_t> &rxdata, uint32_t datalen, uint32_t timeout);
     int32_t Transmit(uint8_t *txdata, uint32_t datalen, uint32_t timeout);
-    int32_t Receive(uint8_t *rxdata, uint32_t datalen, uint32_t timeout);
+    int32_t Receive(CacheAlignedBuffer<uint8_t> &rxdata, uint32_t datalen, uint32_t timeout);
     void    spi_handler(int event);
 
     int8_t mx_wifi_spi_txrx_start(void);

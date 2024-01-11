@@ -20,7 +20,43 @@
 extern "C"
 {
 
-#if BASIC_MALLOC == 0
+#if BASIC_MALLOC
+
+
+// CacheAlignedBuffer-based implementation
+
+mx_buf_t *mx_buf_alloc(uint32_t len)
+{
+    return new mx_buf_t(len);
+}
+
+void mx_buf_free(mx_buf_t *p)
+{
+    delete p;
+}
+
+void mx_buf_hide_header(mx_buf_t *p, int32_t n)
+{
+    p->header_len += n;
+}
+
+uint8_t *mx_buf_payload(mx_buf_t *p)
+{
+    return p->buffer.data() + p->header_len;
+}
+
+uint32_t mx_buf_get_size(mx_buf_t *p)
+{
+    return p->len;
+}
+
+void mx_buf_set_size(mx_buf_t *p, int32_t n)
+{
+    p->len = n;
+}
+
+#else
+    // Memory manager implementation
 
     mx_buf_t   *mx_buf_alloc(uint32_t len)
     {

@@ -16,6 +16,10 @@
 #define MX_WIFI_CMSIS_OS_H
 
 #ifdef __cplusplus
+#include "CacheAlignedBuffer.h"
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -34,45 +38,49 @@ extern "C" {
 #define MX_WIFI_FREE free
 #endif /* MX_WIFI_FREE */
 
+// Set to 1 to use basic memory allocation (new and delete).
+// Set to 0 to use emac3080b_global_memory_manager for memory allocations.
 #define BASIC_MALLOC    1
-/* Assume that OS is not used when bypass is disabled */
 
 #if BASIC_MALLOC
-typedef struct mx_buf {
-    uint32_t len;
-    uint32_t header_len;
-    uint8_t  data[1];
-} mx_buf_t;
 
-static inline mx_buf_t *mx_buf_alloc(uint32_t len)
+#ifdef __cplusplus
+
+/**
+ * Structure for an MX wifi buffer.
+ * Only visible to C++ files -- to C files, it is an opaque void pointer.
+ */
+struct mx_buf
 {
-    mx_buf_t *p = (mx_buf_t *) MX_WIFI_MALLOC(len + sizeof(mx_buf_t) -1U);
-    if (NULL != p) {
-        p->len = len;
-        p->header_len = 0;
-    }
-    return p;
+    DynamicCacheAlignedBuffer<uint8_t> buffer;
+    uint32_t header_len = 0;
+    uint32_t len;
 
-}
+    mx_buf(size_t max_len):
+    buffer(max_len),
+    len(max_len)
+    {}
+};
+typedef mx_buf mx_buf_t;
+
+#else
+
+typedef void mx_buf_t;
+
+#endif
+
+#else /* BASIC_MALLOC */
+
+typedef void        mx_buf_t;
+
+#endif /* BASIC_MALLOC */
 
 #define MX_NET_BUFFER_ALLOC(len)                  mx_buf_alloc(len)
-#define MX_NET_BUFFER_FREE(p)                     MX_WIFI_FREE(p)
-#define MX_NET_BUFFER_HIDE_HEADER(p, n)           (p)->header_len += (n)
-#define MX_NET_BUFFER_PAYLOAD(p)                  &(p)->data[(p)->header_len]
-#define MX_NET_BUFFER_SET_PAYLOAD_SIZE(p, size)   (p)->len = (size)
-#define MX_NET_BUFFER_GET_PAYLOAD_SIZE(p)         (p)->len
-
-#else /* BASIC_ALLOC */
-
-#define MX_NET_BUFFER_ALLOC(len)                  mx_buf_alloc((len))
 #define MX_NET_BUFFER_FREE(p)                     mx_buf_free((p))
 #define MX_NET_BUFFER_HIDE_HEADER(p, n)           mx_buf_hide_header((p),(n))
 #define MX_NET_BUFFER_PAYLOAD(p)                  mx_buf_payload((p))
 #define MX_NET_BUFFER_SET_PAYLOAD_SIZE(p, size)   mx_buf_set_size((p),(size))
 #define MX_NET_BUFFER_GET_PAYLOAD_SIZE(p)         mx_buf_get_size((p))
-
-
-typedef void        mx_buf_t;
 
 mx_buf_t   *mx_buf_alloc(uint32_t len);
 void        mx_buf_free(mx_buf_t *p);
@@ -80,9 +88,6 @@ void        mx_buf_hide_header(mx_buf_t *p, int32_t n);
 uint8_t    *mx_buf_payload(mx_buf_t *p);
 uint32_t    mx_buf_get_size(mx_buf_t *p);
 void        mx_buf_set_size(mx_buf_t *p, int32_t n);
-
-#endif /* BASIC_ALLOC */
-
 
 void        mbed_delay(uint32_t delay);
 void       *mbed_mutex_new(void);

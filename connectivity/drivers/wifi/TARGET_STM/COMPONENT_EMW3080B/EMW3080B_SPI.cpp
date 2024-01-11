@@ -195,12 +195,12 @@ void EMW3080B_SPI::spi_handler(int event)
 }
 
 
-int32_t EMW3080B_SPI::TransmitReceive(uint8_t *txdata, uint8_t *rxdata, uint32_t datalen,
+int32_t EMW3080B_SPI::TransmitReceive(uint8_t *txdata, CacheAlignedBuffer<uint8_t> &rxdata, uint32_t datalen,
                                       uint32_t timeout)
 {
     int32_t ret = 0;
     debug_if(_debug_level >= DEBUG_LOG, "EMW3080B_SPI : Spi Tx Rx %" PRIu32 "\n", datalen);
-    SPI::transfer((const uint8_t *) txdata, (int) datalen, rxdata, (int) datalen, callback(this, &EMW3080B_SPI::spi_handler), SPI_EVENT_COMPLETE);
+    SPI::transfer(txdata, (int) datalen, rxdata, (int) datalen, callback(this, &EMW3080B_SPI::spi_handler), SPI_EVENT_COMPLETE);
     if (SEM_WAIT(spi_transfer_done_sem, timeout, NULL) != SEM_OK) {
         debug_if(_debug_level >= DEBUG_WARNING, "EMW3080B_SPI : Timeout on TransmitReceive %d\n", spi_handler_count);
         ret = -1;
@@ -210,11 +210,11 @@ int32_t EMW3080B_SPI::TransmitReceive(uint8_t *txdata, uint8_t *rxdata, uint32_t
 }
 
 
-int32_t EMW3080B_SPI::Transmit(uint8_t *txdata, uint32_t datalen, uint32_t timeout)
+int32_t EMW3080B_SPI::Transmit(uint8_t *const txdata, uint32_t datalen, uint32_t timeout)
 {
     int32_t ret = 0;
     debug_if(_debug_level >= DEBUG_LOG, "EMW3080B_SPI : Spi Tx %" PRIu32 "\n", datalen);
-    SPI::transfer((const uint8_t *) txdata, (int) datalen, (uint8_t *)NULL, (int) datalen, callback(this, &EMW3080B_SPI::spi_handler), SPI_EVENT_COMPLETE);
+    SPI::transfer(txdata, (int) datalen, nullptr, (int) datalen, callback(this, &EMW3080B_SPI::spi_handler), SPI_EVENT_COMPLETE);
     if (SEM_WAIT(spi_transfer_done_sem, timeout, NULL) != SEM_OK) {
         debug_if(_debug_level >= DEBUG_WARNING, "EMW3080B_SPI : Timeout on Transmit\n");
         ret = -1;
@@ -222,11 +222,11 @@ int32_t EMW3080B_SPI::Transmit(uint8_t *txdata, uint32_t datalen, uint32_t timeo
     return ret;
 }
 
-int32_t EMW3080B_SPI::Receive(uint8_t *rxdata, uint32_t datalen, uint32_t timeout)
+int32_t EMW3080B_SPI::Receive(CacheAlignedBuffer<uint8_t> &rxdata, uint32_t datalen, uint32_t timeout)
 {
     int32_t ret = 0;
     debug_if(_debug_level >= DEBUG_LOG, "EMW3080B_SPI : Spi Rx %" PRIu32 "\n", datalen);
-    SPI::transfer((const uint8_t *) NULL, (int) datalen, rxdata, (int) datalen, callback(this, &EMW3080B_SPI::spi_handler), SPI_EVENT_COMPLETE);
+    SPI::transfer(nullptr, (int) datalen, rxdata, (int) datalen, callback(this, &EMW3080B_SPI::spi_handler), SPI_EVENT_COMPLETE);
     if (SEM_WAIT(spi_transfer_done_sem, timeout, NULL) != SEM_OK) {
         debug_if(_debug_level >= DEBUG_WARNING, "EMW3080B_SPI : Timeout on Receive\n");
         ret = -1;
@@ -291,10 +291,13 @@ void EMW3080B_SPI::process_txrx_poll(uint32_t timeout)
         sheader.type = 0;
         sheader.len = 0;
 
-        if (TransmitReceive((uint8_t *)&mheader, (uint8_t *)&sheader, sizeof(mheader), SPI_MAX_TRANSMIT_DURATION)) {
+        StaticCacheAlignedBuffer<uint8_t, sizeof(mheader)> rxBuffer;
+        if (TransmitReceive((uint8_t *)&mheader, rxBuffer, sizeof(mheader), SPI_MAX_TRANSMIT_DURATION)) {
             MX_WIFI_SPI_CS_HIGH();
             debug_if(_debug_level >= DEBUG_WARNING, "EMW3080B_SPI : Send mheader error\r\n");
         }
+        memcpy(&sheader, rxBuffer.data(), sizeof(mheader));
+
         if (sheader.type != SPI_READ) {
             MX_WIFI_SPI_CS_HIGH();
             debug_if(_debug_level >= DEBUG_WARNING, "EMW3080B_SPI : Invalid SPI type %02x\r\n", sheader.type);
@@ -342,12 +345,12 @@ void EMW3080B_SPI::process_txrx_poll(uint32_t timeout)
             spi_tx_data = NULL;
             spi_tx_len = 0;
             if (NULL != p) {
-                ret = TransmitReceive(txdata, p, datalen, SPI_MAX_TRANSMIT_DURATION);
+                ret = TransmitReceive(txdata, netb->buffer, datalen, SPI_MAX_TRANSMIT_DURATION);
             } else {
                 ret = Transmit(txdata, datalen, SPI_MAX_TRANSMIT_DURATION);
             }
         } else {
-            ret = Receive(p, datalen, SPI_MAX_TRANSMIT_DURATION);
+            ret = Receive(netb->buffer, datalen, SPI_MAX_TRANSMIT_DURATION);
         }
 
         if (ret) {
