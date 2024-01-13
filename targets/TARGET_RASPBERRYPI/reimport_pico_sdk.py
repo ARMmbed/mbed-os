@@ -12,53 +12,54 @@ Mbed ones.  This script takes care of that too, and provides a one-click way to 
 import pathlib
 import shutil
 import sys
+import re
 from typing import List, Tuple
 
 this_script_dir = pathlib.Path(__file__).resolve().parent
 
 # List of identifiers to rename b/c they clash with Mbed symbols
-IDENTIFIERS_TO_RENAME: List[Tuple[bytes, bytes]] = [
-    (b"gpio_irq_handler", b"pico_sdk_gpio_irq_handler"),
-    (b"gpio_init", b"pico_sdk_gpio_init"),
-    (b"i2c_init", b"pico_sdk_i2c_init"),
-    (b"rtc_init", b"pico_sdk_rtc_init"),
-    (b"spi_init", b"pico_sdk_spi_init"),
+IDENTIFIERS_TO_RENAME: List[Tuple[str, str]] = [
+    (r"gpio_irq_handler", r"pico_sdk_gpio_irq_handler"),
+    (r"gpio_init", r"pico_sdk_gpio_init"),
+    (r"i2c_init", r"pico_sdk_i2c_init"),
+    (r"rtc_init", r"pico_sdk_rtc_init"),
+    (r"spi_init", r"pico_sdk_spi_init"),
 
     # Rename IRQ handlers to the CMSIS exception names.
     # Pico SDK does this with macros, but easier to just
     # do it here.
     # Based on cmsis/include/rename_exceptions.h.
-    (b"isr_nmi", b"NMI_Handler"),
-    (b"isr_hardfault", b"HardFault_Handler"),
-    (b"isr_svcall", b"SVC_Handler"),
-    (b"isr_pendsv", b"PendSV_Handler"),
-    (b"isr_systick", b"SysTick_Handler"),
-    (b"isr_irq0", b"TIMER_IRQ_0_Handler"),
-    (b"isr_irq1", b"TIMER_IRQ_1_Handler"),
-    (b"isr_irq2", b"TIMER_IRQ_2_Handler"),
-    (b"isr_irq3", b"TIMER_IRQ_3_Handler"),
-    (b"isr_irq4", b"PWM_IRQ_WRAP_Handler"),
-    (b"isr_irq5", b"USBCTRL_IRQ_Handler"),
-    (b"isr_irq6", b"XIP_IRQ_Handler"),
-    (b"isr_irq7", b"PIO0_IRQ_0_Handler"),
-    (b"isr_irq8", b"PIO0_IRQ_1_Handler"),
-    (b"isr_irq9", b"PIO1_IRQ_0_Handler"),
-    (b"isr_irq10", b"PIO1_IRQ_1_Handler"),
-    (b"isr_irq11", b"DMA_IRQ_0_Handler"),
-    (b"isr_irq12", b"DMA_IRQ_1_Handler"),
-    (b"isr_irq13", b"IO_IRQ_BANK0_Handler"),
-    (b"isr_irq14", b"IO_IRQ_QSPI_Handler"),
-    (b"isr_irq15", b"SIO_IRQ_PROC0_Handler"),
-    (b"isr_irq16", b"SIO_IRQ_PROC1_Handler"),
-    (b"isr_irq17", b"CLOCKS_IRQ_Handler"),
-    (b"isr_irq18", b"SPI0_IRQ_Handler"),
-    (b"isr_irq19", b"SPI1_IRQ_Handler"),
-    (b"isr_irq20", b"UART0_IRQ_Handler"),
-    (b"isr_irq21", b"UART1_IRQ_Handler"),
-    (b"isr_irq22", b"ADC_IRQ_FIFO_Handler"),
-    (b"isr_irq23", b"I2C0_IRQ_Handler"),
-    (b"isr_irq24", b"I2C1_IRQ_Handler"),
-    (b"isr_irq25", b"RTC_IRQ_Handler"),
+    (r"isr_nmi", r"NMI_Handler"),
+    (r"isr_hardfault", r"HardFault_Handler"),
+    (r"isr_svcall", r"SVC_Handler"),
+    (r"isr_pendsv", r"PendSV_Handler"),
+    (r"isr_systick", r"SysTick_Handler"),
+    (r"isr_irq0", r"TIMER_IRQ_0_Handler"),
+    (r"isr_irq1", r"TIMER_IRQ_1_Handler"),
+    (r"isr_irq2", r"TIMER_IRQ_2_Handler"),
+    (r"isr_irq3", r"TIMER_IRQ_3_Handler"),
+    (r"isr_irq4", r"PWM_IRQ_WRAP_Handler"),
+    (r"isr_irq5", r"USBCTRL_IRQ_Handler"),
+    (r"isr_irq6", r"XIP_IRQ_Handler"),
+    (r"isr_irq7", r"PIO0_IRQ_0_Handler"),
+    (r"isr_irq8", r"PIO0_IRQ_1_Handler"),
+    (r"isr_irq9", r"PIO1_IRQ_0_Handler"),
+    (r"isr_irq10", r"PIO1_IRQ_1_Handler"),
+    (r"isr_irq11", r"DMA_IRQ_0_Handler"),
+    (r"isr_irq12", r"DMA_IRQ_1_Handler"),
+    (r"isr_irq13", r"IO_IRQ_BANK0_Handler"),
+    (r"isr_irq14", r"IO_IRQ_QSPI_Handler"),
+    (r"isr_irq15", r"SIO_IRQ_PROC0_Handler"),
+    (r"isr_irq16", r"SIO_IRQ_PROC1_Handler"),
+    (r"isr_irq17", r"CLOCKS_IRQ_Handler"),
+    (r"isr_irq18", r"SPI0_IRQ_Handler"),
+    (r"isr_irq19", r"SPI1_IRQ_Handler"),
+    (r"isr_irq20", r"UART0_IRQ_Handler"),
+    (r"isr_irq21", r"UART1_IRQ_Handler"),
+    (r"isr_irq22", r"ADC_IRQ_FIFO_Handler"),
+    (r"isr_irq23", r"I2C0_IRQ_Handler"),
+    (r"isr_irq24", r"I2C1_IRQ_Handler"),
+    (r"isr_irq25", r"RTC_IRQ_Handler"),
 ]
 
 # List of files and directories which need to be copied into Mbed.
@@ -85,6 +86,8 @@ FILES_DIRS_TO_COPY: List[pathlib.Path] = [
     pathlib.Path("src") / "rp2_common" / "hardware_timer",
     pathlib.Path("src") / "rp2_common" / "hardware_sync",
     pathlib.Path("src") / "rp2_common" / "hardware_rtc",
+    pathlib.Path("src") / "rp2_common" / "hardware_pio",
+    pathlib.Path("src") / "rp2_common" / "hardware_dma",
     pathlib.Path("src") / "rp2_common" / "pico_bootrom",
     pathlib.Path("src") / "rp2_common" / "pico_platform",
     pathlib.Path("src") / "rp2_common" / "pico_float",
@@ -137,11 +140,12 @@ for source_file_path in files_to_copy:
 
     # Load file
     with open(source_file_path, "rb") as source_file:
-        source_file_contents = source_file.read()
+        source_file_contents = source_file.read().decode("UTF-8")
 
     # Perform replacements
     for old_identifier, new_identifier in IDENTIFIERS_TO_RENAME:
-        source_file_contents = source_file_contents.replace(old_identifier, new_identifier)
+        # Always require one non-word character before each replacement so we can do a full word match
+        source_file_contents = re.sub(r"(\W)" + old_identifier, r"\1" + new_identifier, source_file_contents)
 
     # Figure out new path
     relative_path = source_file_path.relative_to(sdk_path)
@@ -150,6 +154,6 @@ for source_file_path in files_to_copy:
     # Write new contents
     dest_file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(dest_file_path, "wb") as dest_file:
-        dest_file.write(source_file_contents)
+        dest_file.write(source_file_contents.encode("UTF-8"))
 
     print(f"Copied {relative_path}")

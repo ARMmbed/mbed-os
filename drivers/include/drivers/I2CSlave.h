@@ -165,14 +165,12 @@ public:
      */
     int receive(void);
 
-    /** Read specified number of bytes from an I2C master.
+    /** Read bytes transmitted to this MCU from an I2C master.
      *
      *  @param data   Pointer to the buffer to read data into.
-     *  @param length Number of bytes to read.
+     *  @param length Maximum number of bytes to read.
      *
-     *  @return Result of the operation.
-     *  @retval 0       If the number of bytes read is equal to length requested.
-     *  @retval nonzero On error or if the number of bytes read is less than requested.
+     *  @return The number of bytes read
      */
     int read(char *data, int length);
 

@@ -51,6 +51,9 @@ SECTIONS
        and checksummed. It is usually built by the boot_stage2 target
        in the Raspberry Pi Pico SDK
     */
+    .second_stage_ota : {
+        KEEP (*(.second_stage_ota))
+    } > FLASH
 
     .flash_begin : {
         __flash_binary_start = .;

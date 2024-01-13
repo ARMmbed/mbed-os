@@ -1,3 +1,21 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 #include "mbed_assert.h"
 #include "analogin_api.h"
 #include "hardware/adc.h"
@@ -26,7 +44,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     /* Lookup the corresponding ADC channel for a given pin. */
     obj->channel = pinmap_find_function(pin, PinMap_ADC);
     /* Make sure GPIO is high-impedance, no pullups etc. */
-    adc_pico_sdk_gpio_init(pin);
+    adc_gpio_init(pin);
     /* Check if the ADC channel we just configured belongs to the
      * temperature sensor. If that's the case, enable the temperature
      * sensor.

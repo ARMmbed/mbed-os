@@ -66,7 +66,7 @@ void adc_init(void);
  *
  * \param gpio The GPIO number to use. Allowable GPIO numbers are 26 to 29 inclusive.
  */
-static inline void adc_pico_sdk_gpio_init(uint gpio) {
+static inline void adc_gpio_init(uint gpio) {
     invalid_params_if(ADC, gpio < 26 || gpio > 29);
     // Select NULL function to make output driver hi-Z
     gpio_set_function(gpio, GPIO_FUNC_NULL);

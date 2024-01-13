@@ -228,8 +228,10 @@ endif()
 
 # Generate target config header and include it in all files
 if(NOT MBED_IS_NATIVE_BUILD)
-    mbed_write_target_config_header(${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h MBED_TARGET_DEFINITIONS MBED_CONFIG_DEFINITIONS)
-    target_compile_options(mbed-core-flags INTERFACE -include ${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generated-headers)
+    mbed_write_target_config_header(${CMAKE_CURRENT_BINARY_DIR}/generated-headers/mbed-target-config.h MBED_TARGET_DEFINITIONS MBED_CONFIG_DEFINITIONS)
+    target_compile_options(mbed-core-flags INTERFACE -include ${CMAKE_CURRENT_BINARY_DIR}/generated-headers/mbed-target-config.h)
+    target_include_directories(mbed-core-flags INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/generated-headers)
 endif()
 
 # Include mbed.h and config from generate folder
@@ -283,7 +285,7 @@ if(NOT MBED_IS_NATIVE_BUILD)
     mbed_create_distro(mbed-os ${MBED_TARGET_CMAKE_NAME} mbed-core-flags mbed-core-sources mbed-rtos-flags mbed-rtos-sources)
 
     # Set up the linker script and hook it up to the top-level OS targets
-    mbed_setup_linker_script(mbed-baremetal mbed-os ${CMAKE_CURRENT_BINARY_DIR}/mbed-target-config.h)
+    mbed_setup_linker_script(mbed-baremetal mbed-os ${CMAKE_CURRENT_BINARY_DIR}/generated-headers/mbed-target-config.h)
 
     # Make sure that things linking mbed-core-flags can also get the target-specific include dirs and flags.
     mbed_extract_flags(${MBED_TARGET_CMAKE_NAME}-flags ${MBED_TARGET_CMAKE_NAME})

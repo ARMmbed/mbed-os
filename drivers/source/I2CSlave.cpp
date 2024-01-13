@@ -52,7 +52,7 @@ int I2CSlave::receive(void)
 
 int I2CSlave::read(char *data, int length)
 {
-    return i2c_slave_read(&_i2c, data, length) != length;
+    return i2c_slave_read(&_i2c, data, length);
 }
 
 int I2CSlave::read(void)

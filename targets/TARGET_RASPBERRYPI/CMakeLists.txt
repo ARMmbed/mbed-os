@@ -123,6 +123,8 @@ target_include_directories(mbed-raspberrypi
 		pico-sdk/src/rp2_common/hardware_pll/include
 		pico-sdk/src/rp2_common/hardware_sync/include
 		pico-sdk/src/rp2_common/hardware_xosc/include
+		pico-sdk/src/rp2_common/hardware_pio/include
+		pico-sdk/src/rp2_common/hardware_dma/include
 		pico-sdk/src/rp2_common/pico_platform/include
 		pico-sdk/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/include/
 		pico-sdk/src/rp2_common/pico_bootrom/include
@@ -142,6 +144,7 @@ target_include_directories(mbed-raspberrypi
 
 target_sources(mbed-raspberrypi
     INTERFACE
+		pico-sdk/src/rp2_common/hardware_adc/adc.c
 		pico-sdk/src/rp2_common/hardware_flash/flash.c
 		pico-sdk/src/rp2_common/hardware_uart/uart.c
 		pico-sdk/src/rp2_common/hardware_spi/spi.c
@@ -157,6 +160,8 @@ target_sources(mbed-raspberrypi
 		pico-sdk/src/rp2_common/hardware_timer/timer.c
 		pico-sdk/src/rp2_common/hardware_sync/sync.c
 		pico-sdk/src/rp2_common/hardware_rtc/rtc.c
+		pico-sdk/src/rp2_common/hardware_pio/pio.c
+		pico-sdk/src/rp2_common/hardware_dma/dma.c
 		pico-sdk/src/rp2_common/pico_bootrom/bootrom.c
 		pico-sdk/src/rp2_common/pico_platform/platform.c
 		pico-sdk/src/common/pico_time/time.c

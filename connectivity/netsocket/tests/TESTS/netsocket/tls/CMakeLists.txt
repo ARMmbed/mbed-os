@@ -19,7 +19,8 @@ list(
             tlssocket_endpoint_close.cpp
             tlssocket_echotest.cpp
             tlssocket_echotest_burst.cpp
-            tlssocket_connect_invalid.cpp       
+            tlssocket_connect_invalid.cpp
+            tlssocket_cert_in_filesystem.cpp
 )
 
 if(MBED_GREENTEA_TEST_BAREMETAL)
@@ -33,6 +34,8 @@ mbed_greentea_add_test(
         ${TEST_SOURCE_LIST}
     TEST_REQUIRED_LIBS
         mbed-netsocket
+        mbed-storage-blockdevice
+    mbed-storage-littlefs
     TEST_SKIPPED
         ${TEST_SKIPPED}
 )

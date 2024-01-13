@@ -31,6 +31,10 @@
  * \ingroup public-crypto
  */
 
+#if CONFIG_MBEDTLS_ENTROPY_NV_SEED
+#define MBEDTLS_ENTROPY_NV_SEED
+#endif
+
 #if defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)
 
 #if defined(MBEDTLS_ENTROPY_NV_SEED)
@@ -71,9 +75,6 @@
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
-
-// Include SHA1 certificate support.  Used for a lot of root CAs.
-#define MBEDTLS_SHA1_C 1
 
 /*
  * MBEDTLS_ERR_PLATFORM_HW_FAILED is deprecated and should not be used.

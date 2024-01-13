@@ -7,7 +7,6 @@ function(mbed_set_profile_options target mbed_toolchain)
 
     if(${mbed_toolchain} STREQUAL "GCC_ARM")
         list(APPEND profile_c_compile_options
-            "-c"
             "-Os"
         )
         target_compile_options(${target}

@@ -116,6 +116,46 @@ public:
      */
     nsapi_error_t set_root_ca_cert(const char *root_ca_pem);
 
+    /**
+     * @brief Sets the Root CA certificate to a collection of files on the filesystem.
+     *
+     * All files in the supplied directory will be scanned.  Note that to set up a filesystem,
+     * you must mount one or more block devices before calling this function.
+     *
+     * @note Must be called before calling connect()
+     *
+     * @param root_ca_path Path containing Root CA Certificate files in any Mbed TLS-supported format.
+     *     This can point to a directory on any mounted filesystem.
+     * @retval NSAPI_ERROR_OK on success.
+     * @retval NSAPI_ERROR_NO_MEMORY in case there is not enough memory to allocate certificate.
+     * @retval NSAPI_ERROR_PARAMETER in case the provided root_ca parameter failed parsing.
+     *
+     */
+    nsapi_error_t set_root_ca_cert_path(const char *root_ca_path);
+
+    /** Appends the certificate to an existing CA chain.
+     *
+     * @note Must be called before calling connect()
+     *
+     * @param root_ca Root CA Certificate in any Mbed TLS-supported format.
+     * @param len     Length of certificate (including terminating 0 for PEM).
+     * @retval NSAPI_ERROR_OK on success.
+     * @retval NSAPI_ERROR_NO_MEMORY in case there is not enough memory to allocate certificate.
+     * @retval NSAPI_ERROR_PARAMETER in case the provided root_ca parameter failed parsing.
+     */
+    nsapi_error_t append_root_ca_cert(const void *root_ca, size_t len);
+
+    /** Appends the certificate to an existing CA chain.
+     *
+     * @note Must be called before calling connect()
+     *
+     * @param root_ca_pem Root CA Certificate in PEM format.
+     * @retval NSAPI_ERROR_OK on success.
+     * @retval NSAPI_ERROR_NO_MEMORY in case there is not enough memory to allocate certificate.
+     * @retval NSAPI_ERROR_PARAMETER in case the provided root_ca parameter failed parsing.
+     */
+    nsapi_error_t append_root_ca_cert(const char *root_ca_pem);
+
     /** Sets client certificate, and client private key.
      *
      * @param client_cert Client certification in PEM or DER format.

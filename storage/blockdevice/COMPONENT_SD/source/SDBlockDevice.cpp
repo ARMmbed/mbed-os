@@ -441,11 +441,13 @@ end:
     return BD_ERROR_OK;
 }
 
+#if DEVICE_SPI_ASYNCH
 void SDBlockDevice::set_async_spi_mode(bool enabled, DMAUsage dma_usage_hint)
 {
     _async_spi_enabled = enabled;
     _spi.set_dma_usage(dma_usage_hint);
 }
+#endif
 
 int SDBlockDevice::deinit()
 {

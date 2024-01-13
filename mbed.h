@@ -17,6 +17,11 @@
 #ifndef MBED_H
 #define MBED_H
 
+// In some cases, Mbed headers are included from source files that don't have
+// mbed-target-config.h applied via "-include" flag (this is true for the Arduino Mbed core).
+// In that case, we should manually include the target config header here.
+#include "mbed-target-config.h"
+
 #include "platform/mbed_version.h"
 
 #if MBED_CONF_RTOS_API_PRESENT

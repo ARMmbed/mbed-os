@@ -1,0 +1,11 @@
+{
+    "name": "mbedtls",
+    "config": {
+        "entropy-nv-seed": {
+            "macro_name": "MBEDTLS_ENTROPY_NV_SEED",
+            "help": "Set to 1 to enable Mbed TLS's Non-Volatile Storage entropy source.  This source allows usage of Mbed TLS on devices which do not have a cryptographic RNG.",
+            "value": null,
+            // Note: see here for details on how to implement the seed I/O: https://os.mbed.com/docs/mbed-os/v6.16/porting/entropy-sources.html
+        }
+    }
+}

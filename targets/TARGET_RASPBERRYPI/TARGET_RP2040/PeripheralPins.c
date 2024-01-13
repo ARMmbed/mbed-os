@@ -1,3 +1,21 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 #include "pinmap.h"
 #include "objects.h"
 #include "PeripheralPins.h"
@@ -210,10 +228,10 @@ const PinMap PinMap_I2C_SCL[] = {
  * is the onboard temperature sensor.
  */
 const PinMap PinMap_ADC[] = {
-    { A0,       ADC0, 0},
-    { A1,       ADC0, 1},
-    { A2,       ADC0, 2},
-    { A3,       ADC0, 3},
+    { p26,       ADC0, 0},
+    { p27,       ADC0, 1},
+    { p28,       ADC0, 2},
+    { p29,       ADC0, 3},
     { ADC_TEMP, ADC0, 4},
     { NC,       NC,   0}
 };

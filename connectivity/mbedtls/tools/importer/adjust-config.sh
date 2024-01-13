@@ -2,7 +2,20 @@
 #
 # This file is part of mbed TLS (https://tls.mbed.org)
 #
-# Copyright (c) 2015-2016, ARM Limited, All Rights Reserved
+# Copyright (c) 2023, Arm Limited, All Rights Reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+# Licensed under the Apache License, Version 2.0 (the License); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# * http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an AS IS BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Purpose
 #
@@ -53,7 +66,6 @@ conf unset MBEDTLS_TIMING_C
 
 # not supported on all targets with mbed OS, nor used by mbed Client
 conf unset MBEDTLS_HAVE_TIME_DATE
-conf unset MBEDTLS_FS_IO
 conf unset MBEDTLS_PSA_ITS_FILE_C
 conf unset MBEDTLS_PSA_CRYPTO_STORAGE_C
 conf set MBEDTLS_NO_PLATFORM_ENTROPY
@@ -89,7 +101,6 @@ conf unset MBEDTLS_PEM_WRITE_C
 conf unset MBEDTLS_PKCS5_C
 conf unset MBEDTLS_PKCS12_C
 conf unset MBEDTLS_RIPEMD160_C
-conf unset MBEDTLS_SHA1_C
 conf unset MBEDTLS_XTEA_C
 
 conf set MBEDTLS_CMAC_C

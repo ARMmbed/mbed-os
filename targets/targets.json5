@@ -7205,6 +7205,8 @@
         ],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET",
+
+            // Make room for the bootloader
             "MBED_APP_START=0x10000",
             "MBED_APP_SIZE=0xf0000"
         ],
@@ -7216,20 +7218,19 @@
     },
     "ARDUINO_NANO33BLE_SWD": {
         "inherits": [
-            "MCU_NRF52840"
+            "ARDUINO_NANO33BLE"
         ],
-        "features_add": [
-            "STORAGE"
-        ],
-        "components_remove": [
-            "QSPIF"
-        ],
-        "device_has_remove": [
-            "QSPI",
-            "ITM"
-        ],
-        "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET"
+
+        // for SWD we default to UART console
+        "overrides": {
+            "console-usb": false,
+            "console-uart": true
+        },
+
+        // For SWD we don't want to leave space for the bootloader
+        "macros_remove": [
+            "MBED_APP_START=0x10000",
+            "MBED_APP_SIZE=0xf0000"
         ]
     },
     "NUMAKER_PFM_NUC472": {
