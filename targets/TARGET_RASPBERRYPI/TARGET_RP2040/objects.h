@@ -114,12 +114,31 @@ struct spi_s {
     spi_inst_t * dev;
 };
 
-struct pwmout_s {
+struct pwmout_s
+{
+    /// Pin that the PWM is being sent out on
     PinName pin;
+
+    /// Slice number of this PWM (0-7).  Each slice contains two channels.
+    /// Each slice must have the same period but can have an independent duty cycle.
     uint8_t slice;
+
+    /// Channel of this PWM output on the slice (0 or 1)
     uint8_t channel;
-    uint16_t period;
+
+    /// Value after which this PWM channel will reset to 0.  This plus the clock divider controls the PWM period.
+    uint16_t top_count;
+
+    /// Current clock divider value that the channel is set to (hardware accepts 1-255.9375)
+    float clock_divider;
+
+    /// Current duty cycle percent
     float percent;
+
+    /// Current period setting in floating point seconds
+    float period;
+
+    /// Pico HAL config structure
     pwm_config cfg;
 };
 

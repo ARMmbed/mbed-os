@@ -4876,7 +4876,12 @@
         "device_name": "STM32U575ZITx",
         "detect_code": [
             "886"
-        ]
+        ],
+        "overrides": {
+            // As shipped, this nucleo board connects VREFP to VDD_MCU, and connects VDD_MCU to 3.3V.
+            // Jumper JP4 can be used to switch VDD_MCU to 1.8V in which case you should override this setting to 1.8.
+            "default-adc-vref": 3.3
+        }
     },
 	"MCU_STM32U585xI": {
         "inherits": [
@@ -9758,7 +9763,7 @@
             "RTC"
         ]
     },
-    "RASPBERRY_PI_PICO_SWD": {
+    "RASPBERRY_PI_PICO": {
         "inherits": ["RP2040"],
         "macros_add": [
             "PICO_RP2040_USB_DEVICE_ENUMERATION_FIX=1",
@@ -9766,13 +9771,24 @@
             "PICO_TIME_DEFAULT_ALARM_POOL_DISABLED",
             "PICO_ON_DEVICE=1",
             "PICO_UART_ENABLE_CRLF_SUPPORT=0"
-        ]
-    },
-    "RASPBERRY_PI_PICO": {
-        "inherits": ["RASPBERRY_PI_PICO_SWD"],
+        ],
         "overrides": {
             "console-usb": true,
-            "console-uart": false
+            "console-uart": false,
+
+            // ADC_VDD sets the ADC reference voltage on this chip.
+            // Most RP2040 boards set this pin to 3.3V.
+            // Note that if the I/O voltage is set to less than the ADC reference voltage,
+            // voltages higher than the I/O voltage are illegal for the analog pins
+            // (so the ADC can never read 100%).
+            "default-adc-vref": 3.3
+        }
+    },
+    "RASPBERRY_PI_PICO_SWD": {
+        "inherits": ["RASPBERRY_PI_PICO"],
+        "overrides": {
+            "console-usb": false,
+            "console-uart": true
         }
     }
 }

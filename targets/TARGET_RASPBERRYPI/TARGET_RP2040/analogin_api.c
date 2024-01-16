@@ -22,9 +22,8 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-static float    const ADC_VREF_VOLTAGE     = 3.3f; /* 3.3V */
 static uint16_t const ADC_RESOLUTION_BITS   = 12;
-static float    const ADC_CONVERSION_FACTOR = ADC_VREF_VOLTAGE / (1 << 16);
+static float    const ADC_CONVERSION_FACTOR = 1.0f / (1 << 16);
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
