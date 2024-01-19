@@ -97,7 +97,7 @@ int gettimeofday(struct timeval *tv, MBED_UNUSED void *tz)
     _mutex->lock();
     if (_rtc_isenabled != NULL) {
         if (!(_rtc_isenabled())) {
-            set_time(0);
+            _rtc_init();
         }
     }
 

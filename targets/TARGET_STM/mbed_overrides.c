@@ -287,37 +287,6 @@ void mbed_sdk_init()
     SystemCoreClockUpdate();
 #endif /* DUAL_CORE */
 
-    /* Start LSI clock for RTC */
-#if DEVICE_RTC
-#if (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_HSE)
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-#if defined(RCC_RTCCLKSOURCE_HSE_DIVX)
-    PeriphClkInitStruct.RTCClockSelection = (RCC_RTCCLKSOURCE_HSE_DIVX | RTC_HSE_DIV << 16);
-#else
-    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV128;
-#endif
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
-        error("PeriphClkInitStruct RTC failed with HSE\n");
-    }
-#elif ((MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSE_OR_LSI) && !MBED_CONF_TARGET_LSE_AVAILABLE) || (MBED_CONF_TARGET_RTC_CLOCK_SOURCE == USE_RTC_CLK_LSI)
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-
-    if (__HAL_RCC_GET_RTC_SOURCE() != RCC_RTCCLKSOURCE_NO_CLK) {
-#if TARGET_STM32WB
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
-#else
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
-#endif
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
-        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-            error("Init : cannot initialize LSI\n");
-        }
-    }
-#endif /* ! MBED_CONF_TARGET_LSE_AVAILABLE */
-#endif /* DEVICE_RTC */
-
 #ifndef MBED_DEBUG
 #if MBED_CONF_TARGET_GPIO_RESET_AT_INIT
     /* Reset all GPIO */

@@ -383,14 +383,11 @@ Sometimes, pin is explicitly removed by default to avoid issues (but you can unc
 
 #### System clock
 
-System Core Clock is based on an high-speed clock.
-
-- the HSI is the high-speed internal (MCU) clock with low accuracy
-- the HSE is the high-speed external clock with higher accuray
+System Core Clock is based on the high-speed clock, which is selected by the `target.clock_source` option.
 
 For each target, a default choice has been made in the "clock_source" config settings in the targets.json file.
 
-For main targets, it is something like:
+By default, it is set to something like:
 
 ```
     "clock_source": {
@@ -401,33 +398,28 @@ Meaning that:
 - PLL with the external HSE clock is first configured
 - if it fails, PLL with HSI is then configured
 
+The specific choice of oscillator for your custom board is outside the scope of this README.  However, in general, using a crystal for the clock will provide good accuracy, but uses a bit more power and requires an external component.  Additionally, crystals can require careful design and tuning of the circuit board for best reliability and accuracy.  To make the PCB simpler, a logic level oscillator can be used instead, though this is slightly more expensive.
+
+If you wish to omit a high speed oscillator, then all STM32 parts can run from their internal oscillators (HSI). However, the clock accuracy of this oscillator is limited -- it can be as bad as +-10% over the full temperature range!  So, if you are trying to do anything that relies on accurate clock speed, like USB, then you might run into trouble.  To solve that issue, some STM32 parts (L4, L5, U5) provide an MSI oscillator.  This works like the HSI oscillator, but trims itself using the 32kHz LSE crystal to stay at an accurate frequency.  So, if you want USB but would prefer to have a 32kHz crystal than a MHz crystal, the MSI may be for you.
+
+The options for the `target.clock_source` option include:
+
+- `USE_PLL_HSE` -  Use the High Speed External clock, with a crystal attached.  The frequency expected for the crystal depends on the target, check the value of the `HSE_VALUE` define.
+- `USE_PLL_HSE_EXTC` - Same as above but expect a logic level square wave instead of a crystal.  Nucleo boards mostly use this configuration because the ST-Link outputs a clock signal for the MCU to use.
+- `USE_PLL_HSI` - Use the High Speed Internal clock.  No external parts needed.
+- `USE_PLL_MSI` - Use the MSI oscillator (L4/L5/U5 only).  If a 32kHz crystal is present, then this will be more accurate than HSI.
 
 #### Low power clock
 
-Low power ticker and RTC are based on an low-speed clock.
+The low power ticker and the RTC are based on a low-speed (32kHz) clock.  This clock source is designed to stay on even when most of the CPU is in sleep mode.
 
-- the LSI is the low-speed internal clock with low accuracy
-- the LSE is the low-speed external clock connected to 32.768 kHz quartz crystal
+By default, Mbed expects a 32kHz crystal to be present on the LSE (Low Speed External) oscillator pins.  If your board does not have such a crystal, you should set the `target.lse_available` option to 0 in mbed_app.json.  This will switch Mbed to use the internal oscillator instead.  Just be aware that the timing accuracy of the RTC, as well as of some Mbed RTOS operations like thread sleeps and LowPowerTimer, will be reduced to +-10%.
 
-In targets.json file, it is supposed that a LSE is provided in the board
-
+Note that, by default, Mbed uses low drive strength for the LSE crystal.  This can be a problem on custom boards, where the LSE might need a bit more oomph to get started.  If your LSE is not starting, or it's taking a long time to start, try adding
+```json
+"target.lse_drive_load_level": "RCC_LSEDRIVE_HIGH"
 ```
-"config": {
-    "lse_available": {
-        "value": "1"
-```
-
-You can change this in you local mbed_app.json:
-```
-{
-    "target_overrides":
-    {
-        "XXXX": {
-            "target.lse_available": "0"
-        }
-    }
-}
-```
+to your mbed_app.json and see if that fixes the issue.  If so, you might need to revisit your board design or just keep the LSE drive at a higher setting.  Be careful because this setting may require a complete power cycle (not just a reset!) of the target to take effect.
 
 #### I2C Timing calculation algorithm
 
