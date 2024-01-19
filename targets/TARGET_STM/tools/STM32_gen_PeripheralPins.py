@@ -27,6 +27,8 @@ from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 import subprocess
 
+if sys.version_info[0] < 3: raise Exception("Python 3+ is required (recommended latest one)")
+    
 GENPINMAP_VERSION = "1.20.5"
 
 ADD_DEVICE_IF = 0
