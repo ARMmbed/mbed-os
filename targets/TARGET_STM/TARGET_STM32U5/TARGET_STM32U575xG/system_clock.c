@@ -39,6 +39,11 @@
 #define USE_PLL_HSI      0x2 // Use HSI internal clock
 #define USE_PLL_MSI      0x1 // Use MSI internal clock
 
+#define DEBUG_MCO        (0) // Output the MCO on PA8 for debugging (0=OFF, 1=SYSCLK)
+// TODO , 2=HSE, 3=HSI, 4=MSI)
+#define DEBUG_LSCO       (0) // Output the LSCO on PA2 for debugging (0=OFF, 1=LSE)
+// TODO , 2=LSI)
+
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
@@ -90,6 +95,18 @@ MBED_WEAK void SetSysClock(void)
             }
         }
     }
+
+// Output clock on MCO pin(PA8) for debugging purpose
+#if DEBUG_MCO == 1
+    HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_SYSCLK, RCC_MCO_NODIV); // 160 MHz 
+#endif
+
+// Output clock on LSCO pin(PA2) for debugging purpose
+// LSE is set with the low power ticker
+#if DEBUG_LSCO == 1
+    HAL_RCCEx_EnableLSCO(RCC_LSCOSOURCE_LSE); // 32 kHz
+#endif
+
 }
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
@@ -98,7 +115,73 @@ MBED_WEAK void SetSysClock(void)
 /******************************************************************************/
 MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
-    return 0;
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+
+#if DEVICE_USBDEVICE
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit = {0};
+#endif /* DEVICE_USBDEVICE */
+    
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
+    if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK) {
+        return 0; // FAIL
+    }
+
+    // Enable HSE oscillator and activate PLL with HSE as source
+    RCC_OscInitStruct.OscillatorType        = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
+    if (bypass == 0) {
+        RCC_OscInitStruct.HSEState            = RCC_HSE_ON; // External xtal on OSC_IN/OSC_OUT
+    } else {
+        RCC_OscInitStruct.HSEState            = RCC_HSE_BYPASS; // External clock on OSC_IN
+    }
+#if DEVICE_USBDEVICE
+    RCC_OscInitStruct.HSI48State            = RCC_HSI48_ON;
+#else
+    RCC_OscInitStruct.HSI48State            = RCC_HSI48_OFF;
+#endif /* DEVICE_USBDEVICE */
+#if HSE_VALUE==10000000UL
+    RCC_OscInitStruct.PLL.PLLState          = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource         = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMBOOST         = RCC_PLLMBOOST_DIV1;
+    RCC_OscInitStruct.PLL.PLLM              = 1; // VCO input clock = 10 MHz (10 MHz / 1)
+#else
+#error Unsupported external clock value, check HSE_VALUE define
+#endif
+    RCC_OscInitStruct.PLL.PLLN              = 16; // VCO output clock = 160 MHz (10 MHz * 16)
+    RCC_OscInitStruct.PLL.PLLP              = 2;
+    RCC_OscInitStruct.PLL.PLLQ              = 2;
+    RCC_OscInitStruct.PLL.PLLR              = 1;  // PLL clock = 160 MHz
+    RCC_OscInitStruct.PLL.PLLRGE            = RCC_PLLVCIRANGE_1;
+    RCC_OscInitStruct.PLL.PLLFRACN          = 0;
+
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
+
+#if DEVICE_USBDEVICE
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    PeriphClkIniRCC_PeriphClkInittStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48; /* 48 MHz */
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
+        return 0; // FAIL
+    }
+#endif /* DEVICE_USBDEVICE */
+
+    // Select PLL clock as system clock source and configure the HCLK, PCLK1 and PCLK2 clock dividers
+    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_PCLK3);
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 160 MHz
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 160 MHz
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 160 MHz
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 160 MHz
+    RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;           // 160 MHz
+    
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+        return 0; // FAIL
+    }
+   return 1; // OK
+
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
 
@@ -127,6 +210,17 @@ MBED_WEAK uint8_t SetSysClock_PLL_MSI(void)
     HAL_PWREx_EnableVddA();
     HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
 
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+        // Enable LSE Oscillator to automatically calibrate the MSI clock
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
+        RCC_OscInitStruct.LSEState       = RCC_LSE_ON;   // External 32.768 kHz clock on OSC32_IN/OSC32_OUT
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            return 0; // FAIL
+        }
+#endif /* MBED_CONF_TARGET_LSE_AVAILABLE */
+
+    /* Enable MSI Oscillator and activate PLL with MSI as source */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSI
                                        | RCC_OSCILLATORTYPE_MSI;
     RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -149,6 +243,19 @@ MBED_WEAK uint8_t SetSysClock_PLL_MSI(void)
         return 0; // FAIL
     }
 
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+        /* Enable MSI Auto-calibration through LSE */
+        HAL_RCCEx_EnableMSIPLLMode();
+#endif /* MBED_CONF_TARGET_LSE_AVAILABLE */
+
+#if DEVICE_USBDEVICE
+        /* Select MSI output as USB clock source */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+        PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_MSI; /* 48 MHz */
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif /* DEVICE_USBDEVICE */
+
+    // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2
                                   | RCC_CLOCKTYPE_PCLK3;

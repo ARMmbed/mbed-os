@@ -4884,6 +4884,18 @@
             "default-adc-vref": 3.3
         }
     },
+    "MCU_STM32U575xG": {
+        "inherits": [
+            "MCU_STM32U5"
+        ],
+        "public": false,
+        "extra_labels_add": [
+            "STM32U575xG"
+        ],
+        "macros_add": [
+            "STM32U575xx"
+        ]
+    },
 	"MCU_STM32U585xI": {
         "inherits": [
             "MCU_STM32U5"
