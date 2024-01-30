@@ -98,7 +98,7 @@ set(UPLOAD_LAUNCH_COMMANDS
 	"monitor halt"
 	"monitor reset"
 	"load"
-	"break main"
+	"tbreak main"
 	"monitor reset"
 )
 set(UPLOAD_RESTART_COMMANDS

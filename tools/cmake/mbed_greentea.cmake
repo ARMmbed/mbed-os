@@ -113,7 +113,11 @@ function(mbed_greentea_add_test)
 
     # All of the upload methods already reset the chip after uploading so we don't need to reset via
     # the serial port.  Doing that type of reset also seems to give the Pitaya-Link probe trouble.
-    list(APPEND MBED_HTRUN_ARGUMENTS --skip-reset)
+    # However, for targets which support semihosting (currently just LPC1768), we do need the reset as otherwise
+    # semihosting stuff like localfilesystem won't work.
+    if(NOT "DEVICE_SEMIHOST=1" IN_LIST MBED_TARGET_DEFINITIONS)
+        list(APPEND MBED_HTRUN_ARGUMENTS --skip-reset)
+    endif()
 
     if(DEFINED MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS)
         list(APPEND MBED_HTRUN_ARGUMENTS ${MBED_GREENTEA_EXTRA_HTRUN_ARGUMENTS})

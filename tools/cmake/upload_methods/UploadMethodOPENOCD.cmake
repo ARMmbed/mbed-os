@@ -47,6 +47,7 @@ function(gen_upload_target TARGET_NAME BIN_FILE)
 		COMMAND ${OpenOCD}
 		${OPENOCD_CHIP_CONFIG_COMMANDS}
 		${OPENOCD_ADAPTER_SERIAL_COMMAND}
+		-c "gdb_port disabled" # Don't start a GDB server when just programming
 		-c "program $<TARGET_FILE:${TARGET_NAME}> reset exit"
 		VERBATIM)
 
@@ -69,8 +70,17 @@ set(UPLOAD_WANTS_EXTENDED_REMOTE TRUE)
 # Reference: https://github.com/Marus/cortex-debug/blob/056c03f01e008828e6527c571ef5c9adaf64083f/src/openocd.ts#L100
 set(UPLOAD_LAUNCH_COMMANDS
 	"monitor reset halt"
+
+	# For targets which support semihosting, prevent GDB from stopping when a semihosting event happens.
+	# AFAIK, semihosting is only used to communicate between the interface chip and the CPU; we never
+	# want to process semihosting data on the host
+	"handle SIGTRAP nostop noprint"
+
+	# Increase remote timeout to 30 sec in case programming takes a long time
+	"set remotetimeout 30"
+
 	"load"
-	"break main"
+	"tbreak main"
 	"monitor reset halt"
 )
 set(UPLOAD_RESTART_COMMANDS

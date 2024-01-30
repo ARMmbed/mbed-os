@@ -5,7 +5,7 @@ if(NOT "DEVICE_TRNG=1" IN_LIST MBED_TARGET_DEFINITIONS)
 	set(TEST_SKIPPED "True RNG is not supported for this target so device key cannot be used")
 endif()
 
-if(NOT "DEVICE_FLASH=1" IN_LIST MBED_TARGET_DEFINITIONS)
+if(NOT ("DEVICE_FLASH=1" IN_LIST MBED_TARGET_DEFINITIONS AND "COMPONENT_FLASHIAP=1" IN_LIST MBED_TARGET_DEFINITIONS))
 	set(TEST_SKIPPED "Flash IAP is not supported for this target so device key cannot be used")
 endif()
 

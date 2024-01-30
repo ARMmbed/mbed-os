@@ -29,25 +29,11 @@ See also [Known issues](#known-issues).
     1. Plug both USB interfaces (*DAPLink* and *USB device*).
 
 ### Linux
-1. Install the `hidapi` Python module, otherwise some USB HID test cases will
-    be skipped. This module is not installed during the initial setup due to
-    external dependencies for Linux.
-
-    For Debian-based Linux distros, the dependencies can be installed as follows
-    (based on module's [README][LN-hidapi_readme]):
-
-    ```bash
-    apt-get install python-dev libusb-1.0-0-dev libudev-dev
-    pip install --upgrade setuptools
-    ```
-
-    To install the `hidapi` module itself, please use the attached
-    [requirements.txt][LN-hid_requirements] file:
-
-    ```bash
-    pip install -r TESTS/usb_device/hid/requirements.txt
-    ```
-2. Add your user to the `plugdev` group with `sudo usermod -G plugdev <your username>`
+1. Install the `hidapi` and `usb` (aka pyusb) Python modules.  It's recommended to install these via a package manager because they have some binary dependencies:
+```
+sudo apt-get install python3-hidapi python3-usb
+```
+2. Add your user to the `plugdev` group with `sudo usermod -a -G plugdev <your username>`
 3. Update the `udev` rules for the USB VIDs/PIDs used in the test as follows:
 
     ```bash
@@ -67,6 +53,22 @@ See also [Known issues](#known-issues).
     port and sending the `AT commands`, which it does for every new
     `/dev/ttyACM` device registered in system.
 4. Install the `udisks2` package, which the test script uses to mount USB disks.  Additionally, you may need to disable any automounting of disks provided by your file manager / distro.
+5. Last but not least, at least on Ubuntu, you may need to change permission settings such that udisks2 actually allows ordinary users to mount disks.  You are supposed to do this with a [polkit rule](https://askubuntu.com/a/1457819/1612342), but I had absolutely no luck getting this to work.  So instead I had to edit `/usr/share/polkit-1/actions/org.freedesktop.UDisks2.policy1` and change the first
+```
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+```
+block to
+```
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>yes</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+```
 
 ### Mac
 No setup method has been verified for this platform.

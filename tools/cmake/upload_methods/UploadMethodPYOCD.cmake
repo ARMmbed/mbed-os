@@ -56,7 +56,7 @@ set(UPLOAD_GDBSERVER_DEBUG_COMMAND
 set(UPLOAD_LAUNCH_COMMANDS
 "monitor reset halt"
 "load"
-"break main"
+"tbreak main"
 )
 set(UPLOAD_RESTART_COMMANDS
 "monitor reset"
