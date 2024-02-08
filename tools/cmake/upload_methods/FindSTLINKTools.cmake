@@ -1,12 +1,12 @@
-# Copyright (c) 2020 ARM Limited. All rights reserved.
+# Copyright (c) 2024 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # ----------------------------------------------
 # CMake finder for STMicro's STM32 upload and debugging tools
 #
 # This module accepts the following components (blame ST for the capitalization, not me):
-# STM32CubeProg
-# STLINK_gdbserver
+# - STM32CubeProg
+# - STLINK_gdbserver
 #
 # This module defines:
 # STLINKTools_FOUND - Whether the requested components were found.
@@ -15,32 +15,61 @@
 # STM32CubeProg_COMMAND - Command to run the STM32 command line programmer.
 # STLINK_gdbserver_COMMAND - Command to run the ST-Link GDB server.
 
-# first try to locate STM32Cube IDE in its default location
+# first try to locate STM32CubeXXX tools in their default location
 set(STM32CUBE_IDE_LINUX_HINTS "")
 set(STM32CUBE_IDE_WINDOWS_HINTS "")
+set(STM32CUBE_CLT_LINUX_HINTS "")
+set(STM32CUBE_CLT_WINDOWS_HINTS "")
 if(EXISTS "/opt/st")
     # Linux directory has version number
-    file(GLOB STM32CUBE_IDE_LINUX_HINTS LIST_DIRECTORIES TRUE "/opt/st/*")
+    file(GLOB STM32CUBE_IDE_LINUX_HINTS LIST_DIRECTORIES TRUE "/opt/st/stm32cubeide*")
+    file(GLOB STM32CUBE_CLT_LINUX_HINTS LIST_DIRECTORIES TRUE "/opt/st/stm32cubeclt*")
 endif()
 if(EXISTS "C:/ST/")
-    # On Windows, STM32CubeIDE by default is installed into a subdirectory of
-    # C:\ST\STM32CubeIDE_<version>\STM32CubeIDE, but may also be installed into
-    # C:\ST\STM32CubeIDE directly
+    # On Windows, STM32CubeXXX tools by default are installed into a subdirectory of
+    # C:\ST\STM32CubeXXX_<version>\STM32CubeXXX, but may also be installed into
+    # C:\ST\STM32CubeXXX directly
 
     # Identify all the subdirectories and sub-subdirectories of C:\ST
-    file(GLOB STM32CUBE_IDE_WINDOWS_HINTS LIST_DIRECTORIES TRUE "C:/ST/*/*" "C:/ST/*")
+    file(GLOB STM32CUBE_IDE_WINDOWS_HINTS LIST_DIRECTORIES TRUE "C:/ST/STM32CubeIDE*/*" "C:/ST/STM32CubeIDE*")
+    file(GLOB STM32CUBE_CLT_WINDOWS_HINTS LIST_DIRECTORIES TRUE "C:/ST/STM32CubeCLT*/*" "C:/ST/STM32CubeCLT*")
 endif()
 find_path(STM32CUBE_IDE_PATH
     NAMES stm32cubeide.ini
-    DOC "Path to STM32Cube IDE.  Used to find the ST-Link Tools"
+    DOC "Path to STM32CubeIDE.  Used to find the ST-Link Tools"
     PATHS
         ${STM32CUBE_IDE_WINDOWS_HINTS} # Windows
         ${STM32CUBE_IDE_LINUX_HINTS} # Linux
         /Applications/STM32CubeIDE.app/Contents/Eclipse # OS X
         )
+find_path(STM32CUBE_CLT_PATH
+        NAMES    
+            STM32CubeCLT_metadata.bat # Windows
+            STM32CubeCLT_metadata.sh # Linux
+        DOC "Path to STM32CubeCLT.  Used to find the ST-Link Tools"
+        PATHS
+            ${STM32CUBE_CLT_WINDOWS_HINTS} # Windows
+            ${STM32CUBE_CLT_LINUX_HINTS} # Linux
+            #/Applications/STM32CubeIDE.app/Contents/Eclipse # OS X
+            )
 
 set(STLINKTools_HINTS "")
-if(EXISTS "${STM32CUBE_IDE_PATH}")
+if(EXISTS "${STM32CUBE_CLT_PATH}")
+    message(STATUS "Located STM32CubeCLT: ${STM32CUBE_CLT_PATH}")
+
+    # find install dirs inside IDE, which also have version numbers
+    file(GLOB GDB_SERVER_INSTALL_DIRS LIST_DIRECTORIES TRUE "${STM32CUBE_CLT_PATH}/STLink-gdb-server/bin")
+    list(GET GDB_SERVER_INSTALL_DIRS 0 GDB_SERVER_INSTALL_DIR) # If glob returns multiple just pick one
+    if(EXISTS "${GDB_SERVER_INSTALL_DIR}")
+        list(APPEND STLINKTools_HINTS ${GDB_SERVER_INSTALL_DIR})
+    endif()
+
+    file(GLOB CUBEPROG_INSTALL_DIRS LIST_DIRECTORIES TRUE "${STM32CUBE_CLT_PATH}/STM32CubeProgrammer/bin")
+    list(GET CUBEPROG_INSTALL_DIRS 0 CUBEPROG_INSTALL_DIR) # If glob returns multiple just pick one
+    if(EXISTS "${CUBEPROG_INSTALL_DIR}")
+        list(APPEND STLINKTools_HINTS ${CUBEPROG_INSTALL_DIR})
+    endif()
+elseif(EXISTS "${STM32CUBE_IDE_PATH}")
     message(STATUS "Located STM32CubeIDE: ${STM32CUBE_IDE_PATH}")
 
     # find install dirs inside IDE, which also have version numbers
@@ -55,8 +84,8 @@ if(EXISTS "${STM32CUBE_IDE_PATH}")
     if(EXISTS "${CUBEPROG_INSTALL_DIR}")
         list(APPEND STLINKTools_HINTS ${CUBEPROG_INSTALL_DIR})
     endif()
-elseif()
-    set(FAIL_MESSAGE_ARG FAIL_MESSAGE "Warning: Failed to find STM32CubeIDE, will still look for ST-LINK tools on your PATH.  Recommend setting STM32CUBE_IDE_PATH to the location of STM32CubeIDE.")
+else()
+    set(FAIL_MESSAGE_ARG FAIL_MESSAGE "Warning: Failed to find STM32CubeCLT or IDE, will still look for ST-LINK tools on your PATH.  Recommend setting STM32CUBE_IDE_PATH to the location of STM32CubeIDE or STM32CUBE_CLT_PATH to the location of STM32CubeCLT.")
 endif()
 set(STLINKTools_REQUIRED_VARS "")
 
@@ -107,5 +136,3 @@ if(EXISTS "${STLINK_gdbserver_PATH}")
 endif()
 
 find_package_handle_standard_args(STLINKTools REQUIRED_VARS ${STLINKTools_REQUIRED_VARS})
-
-
