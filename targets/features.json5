@@ -1,0 +1,392 @@
+// This JSON5 file contains a list of all the features used in Mbed.
+// There are three types of features:
+// Peripherals - Represents a peripheral present on this target and supported by Mbed CE.
+//     Peripherals have names starting with DEVICE.
+// Feature - A larger Mbed OS optional feature supported for this target.
+// Component - An external component present on a given board.  This is commonly
+//     used to mark a given eval board as having flash support, etc.
+// Each feature is defined here before it can be used in targets.json5.
+// The contents of this file are not used during the build, but are used
+// when generating documentation.
+
+{
+    "Component": {
+
+// WiFI and WiFi/BT modules -----------------------------------------------------------
+        "COMPONENT_43012": {
+            "description": "Infineon/Cypress AIROC Wifi/BT module",
+            "friendly_name": "Infineon CYW43012"
+        },
+        "COMPONENT_43438": {
+            "description": "Infineon/Cypress AIROC Wifi/BT module",
+            "friendly_name": "Infineon CYW43438"
+        },
+        "COMPONENT_4343W": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_4343W_FS": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_CYW43XXX": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_EMW3080B": {
+            "description": "",
+            "friendly_name": ""
+        },
+
+// Bluetooth only modules -----------------------------------------------------------
+        "COMPONENT_BlueNRG_2": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_BlueNRG_MS": {
+            "description": "",
+            "friendly_name": ""
+        },
+
+// Cellular modules -----------------------------------------------------------------
+		"COMPONENT_ALTAIR_ALT1250": {
+            "description": "Cellular module from Altair",
+            "friendly_name": "Altair ALT1250"
+        },
+		"COMPONENT_STMOD_CELLULAR": {
+            "description": "STMicro cellular module boards (Quectel UG96 and BG96, selectable via json option)",
+            "friendly_name": "STMod Cellular Modules"
+        },
+        "COMPONENT_GEMALTO_CINTERION": {
+            "description": "Gemalto Cinterion family of cellular modules (ELS61, BGS2, EMS31, and EHS5-E are supported)",
+            "friendly_name": "Gemalto Cinterion"
+        },
+        "COMPONENT_GENERIC_AT3GPP": {
+            "description": "Generic cellular module supporting 3GPP AT command set",
+            "friendly_name": "Generic 3GPP Cellular"
+        },
+        "COMPONENT_MULTITECH_DRAGONFLY_NANO_CELLULAR": {
+            "description": "Cellular module from this Multitech board.  I have been unable to figure out its exact part number from the available docs...",
+            "friendly_name": "Multitech Dragonfly Nano Cellular"
+        },
+        "COMPONENT_QUECTEL_EC2X": {
+            "description": "EC2X and EG25 families of cellular modules",
+            "friendly_name": "Quectel EC2X"
+        },
+        "COMPONENT_QUECTEL_BG96": {
+        	"description": "LTE module",
+            "friendly_name": "Quectel BG96"
+        },
+        "COMPONENT_QUECTEL_UG96": {
+        	"description": "3G cellular module",
+            "friendly_name": "Quectel UG96"
+        },
+        "COMPONENT_QUECTEL_BC95": {
+        	"description": "Narrowband Internet of Things (NB-IoT) cellular module",
+            "friendly_name": "Quectel BC95"
+        },
+        "COMPONENT_QUECTEL_M26": {
+        	"description": "GSM GPRS cellular module",
+            "friendly_name": "Quectel M26"
+        },
+        "COMPONENT_RIOTMICRO_RM1000": {
+    		"description": "LTE + NB-IoT cellular module",
+            "friendly_name": "Riot Micro RM1000"
+        },
+        "COMPONENT_TELIT_HE910": {
+        	"description": "3G module",
+            "friendly_name": "Telit HE910"
+        },
+        "COMPONENT_TELIT_ME310": {
+        	"description": "LTE + GSM + GNSS module",
+            "friendly_name": "Telit ME310"
+        },
+		"COMPONENT_TELIT_ME910": {
+        	"description": "LTE + GSM + GNSS module",
+            "friendly_name": "Telit ME910"
+        },
+
+// 802.15.4 modules -----------------------------------------------------------------
+		"COMPONENT_MICROCHIP_AT86RF": {
+        	"description": "AT86RF233 and AT86RF212B 802.15.4 modules",
+            "friendly_name": "Microchip/Atmel AT86RF"
+        },
+        "COMPONENT_NXP_MCR20A": {
+        	"description": "802.15.4 module",
+            "friendly_name": "NXP/Freescale MCR20A"
+        },
+        "COMPONENT_STM_S2_LP": {
+        	"description": "802.15.4 module, present on X-Nucleo-S2868A1 board",
+            "friendly_name": "NXP/Freescale MCR20A"
+        },
+
+// Other ----------------------------------------------------------------------------
+
+        "COMPONENT_CM0P_SECURE": {
+            "description": "Used on Cypress PSoC6 dual core processors.  When enabled, this activates the Cortex-M0 coprocessor in sleep mode.",
+            "friendly_name": "PSoC CM0 in Sleep Mode"
+        },
+        "COMPONENT_CM0P_SLEEP": {
+            "description": "Used on Cypress PSoC 64 dual core processors with secure boot.  When enabled, activates the Cortex-M0 coprocessor as a security coprocessor.",
+            "friendly_name": "PSoC CM0 in Sleep Mode"
+        },
+        
+        
+        "COMPONENT_FLASHIAP": {
+            "description": "",
+            "friendly_name": ""
+        },
+        
+        "COMPONENT_LAN91C111": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_LOCALFILESYSTEM": {
+            "description": "Mbed interface chip on the board can store a local filesystem and make it available on the USB drive",
+            "friendly_name": "LocalFileSystem"
+        },
+        "COMPONENT_OSPIF": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_QSPIF": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_RTX": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_SCL": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_SD": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_SMSC9220": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_SOFTFP": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_SPIF": {
+            "description": "",
+            "friendly_name": ""
+        },
+        
+        "COMPONENT_SX1276": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_TFM_S_FW": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_WHD": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "COMPONENT_hm01b0": {
+            "description": "320x320 monochrome camera module",
+            "friendly_name": "Himax HM01B0"
+        },
+        "COMPONENT_lis2dh12": {
+            "description": "Low power 3-axis accelerometer",
+            "friendly_name": "STMicro LIS2DH12"
+        }
+    },
+    "Feature": {
+        "FEATURE_BLE": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "FEATURE_CRYPTOCELL310": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "FEATURE_EXPERIMENTAL_API": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "FEATURE_PSA": {
+            "description": "",
+            "friendly_name": ""
+        },
+        "FEATURE_STORAGE": {
+            "description": "",
+            "friendly_name": ""
+        }
+    },
+    "Peripheral": {
+        "DEVICE_802_15_4_PHY": {
+            "description": "802.15.4 radio peripheral, used to implement mesh networking (Wi-SUN, Thread, LoWPAN)",
+            "friendly_name": "802.15.4 Radio"
+        },
+        // Mystery ARM feature, used only on ARM FPGA reference designs
+        "DEVICE_AACI": {
+            "description": "",
+            "friendly_name": "",
+            "hidden_from_docs": true
+        },
+        "DEVICE_ANALOGIN": {
+            "description": "Analog input (ADC) peripheral",
+            "friendly_name": "Analog Inputs"
+        },
+        "DEVICE_ANALOGOUT": {
+            "description": "Analog output (DAC) peripheral",
+            "friendly_name": "Analog Outputs"
+        },
+        "DEVICE_CAN": {
+            "description": "Controller Area Network (CAN) peripheral",
+            "friendly_name": "CAN"
+        },
+        // mystery ARM feature, used only on reference designs (SPI related?)
+        "DEVICE_CLCD": {
+            "description": "",
+            "friendly_name": "ARM CLCD",
+            "hidden_from_docs": true
+        },
+        "DEVICE_CRC": {
+            "description": "CRC Acclerator peripheral, used to accelerate certain CRC computations.",
+            "friendly_name": "Hardware CRC"
+        },
+        "DEVICE_DEBUG_AWARENESS": {
+            "description": "Target supports awareness of whether semihost is attached",
+            "friendly_name": "Semihost Debug Aware"
+        },
+        "DEVICE_EMAC": {
+            "description": "Ethernet MAC peripheral.  Combine with a PHY chip to connect to Ethernet networks.",
+            "friendly_name": "Ethernet MAC"
+        },
+        "DEVICE_FLASH": {
+            "description": "Driver allowing In-Application Programming (IAP) of the MCU flash memory.",
+            "friendly_name": "Flash IAP"
+        },
+        "DEVICE_I2C": {
+            "description": "I2C in controller/master mode",
+            "friendly_name": "I2C Controller/Master"
+        },
+        "DEVICE_I2CSLAVE": {
+            "description": "I2C in peripheral/slave mode",
+            "friendly_name": "I2C Peripheral/Slave"
+        },
+        "DEVICE_I2C_ASYNCH": {
+            "description": "Allows use of I2C controller mode in the background via interrupts and/or DMA.",
+            "friendly_name": "Async I2C Controller/Master"
+        },
+        "DEVICE_INTERRUPTIN": {
+            "description": "GPIO input pin interrupt support",
+            "friendly_name": "GPIO Interrupts"
+        },
+        "DEVICE_ITM": {
+            "description": "Support for ARM Instrumentation Trace Macrocell (ITM).  Basically a fast serial port designed for application logging and tracing that runs over the SWO pin.",
+            "friendly_name": "ITM"
+        },
+        "DEVICE_LPTICKER": {
+            "description": "Also known as the Low-Power Ticker, this peripheral keeps time at a low-frequency clock (usually 32kHz) and generates events for the application.  Usually it is used to implement low power sleep.",
+            "friendly_name": "Low-Precision Ticker"
+        },
+        "DEVICE_MPU": {
+            "description": "Mbed supports configuring the MPU on this device to disable writing to ROM and executing from RAM.",
+            "friendly_name": "Mempoy Protection Unit"
+        },
+        "DEVICE_OSPI": {
+            "description": "Octal SPI peripheral, usually used to communicate with flash memory chips.  Has 8 bidirectional data lines and one clock line, plus optionally a CS line and a DQS line.",
+            "friendly_name": "Octal SPI"
+        },
+        "DEVICE_PORTIN": {
+            "description": "Support for reading from an entire GPIO port at a time",
+            "friendly_name": "GPIO Port Input"
+        },
+        "DEVICE_PORTINOUT": {
+            "description": "Support for using an entire GPIO port as a bidirectional I/O port.",
+            "friendly_name": "GPIO Port I/O"
+        },
+        "DEVICE_PORTOUT": {
+            "description": "Support for writing to an entire GPIO port at a time",
+            "friendly_name": "GPIO Port Output"
+        },
+        "DEVICE_PWMOUT": {
+            "description": "Pulse Width Modulation (PWM) generator peripheral",
+            "friendly_name": "PWM Out"
+        },
+        "DEVICE_QSPI": {
+            "description": "Quad SPI peripheral, usually used to communicate with flash memory chips.  Has 4 bidirectional data lines and one clock line, plus optionally a CS line.",
+            "friendly_name": "Quad SPI"
+        },
+        "DEVICE_RESET_REASON": {
+            "description": "Support for determining the cause of the most recent MCU reset.",
+            "friendly_name": "Reset Reason"
+        },
+        "DEVICE_RTC": {
+            "description": "Real-Time Clock.  Clock which keeps track of real world time, usually using a low frequency, accurate clock.",
+            "friendly_name": "RTC"
+        },
+        "DEVICE_SERIAL": {
+            "description": "Support for buffered and unbuffered serial (UART) ports",
+            "friendly_name": "Serial (UART)"
+        },
+        // Based on git history, it looks like DEVICE_SERIAL_ASYNC was added first,
+        // before BufferedSerial existed.  Unlike BufferedSerial, it requires
+        // that you use different API functions than standard serial read and write.
+        // In the current Mbed version, the functionality only exists in SerialBase, so 
+        // you would have to extend SerialBase yourself to even access it.
+        // Unfortunately, this API supports DMA but BufferedSerial does not... oops.
+        "DEVICE_SERIAL_ASYNCH": {
+            "description": "Legacy asynchronous serial API via SerialBase",
+            "friendly_name": "Legacy Async Serial (UART)"
+        },
+        "DEVICE_SERIAL_FC": {
+            "description": "Serial (UART) peripheral supports using RTS and/or CTS pins for hardware flow control.",
+            "friendly_name": "Serial RTS/CTS Flow Control"
+        },
+        "DEVICE_SLEEP": {
+            "description": "Support for sending the processor to sleep when no threads/ISRs are executing.",
+            "friendly_name": "Sleep"
+        },
+        "DEVICE_SPI": {
+            "description": "Serial Peripheral Interface (SPI) controller/master mode",
+            "friendly_name": "SPI Controller/Master"
+        },
+        "DEVICE_SPISLAVE": {
+            "description": "Serial Peripheral Interface (SPI) device/slave mode",
+            "friendly_name": "SPI Peripheral/Slave"
+        },
+        // Only used for testing, hide for now
+        "DEVICE_SPI_32BIT_WORDS": {
+            "description": "",
+            "friendly_name": "SPI supports 32 Bit Words",
+            "hidden_from_docs": true
+        },
+        "DEVICE_SPI_ASYNCH": {
+            "description": "Allows use of SPI controller mode in the background via interrupts and/or DMA.",
+            "friendly_name": "Async SPI"
+        },
+        "DEVICE_TRNG": {
+            "description": "Cryptographic-grade True Random Number Generator (TRNG).  This is required to implement SSL communications securely unless you provision devices with an entropy seed stored in nonvolatile storage.",
+            "friendly_name": "True Random Number Generator"
+        },
+        // Mystery ARM feature, used only on ARM FPGA reference designs
+        "DEVICE_TSC": {
+            "description": "",
+            "friendly_name": "",
+            "hidden_from_docs": true
+        },
+        "DEVICE_USBDEVICE": {
+            "description": "USB Device peripheral.  Allows the Mbed target to act as a USB device when connected to a host computer.",
+            "friendly_name": "USB Device"
+        },
+        "DEVICE_USTICKER": {
+            "description": "Clock peripheral with at least microsecond resolution that Mbed uses to implement Timer and Ticker.",
+            "friendly_name": "μs Ticker"
+        },
+        "DEVICE_WATCHDOG": {
+            "description": "Peripheral which resets the chip if software doesn't service it within a configurable amount of time.  Used to guard against software hangs.",
+            "friendly_name": "Watchdog"
+        }
+    }
+}

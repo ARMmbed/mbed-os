@@ -5,7 +5,6 @@ add_library(mbed-mts-dragonfly-f411re INTERFACE)
 
 target_sources(mbed-mts-dragonfly-f411re
     INTERFACE
-        ONBOARD_TELIT_HE910.cpp
         PeripheralPins.c
 )
 

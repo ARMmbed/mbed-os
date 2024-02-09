@@ -96,6 +96,10 @@
             "internal-flash-uniform-sectors": {
                 "help": "Target's internal flash has uniform sector sizes",
                 "value": true
+            },
+            "semihosting-enabled": {
+                "help": "Enable ARM Semihosting protocol.  This uses a magic breakpoint instruction to enable the MCU to print data to and access files on a host machine.  However, it can interfere with debuggers that are not semihost aware.",
+                "value": false
             }
         }
     },
@@ -257,7 +261,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "USTICKER"
         ],
         "overrides": {
@@ -309,27 +312,26 @@
             "CAN",
             "DEBUG_AWARENESS",
             "EMAC",
-            "ETHERNET",
             "I2C",
             "I2CSLAVE",
             "INTERRUPTIN",
-            "LOCALFILESYSTEM",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SEMIHOST",
             "SERIAL",
             "SERIAL_FC",
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "FLASH",
             "MPU",
             "USBDEVICE",
             "WATCHDOG",
             "RESET_REASON"
+        ],
+        "components_add": [
+            "LOCALFILESYSTEM"
         ],
         "release_versions": [
             "5"
@@ -343,7 +345,8 @@
             }
         },
         "overrides": {
-            "network-default-interface-type": "ETHERNET"
+            "network-default-interface-type": "ETHERNET",
+            "semihosting-enabled": true // needed for LOCALFILESYSTEM
         },
         "supported_c_libs": {
             "arm": [
@@ -398,7 +401,6 @@
             "CAN",
             "DEBUG_AWARENESS",
             "EMAC",
-            "ETHERNET",
             "I2C",
             "I2CSLAVE",
             "INTERRUPTIN",
@@ -411,7 +413,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "FLASH",
             "MPU",
             "USBDEVICE",
@@ -458,12 +459,10 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SEMIHOST",
             "SERIAL",
             "SLEEP",
             "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES"
+            "SPISLAVE"
         ],
         "release_versions": [
             "5"
@@ -514,12 +513,10 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SEMIHOST",
             "SERIAL",
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "FLASH"
         ],
         "release_versions": [
@@ -589,7 +586,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "USBDEVICE",
             "FLASH"
@@ -667,12 +663,10 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SEMIHOST",
             "SERIAL",
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "USBDEVICE",
             "FLASH"
         ],
@@ -739,7 +733,6 @@
             "SPI",
             "SPISLAVE",
             "TRNG",
-            "STDIO_MESSAGES",
             "FLASH",
             "802_15_4_PHY"
         ],
@@ -810,7 +803,6 @@
             "SPI",
             "SPI_ASYNCH",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
             "USBDEVICE",
@@ -886,7 +878,6 @@
             "USTICKER",
             "RTC",
             "SERIAL",
-            "STDIO_MESSAGES",
             "TRNG",
             "SLEEP",
             "INTERRUPTIN",
@@ -939,7 +930,6 @@
             "USTICKER",
             "RTC",
             "SERIAL",
-            "STDIO_MESSAGES",
             "TRNG",
             "SLEEP",
             "INTERRUPTIN",
@@ -1018,7 +1008,6 @@
             "SPI",
             "SPI_ASYNCH",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
             "WATCHDOG"
@@ -1081,7 +1070,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "FLASH"
         ],
@@ -1157,7 +1145,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
             "USBDEVICE",
@@ -1275,7 +1262,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES",
             "WATCHDOG",
             "RESET_REASON"
         ]
@@ -1523,8 +1509,7 @@
             "CRC",
             "USBDEVICE",
             "ANALOGOUT",
-            "SD",
-            "PWM"
+            "PWMOUT"
         ]
     },
     "MCU_STM32F103xG": {
@@ -1904,6 +1889,9 @@
         "device_name": "STM32F411RETx",
         "detect_code": [
             "0454"
+        ],
+        "components_add": [
+            "TELIT_HE910"
         ]
     },
     "MTS_MDOT_F411RE": {
@@ -2063,7 +2051,8 @@
             "SERIAL_FC"
         ],
         "components_add": [
-            "SPIF"
+            "SPIF",
+            "TELIT_HE910"
         ],
         "device_name": "STM32F413RHTx"
     },
@@ -2196,6 +2185,8 @@
             "TRNG"
         ]
     },
+    // Note: It seems like Seeed no longer sells this board.
+    // That would make this target a candidate for removal.
     "WIO_3G": {
         "inherits": [
             "MCU_STM32F439xI"
@@ -2214,8 +2205,14 @@
         "detect_code": [
             "9014"
         ],
+        "components_add": [
+            "QUECTEL_UG96"
+        ],
         "device_name": "STM32F439VITx"
     },
+
+    // Note: It seems like Seeed no longer sells any WIO boards with BG96 cellular modules.
+    // That would make this target a candidate for removal.
     "WIO_BG96": {
         "inherits": [
             "MCU_STM32F439xI"
@@ -2239,7 +2236,8 @@
         ],
         "device_name": "STM32F439VITx",
         "components_add": [
-            "SD"
+            "SD",
+            "QUECTEL_BG96"
         ]
     },
     "NUCLEO_F439ZI": {
@@ -2594,9 +2592,6 @@
         ],
         "device_has_remove": [
             "SERIAL_FC"
-        ],
-        "features": [
-            "LWIP"
         ],
         "device_name": "STM32F767VITx"
     },
@@ -4287,7 +4282,7 @@
             "MBED_SPLIT_HEAP"
         ]
     },
-    "MTS_DRAGONFLY_L471QG": {
+    "MTS_DRAGONFLY_L471QG": { // Also known as "Dragonfly Nano"
         "inherits": [
             "MCU_STM32L471xG"
         ],
@@ -4296,6 +4291,9 @@
         ],
         "detect_code": [
             "0312"
+        ],
+        "components_add": [
+            "MULTITECH_DRAGONFLY_NANO_CELLULAR",
         ],
         "device_name": "STM32L471QGIx"
     },
@@ -4443,6 +4441,8 @@
         ],
         "device_name": "STM32L486RGTx"
     },
+    // AKA Advantech WISE-1570
+    // This board is EOL from the manufacturer so it is a candidate for removal.
     "ADV_WISE_1570": {
         "inherits": [
             "MCU_STM32L486xG"
@@ -4457,7 +4457,10 @@
             "WISE_1570"
         ],
         "device_name": "STM32L486RGTx",
-        "OUTPUT_EXT": "hex"
+        "OUTPUT_EXT": "hex",
+        "components_add": [
+            "QUECTEL_BC95"
+        ]
     },
     "MCU_STM32L496xG": {
         "inherits": [
@@ -4524,6 +4527,11 @@
             "0828"
         ]
     },
+
+    // Note: I have not been able to find any record of a board with this target ID ever being
+    // sold by Multitech.  It was added by this PR: https://github.com/ARMmbed/mbed-os/pull/15012
+    // If you cannot actually buy the board that this target is for, that would make it a candidate for removal.
+    // I have emailed multitech about it, we will see if they get back to me...
     "MTS_DRAGONFLY_L496VG": {
         "inherits": [
             "MCU_STM32L496xG"
@@ -4532,7 +4540,8 @@
             "ARDUINO_UNO"
         ],
         "components_add": [
-            "QSPIF"
+            "QSPIF",
+            "QUECTEL_EC2X"
         ],
         "device_has_add": [
             "USBDEVICE",
@@ -5193,7 +5202,6 @@
             "EMAC",
             "I2C",
             "I2CSLAVE",
-            "ERROR_RED",
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
@@ -5202,14 +5210,10 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "WATCHDOG",
             "USBDEVICE",
             "LPTICKER"
-        ],
-        "features": [
-            "LWIP"
         ],
         "device_name": "MIMXRT1052",
         "overrides": {
@@ -5410,7 +5414,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "FLASH",
             "MPU"
         ],
@@ -5473,7 +5476,6 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "FLASH",
             "TRNG",
             "QSPI",
@@ -5543,7 +5545,7 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
+            "EMAC",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5589,7 +5591,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5627,7 +5628,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5665,7 +5665,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5704,7 +5703,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5743,7 +5741,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5771,7 +5768,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "ETHERNET",
             "I2C",
             "INTERRUPTIN",
             "PORTIN",
@@ -5965,7 +5961,7 @@
             "RTC",
             "ANALOGIN",
             "CAN",
-            "ETHERNET",
+            "EMAC",
             "I2C",
             "I2CSLAVE",
             "I2C_ASYNCH",
@@ -5979,8 +5975,7 @@
             "SERIAL_FC",
             "SPI",
             "SPISLAVE",
-            "SPI_ASYNCH",
-            "STDIO_MESSAGES"
+            "SPI_ASYNCH"
         ],
         "program_cycle_s": 2,
         "overrides": {
@@ -6059,7 +6054,7 @@
             "LPTICKER"
         ],
         "device_has_remove": [
-            "ETHERNET"
+            "EMAC"
         ],
         "release_versions": [
             "5"
@@ -6093,7 +6088,7 @@
             "RTC",
             "ANALOGIN",
             "CAN",
-            "ETHERNET",
+            "EMAC",
             "I2C",
             "I2CSLAVE",
             "I2C_ASYNCH",
@@ -6108,7 +6103,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES",
             "USBDEVICE"
         ],
         "program_cycle_s": 2,
@@ -6174,7 +6168,6 @@
             "SERIAL_FC",
             "SLEEP",
             "SPI",
-            "STDIO_MESSAGES",
             "USTICKER"
         ],
         "detect_code": [
@@ -6230,7 +6223,6 @@
             "SERIAL_FC",
             "SLEEP",
             "SPI",
-            "STDIO_MESSAGES",
             "USTICKER"
         ],
         "release_versions": [
@@ -6279,7 +6271,6 @@
             "SERIAL_FC",
             "SLEEP",
             "SPI",
-            "STDIO_MESSAGES",
             "USTICKER"
         ],
         "device_name": "MAX32625",
@@ -6368,11 +6359,9 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SD",
             "SERIAL",
             "SERIAL_FC",
             "SPI",
-            "STDIO_MESSAGES",
             "USTICKER",
             "MPU",
             "SLEEP",
@@ -6418,7 +6407,6 @@
         "device_has": [
             "SERIAL",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -6496,7 +6484,6 @@
         "device_has": [
             "SERIAL",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -6636,7 +6623,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
             "ITM",
@@ -6749,7 +6735,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES",
             "USTICKER",
             "TRNG",
             "FLASH",
@@ -6861,7 +6846,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES",
             "USTICKER",
             "TRNG",
             "FLASH",
@@ -6931,7 +6915,8 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_TICKLESS",
             "MBED_MPU_CUSTOM",
-            "SWI_DISABLE0"
+            "SWI_DISABLE0",
+            "SYSTICK_CLK_OFF_DURING_SLEEP" // see mbed_sleep() in mbed_power_mgmt.h
         ],
         "features": [
             "BLE"
@@ -6955,7 +6940,6 @@
             "SLEEP",
             "SPI",
             "SPI_ASYNCH",
-            "SYSTICK_CLK_OFF_DURING_SLEEP",
             "TRNG",
             "USTICKER"
         ],
@@ -7086,7 +7070,8 @@
             "WSF_MAX_HANDLERS=10",
             "MBED_MPU_CUSTOM",
             "SWI_DISABLE0",
-            "NRF52_PAN_20"
+            "NRF52_PAN_20",
+            "SYSTICK_CLK_OFF_DURING_SLEEP" // see mbed_sleep() in mbed_power_mgmt.h
         ],
         "features": [
             "CRYPTOCELL310",
@@ -7111,7 +7096,6 @@
             "SLEEP",
             "SPI",
             "SPI_ASYNCH",
-            "SYSTICK_CLK_OFF_DURING_SLEEP",
             "TRNG",
             "USTICKER",
             "QSPI",
@@ -7182,7 +7166,10 @@
                 "std",
                 "small"
             ]
-        }
+        },
+
+        // This is the target for all boards using NRF52840 chips
+        "is_mcu_family_target": true
     },
     "NRF52840_DK": {
         "supported_form_factors": [
@@ -7322,7 +7309,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -7440,7 +7426,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -7567,7 +7552,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -7721,7 +7705,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -7897,7 +7880,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -8016,7 +7998,6 @@
             "I2C",
             "I2CSLAVE",
             "I2C_ASYNCH",
-            "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
             "SLEEP"
@@ -8255,7 +8236,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -8413,7 +8393,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -8497,7 +8476,6 @@
             "I2CSLAVE",
             "I2C_ASYNCH",
             "RTC",
-            "STDIO_MESSAGES",
             "FLASH",
             "SLEEP",
             "USTICKER",
@@ -8532,7 +8510,16 @@
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "LPTICKER_DELAY_TICKS=3",
             "CYBT_WAKE_ACTIVE_LOW=0",
-            "CYBT_WAKE_ACTIVE_HIGH=1"
+            "CYBT_WAKE_ACTIVE_HIGH=1",
+
+            // These are named like Mbed components, but actually seem to be a definitions
+            // used by the Cypress IDE-generated BSP.  We just want to define them all the time.
+            "COMPONENT_PSOC6=1",
+            "COMPONENT_PSOC6HAL=1",
+            "COMPONENT_SOFTFP=1",
+            "COMPONENT_RTX=1",
+            "COMPONENT_CAT1=1",
+            "COMPONENT_CAT1A=1",
         ],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": [
@@ -8564,7 +8551,6 @@
             "SPI",
             "SPI_ASYNCH",
             "SPISLAVE",
-            "STDIO_MESSAGES",
             "TRNG",
             "USBDEVICE",
             "USTICKER",
@@ -8578,10 +8564,6 @@
             "PSOC6",
             "MXCRYPTO"
         ],
-        "components_add": [
-            "SOFTFP",
-            "RTX"
-        ],
         "public": false,
         "forced_reset_timeout": 5,
         "overrides": {
@@ -8593,16 +8575,19 @@
             "MCU_PSOC6"
         ],
         "components_add": [
-            "CM4",
             "FLASHIAP",
             "QSPIF",
-            "BSP_DESIGN_MODUS",
             "CM0P_SLEEP"
         ],
         "macros_add": [
             "MCU_PSOC6_M4",
             "CY_USING_HAL",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+
+            // These are named like Mbed components, but actually seem to be a definitions
+            // used by the Cypress IDE-generated BSP.  We just want to define them all the time.
+            "COMPONENT_BSP_DESIGN_MODUS=1",
+            "COMPONENT_CM4=1",
         ],
         "public": false,
         "supported_application_profiles": [
@@ -8626,10 +8611,6 @@
             "BLE"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX"
@@ -8671,10 +8652,6 @@
             "BLE"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "43012",
             "CYW43XXX"
@@ -8713,10 +8690,6 @@
             "BLE"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX"
@@ -8751,14 +8724,9 @@
             "BLE"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
-            "UDB_SDIO_P2"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -8771,6 +8739,7 @@
         "macros_add": [
             "CY8C6247BZI_D54",
             "CYHAL_UDB_SDIO",
+            "COMPONENT_UDB_SDIO_P2=1",
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247BZI-D54",
@@ -8808,12 +8777,6 @@
         "macros_add": [
             "CY8C6347BZI_BLD53"
         ],
-        "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6"
-        ],
         "device_name": "CY8C6347BZI-BLD53",
         "mbed_ram_start": "0x08002000",
         "mbed_ram_size": "0x00045800",
@@ -8839,14 +8802,9 @@
             "ARDUINO"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "43438",
             "CYW43XXX",
-            "UDB_SDIO_P2"
         ],
         "extra_labels_add": [
             "PSOC6_01",
@@ -8856,6 +8814,7 @@
         "macros_add": [
             "CY8C6247BZI_D54",
             "CYHAL_UDB_SDIO",
+            "COMPONENT_UDB_SDIO_P2=1",
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247BZI-D54",
@@ -8887,14 +8846,9 @@
             "ARDUINO"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "43012",
             "CYW43XXX",
-            "UDB_SDIO_P12"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -8907,6 +8861,7 @@
         "macros_add": [
             "CY8C6247FDI_D52",
             "CYHAL_UDB_SDIO",
+            "COMPONENT_UDB_SDIO_P12=1",
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247FDI-D52",
@@ -8930,10 +8885,6 @@
             "BLE"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -8988,10 +8939,6 @@
             "PSA"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -9051,10 +8998,6 @@
             "MCU_PSOC6_M4"
         ],
         "components_add": [
-            "CAT1A",
-            "CAT1",
-            "PSOC6HAL",
-            "PSOC6",
             "SCL",
             "43012",
             "CYW43XXX"
@@ -9236,7 +9179,7 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
-    "EP_AGORA": {
+    "EP_AGORA": { // AKA Embedded Planet Agora (w/ dev kit for flashing and debugging) https://www.embeddedplanet.com/agora/
         "inherits": [
             "MCU_NRF52840"
         ],
@@ -9252,7 +9195,10 @@
                 "help": "Enable inclusion of objects_extensions.h",
                 "value": false
             }
-        }
+        },
+        "components_add": [
+            "TELIT_ME910"
+        ]
     },
     "MCU_M261": {
         "core": "Cortex-M23",
@@ -9345,7 +9291,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -9438,7 +9383,7 @@
             "3701"
         ]
     },
-    "EP_ATLAS": {
+    "EP_ATLAS": { // AKA Embedded Planet Atlas board. https://www.embeddedplanet.com/chronos/#atlas
         "inherits": ["MCU_NRF52840"],
         "device_name": "nRF52840_xxAA",
         "supported_form_factors": [],
@@ -9454,7 +9399,7 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "components_add": ["SPIF"],
+        "components_add": ["SPIF", "TELIT_ME310"],
         "components_remove": ["QSPIF"],
         "release_versions": ["5"],
         "macros_add": [
@@ -9520,7 +9465,6 @@
             "SERIAL",
             "INTERRUPTIN",
             "LPTICKER",
-            "STDIO_MESSAGES",
             "FLASH",
             "SPI",
             "I2C",
@@ -9591,14 +9535,14 @@
         "macros": ["__TMPM4KN__"],
         "supported_toolchains": ["GCC_ARM"],
         "device_has": [
-            "ANALOGIN",
+        "ANALOGIN",
 	    "INTERRUPTIN",
 	    "CRC",
 	    "I2C",
 	    "I2CSLAVE",
 	    "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
+        "PORTINOUT",
+        "PORTOUT",
 	    "PWMOUT",
 	    "RESET_REASON",
 	    "SERIAL",
@@ -9606,8 +9550,7 @@
 	    "SPI",
 	    "SPISLAVE",
 	    "USTICKER",
-	    "STDIO_MESSAGES",
-            "MPU",
+        "MPU",
 	    "FLASH"
         ],
         "device_name": "TMPM4KNFYAFG",
@@ -9657,7 +9600,6 @@
             "I2CSLAVE",
             "I2C_ASYNCH",
             "RTC",
-            "STDIO_MESSAGES",
             "FLASH",
             "SLEEP",
             "USTICKER",
@@ -9716,7 +9658,6 @@
             "I2CSLAVE",
             "I2C_ASYNCH",
             "RTC",
-            "STDIO_MESSAGES",
             "FLASH",
             "SLEEP",
             "USTICKER",
@@ -9763,8 +9704,6 @@
             "I2C",
             "I2CSLAVE",
             "INTERRUPTIN",
-            "PORT_IN",
-            "PORT_OUT",
             "PWMOUT",
             "SERIAL",
             "SERIAL_FC",

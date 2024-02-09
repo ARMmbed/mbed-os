@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#if DEVICE_SEMIHOST
+#if MBED_CONF_TARGET_SEMIHOSTING_ENABLED
 
 #if !defined(__ARMCC_VERSION)
 
@@ -64,7 +64,6 @@ static inline int __semihost(int reason, const void *arg)
 #endif
 #endif
 
-#if DEVICE_LOCALFILESYSTEM
 FILEHANDLE semihost_open(const char *name, int openmode);
 int semihost_close(FILEHANDLE fh);
 int semihost_read(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode);
@@ -76,7 +75,6 @@ int semihost_istty(FILEHANDLE fh);
 
 int semihost_remove(const char *name);
 int semihost_rename(const char *old_name, const char *new_name);
-#endif
 
 int semihost_uid(char *uid);
 int semihost_reset(void);

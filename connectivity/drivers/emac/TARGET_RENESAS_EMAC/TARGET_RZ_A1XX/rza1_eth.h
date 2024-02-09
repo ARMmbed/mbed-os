@@ -19,7 +19,7 @@
 #include "device.h"
 #include "platform/mbed_toolchain.h"
 
-#if DEVICE_ETHERNET
+#if DEVICE_EMAC
 
 #ifdef __cplusplus
 extern "C" {

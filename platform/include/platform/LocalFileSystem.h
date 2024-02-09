@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_LOCALFILESYSTEM
+#if DOXYGEN_ONLY || (COMPONENT_LOCALFILESYSTEM && MBED_CONF_TARGET_SEMIHOSTING_ENABLED)
 
 #include "platform/FileSystemLike.h"
 #include "rtos/Mutex.h"

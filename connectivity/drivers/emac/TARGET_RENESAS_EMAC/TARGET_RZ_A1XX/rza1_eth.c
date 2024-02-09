@@ -22,7 +22,7 @@
 #include "iodefine.h"
 #include "rza1_eth_ext.h"
 
-#if DEVICE_ETHERNET
+#if DEVICE_EMAC
 
 /* Descriptor info */
 #define NUM_OF_TX_DESCRIPTOR    (16)
@@ -821,4 +821,4 @@ static void wait_100us(int32_t wait_cnt)
         /* Do Nothing */
     }
 }
-#endif /* DEVICE_ETHERNET */
+#endif /* DEVICE_EMAC */

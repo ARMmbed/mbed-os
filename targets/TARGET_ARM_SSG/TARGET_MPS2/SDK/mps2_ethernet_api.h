@@ -20,7 +20,7 @@
 
 #include "device.h"
 
-#if DEVICE_ETHERNET
+#if DEVICE_EMAC
 
 #ifdef __cplusplus
 extern "C" {

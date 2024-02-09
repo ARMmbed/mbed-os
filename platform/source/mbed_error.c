@@ -34,9 +34,6 @@
 #include "rtx_os.h"
 #endif
 
-#if DEVICE_STDIO_MESSAGES
-#include <stdio.h>
-#endif
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif

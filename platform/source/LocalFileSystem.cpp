@@ -20,8 +20,6 @@
 
 #include "platform/LocalFileSystem.h"
 
-#if DEVICE_LOCALFILESYSTEM
-
 #include "platform/mbed_semihost_api.h"
 #include <string.h>
 #include <stdio.h>
@@ -304,4 +302,3 @@ int LocalFileSystem::open(DirHandle **dir, const char *name)
 
 } // namespace mbed
 
-#endif

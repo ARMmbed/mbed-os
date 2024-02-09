@@ -1563,13 +1563,11 @@ extern "C" void exit(int return_code)
 {
 #endif
 
-#if DEVICE_STDIO_MESSAGES
 #if MBED_CONF_PLATFORM_STDIO_FLUSH_AT_EXIT
     fflush(stdout);
     fflush(stderr);
     fsync(STDOUT_FILENO);
     fsync(STDERR_FILENO);
-#endif
 #endif
 
 #if DEVICE_SEMIHOST

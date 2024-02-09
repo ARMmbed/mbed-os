@@ -5,7 +5,6 @@ add_library(mbed-adv-wise-1570 INTERFACE)
 
 target_sources(mbed-adv-wise-1570
     INTERFACE
-        ONBOARD_QUECTEL_BC95.cpp
         PeripheralPins.c
         system_clock.c
 )

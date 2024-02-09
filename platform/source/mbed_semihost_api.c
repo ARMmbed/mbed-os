@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#if DEVICE_SEMIHOST
+#if MBED_CONF_TARGET_SEMIHOSTING_ENABLED
 
 // ARM Semihosting Commands
 #define SYS_OPEN   (0x1)
@@ -48,7 +48,6 @@
 #define USR_POWERDOWN     (RESERVED_FOR_USER_APPLICATIONS + 4)
 #define USR_DISABLEDEBUG (RESERVED_FOR_USER_APPLICATIONS + 5)
 
-#if DEVICE_LOCALFILESYSTEM
 FILEHANDLE semihost_open(const char *name, int openmode)
 {
     uint32_t args[3];
@@ -125,7 +124,6 @@ int semihost_rename(const char *old_name, const char *new_name)
     args[3] = (uint32_t)strlen(new_name);
     return __semihost(SYS_RENAME, args);
 }
-#endif
 
 int semihost_exit(void)
 {

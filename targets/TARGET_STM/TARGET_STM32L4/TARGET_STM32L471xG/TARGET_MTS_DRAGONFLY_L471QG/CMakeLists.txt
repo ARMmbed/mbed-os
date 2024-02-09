@@ -6,7 +6,6 @@ add_library(mbed-mts-dragonfly-l471qg INTERFACE)
 target_sources(mbed-mts-dragonfly-l471qg
     INTERFACE
         mtqn_low_power.c
-        ONBOARD_SARA4_PPP.cpp
         ublox_low_level_api.c
         PeripheralPins.c
 )

@@ -22,7 +22,6 @@ target_sources(mbed-core-sources
         FileHandle.cpp
         FilePath.cpp
         FileSystemHandle.cpp
-        LocalFileSystem.cpp
         SingletonPtr.cpp
         Stream.cpp
         SysTimer.cpp
@@ -56,6 +55,14 @@ if(MBED_TOOLCHAIN STREQUAL "GCC_ARM" AND MBED_C_LIB STREQUAL "small")
             newlib_nano_malloc_workaround.c
     )
 endif()
+
+if("MBED_CONF_TARGET_SEMIHOSTING_ENABLED=1" IN_LIST MBED_CONFIG_DEFINITIONS AND "COMPONENT_LOCALFILESYSTEM=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    target_sources(mbed-core-sources
+        INTERFACE
+            LocalFileSystem.cpp
+    )
+endif()
+
 
 if("MBED_CONF_TARGET_CONSOLE_USB=1" IN_LIST MBED_CONFIG_DEFINITIONS)
     # If the stdio console uses USB, we need to link mbed-usb into the default OS build

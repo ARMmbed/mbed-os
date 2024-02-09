@@ -21,7 +21,7 @@
 #ifndef MBED_FPGA_PWM_TEST_H
 #define MBED_FPGA_PWM_TEST_H
 
-#if DEVICE_PWM
+#if DEVICE_PWMOUT
 
 #ifdef __cplusplus
 extern "C" {

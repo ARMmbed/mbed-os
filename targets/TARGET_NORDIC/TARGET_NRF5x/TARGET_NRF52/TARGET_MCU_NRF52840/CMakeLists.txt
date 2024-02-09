@@ -15,10 +15,6 @@ target_include_directories(mbed-ep-agora
     INTERFACE
         TARGET_EP_AGORA
 )
-target_sources(mbed-ep-agora
-    INTERFACE
-        TARGET_EP_AGORA/ONBOARD_TELIT_ME910.cpp
-)
 
 target_include_directories(mbed-ep-atlas
     INTERFACE
@@ -27,7 +23,6 @@ target_include_directories(mbed-ep-atlas
 
 target_sources(mbed-ep-atlas
     INTERFACE
-        TARGET_EP_ATLAS/ONBOARD_TELIT_ME310.cpp
         TARGET_EP_ATLAS/usb_stdio.cpp
         TARGET_EP_ATLAS/atlas_init.c
 )
