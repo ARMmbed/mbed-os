@@ -14,41 +14,53 @@
 
 // WiFI and WiFi/BT modules -----------------------------------------------------------
         "COMPONENT_43012": {
-            "description": "Infineon/Cypress AIROC Wifi/BT module",
+            "description": "Infineon/Cypress AIROC Wifi 802.11n (2.4GHz and 5GHz) + BT 5.4 module",
             "friendly_name": "Infineon CYW43012"
         },
         "COMPONENT_43438": {
-            "description": "Infineon/Cypress AIROC Wifi/BT module",
+            "description": "Infineon/Cypress AIROC Wifi 802.11n (2.4GHz) + BT 5.3 module",
             "friendly_name": "Infineon CYW43438"
         },
         "COMPONENT_4343W": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Infineon/Cypress AIROC Wifi 802.11n (2.4GHz) + BT 5.3 module",
+            "friendly_name": "Infineon CYW4343W"
         },
         "COMPONENT_4343W_FS": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Infineon/Cypress AIROC Wifi 802.11n (2.4GHz) + BT 5.3 module",
+            "friendly_name": "Infineon CYW4343W (Arduino Portenta variant)"
         },
         "COMPONENT_CYW43XXX": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Generic component for Infineon/Cypress AIROC Wifi modules.  Add one of the specific part number components to get configs + firmware for your device.",
+            "friendly_name": "Infineon CYW43XXX"
         },
+        "COMPONENT_WHD": {
+            "description": "Generic component for the driver for Infineon/Cypress wifi modules.  Works in combination with other components.",
+            "friendly_name": "Infineon Wifi Host Driver"
+        },
+        // Annoyingly, STMicro wrote the driver for this module (since it is used on
+        // some of their dev boards), and they licensed it under terms that the 
+        // code may only run on STM32 chips.  So, this component is only available when
+        // an STMicro processor is in use.
         "COMPONENT_EMW3080B": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Wifi 802.11b/g/n module (driver available for STM32 targets only)",
+            "friendly_name": "MXChip EMW3080B"
+        },
+        "COMPONENT_ESPRESSIF_ESP8266": {
+            "description": "Wifi 802.11b/g/n MCU running ESP8266-IDF-AT AT command firmware",
+            "friendly_name": "Espressif ESP8366"
         },
 
 // Bluetooth only modules -----------------------------------------------------------
         "COMPONENT_BlueNRG_2": {
-            "description": "",
-            "friendly_name": ""
+            "description": "STMicro BlueNRG-2",
+            "friendly_name": "STMicro BlueNRG-2"
         },
         "COMPONENT_BlueNRG_MS": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Bluetooth 4.2 module",
+            "friendly_name": "STMicro BlueNRG-MS"
         },
 
-// Cellular modules -----------------------------------------------------------------
+// Cellular and Cellular/GNSS modules ----------------------------------------------
 		"COMPONENT_ALTAIR_ALT1250": {
             "description": "Cellular module from Altair",
             "friendly_name": "Altair ALT1250"
@@ -117,17 +129,32 @@
         },
         "COMPONENT_STM_S2_LP": {
         	"description": "802.15.4 module, present on X-Nucleo-S2868A1 board",
-            "friendly_name": "NXP/Freescale MCR20A"
+            "friendly_name": "STMicro S2-LP"
+        },
+
+// LoRa modules ---------------------------------------------------------------------
+		"COMPONENT_SX126x": {
+            "description": "LoRa Connect™ 150-960MHz Transcievers",
+            "friendly_name": "Semtech SX1272"
+        },
+		"COMPONENT_SX1272": {
+            "description": "LoRa Connect™ 860-1000MHz Transciever",
+            "friendly_name": "Semtech SX1272"
+        },
+		"COMPONENT_SX1276": {
+            "description": "LoRa Connect™ 137-1020MHz Transciever",
+            "friendly_name": "Semtech SX1276"
         },
 
 // Other ----------------------------------------------------------------------------
 
         "COMPONENT_CM0P_SECURE": {
-            "description": "Used on Cypress PSoC6 dual core processors.  When enabled, this activates the Cortex-M0 coprocessor in sleep mode.",
-            "friendly_name": "PSoC CM0 in Sleep Mode"
+        	"description": "Used on Cypress PSoC 64 dual core processors with secure boot.  When enabled, activates the Cortex-M0 coprocessor as a security coprocessor.",
+            
+            "friendly_name": "PSoC CM0 in Security Mode"
         },
         "COMPONENT_CM0P_SLEEP": {
-            "description": "Used on Cypress PSoC 64 dual core processors with secure boot.  When enabled, activates the Cortex-M0 coprocessor as a security coprocessor.",
+            "description": "Used on Cypress PSoC6 dual core processors.  When enabled, this activates the Cortex-M0 coprocessor in sleep mode.",
             "friendly_name": "PSoC CM0 in Sleep Mode"
         },
         
@@ -178,15 +205,8 @@
             "friendly_name": ""
         },
         
-        "COMPONENT_SX1276": {
-            "description": "",
-            "friendly_name": ""
-        },
+        
         "COMPONENT_TFM_S_FW": {
-            "description": "",
-            "friendly_name": ""
-        },
-        "COMPONENT_WHD": {
             "description": "",
             "friendly_name": ""
         },

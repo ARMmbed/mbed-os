@@ -22,3 +22,5 @@ target_sources(mbed-wiced
     PRIVATE
         wiced_interface/default_wifi_interface.cpp
 )
+
+target_link_libraries(mbed-wifi PUBLIC mbed-wiced)

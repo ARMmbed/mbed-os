@@ -40,12 +40,13 @@ class TargetNotFoundError(TargetAttributesError):
     """Target definition not found in targets.json."""
 
 
-def get_target_attributes(targets_json_data: dict, target_name: str) -> dict:
+def get_target_attributes(targets_json_data: dict, target_name: str, allow_non_public_targets: bool = False) -> dict:
     """Retrieves attribute data taken from targets.json for a single target.
 
     Args:
         targets_json_data: target definitions from targets.json
         target_name: the name of the target (often a Board's board_type).
+        allow_non_public_targets: If set to True, attributes can be gotten even for non-public targets
 
     Returns:
         A dictionary representation of the attributes for the target.
@@ -54,7 +55,7 @@ def get_target_attributes(targets_json_data: dict, target_name: str) -> dict:
         ParsingTargetJSONError: error parsing targets.json
         TargetNotFoundError: there is no target attribute data found for that target.
     """
-    target_attributes = _extract_target_attributes(targets_json_data, target_name)
+    target_attributes = _extract_target_attributes(targets_json_data, target_name, allow_non_public_targets)
     target_attributes["labels"] = get_labels_for_target(targets_json_data, target_name).union(
         _extract_core_labels(target_attributes.get("core", None))
     )
@@ -68,12 +69,13 @@ def get_target_attributes(targets_json_data: dict, target_name: str) -> dict:
     return target_attributes
 
 
-def _extract_target_attributes(all_targets_data: Dict[str, Any], target_name: str) -> dict:
+def _extract_target_attributes(all_targets_data: Dict[str, Any], target_name: str, allow_non_public_targets: bool) -> dict:
     """Extracts the definition for a particular target from all the targets in targets.json.
 
     Args:
         all_targets_data: a dictionary representation of the raw targets.json data.
         target_name: the name of the target.
+        allow_non_public_targets: If set to True, attributes can be gotten even for non-public targets
 
     Returns:
         A dictionary representation the target definition.
@@ -85,8 +87,8 @@ def _extract_target_attributes(all_targets_data: Dict[str, Any], target_name: st
         raise TargetNotFoundError(f"Target attributes for {target_name} not found.")
 
     # All target definitions are assumed to be public unless specifically set as public=false
-    if not all_targets_data[target_name].get("public", True):
-        raise TargetNotFoundError(f"Target attributes for {target_name} not found.")
+    if not all_targets_data[target_name].get("public", True) and not allow_non_public_targets:
+        raise TargetNotFoundError(f"Cannot get attributes for {target_name} because it is marked non-public in targets JSON.  This likely means you set MBED_TARGET to the name of the MCU rather than the name of the board.")
 
     target_attributes = get_overriding_attributes_for_target(all_targets_data, target_name)
     accumulated_attributes = get_accumulating_attributes_for_target(all_targets_data, target_name)

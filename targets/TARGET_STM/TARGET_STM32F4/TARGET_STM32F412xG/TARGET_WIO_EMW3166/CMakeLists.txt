@@ -13,4 +13,4 @@ target_include_directories(mbed-wio-emw3166
         .
 )
 
-target_link_libraries(mbed-wio-emw3166 INTERFACE mbed-wiced mbed-stm32f412xg)
+target_link_libraries(mbed-wio-emw3166 INTERFACE mbed-stm32f412xg)
