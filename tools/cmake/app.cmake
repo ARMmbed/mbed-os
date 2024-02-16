@@ -75,10 +75,29 @@ endif()
 # Load upload method configuration defaults for this target.
 # Loading the settings here makes sure they are set at global scope, and also makes sure that
 # the user can override them by changing variable values after including app.cmake.
-set(EXPECTED_MBED_UPLOAD_CFG_FILE_PATH targets/upload_method_cfg/${MBED_TARGET}.cmake)
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../../${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
-    message(STATUS "Mbed: Loading default upload method configuration from ${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH}")
-    include(${CMAKE_CURRENT_LIST_DIR}/../../${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
+#
+# default expected paths
+set(EXPECTED_CUSTOM_UPLOAD_CFG_FILE_PATH ${CMAKE_SOURCE_DIR}/custom_targets/upload_method_cfg/${MBED_TARGET}.cmake)
+set(EXPECTED_MBED_UPLOAD_CFG_FILE_PATH ${CMAKE_SOURCE_DIR}/mbed-os/targets/upload_method_cfg/${MBED_TARGET}.cmake)
+
+# check if a custom upload config path is defined in top lvl cmake
+if((DEFINED CUSTOM_UPLOAD_CFG_PATH))
+    if(EXISTS ${CUSTOM_UPLOAD_CFG_PATH})
+        include(${CUSTOM_UPLOAD_CFG_PATH})
+        message(STATUS "Mbed: Custom upload config included from ${CUSTOM_UPLOAD_CFG_PATH}")
+    else()
+        message(FATAL_ERROR "Mbed: Custom upload config is defined but files was not found here - ${CUSTOM_UPLOAD_CFG_PATH}")
+    endif()
+	
+# check if a custom upload config is present in custom_targets/YOUR_TARGET folder
+elseif(EXISTS ${EXPECTED_CUSTOM_UPLOAD_CFG_FILE_PATH})
+	include(${EXPECTED_CUSTOM_UPLOAD_CFG_FILE_PATH})
+	message(STATUS "Mbed: Custom upload config included from ${EXPECTED_CUSTOM_UPLOAD_CFG_FILE_PATH}")
+	
+# check for build in upload config
+elseif(EXISTS ${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
+	include(${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH})
+	message(STATUS "Mbed: Loading default upload method configuration from ${EXPECTED_MBED_UPLOAD_CFG_FILE_PATH}")
 else()
     message(STATUS "Mbed: Target does not have any upload method configuration.  'make flash-' commands will not be available unless configured by the upper-level project.")
     set(UPLOAD_METHOD_DEFAULT "NONE")
