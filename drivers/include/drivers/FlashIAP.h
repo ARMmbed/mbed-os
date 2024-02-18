@@ -129,6 +129,9 @@ public:
 
     /** Get the flash start address
      *
+     * \note This is the start address of the entire flash region, not
+     *   the first address after the end of the program in flash.
+     *
      *  @return Flash start address
      */
     uint32_t get_flash_start() const;

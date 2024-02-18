@@ -146,6 +146,52 @@
             "friendly_name": "Semtech SX1276"
         },
 
+// NFC modules ----------------------------------------------------------------------
+        "COMPONENT_NXP_PN512": {
+        	"friendly_name": "NXP P512",
+        	"description": "NFC reader/writer/card"
+        },
+        "COMPONENT_STM_M24SR": {
+        	"friendly_name": "STMicro M24SR64-Y",
+        	"description": "NFC tag"
+        },
+
+// Memory devices -------------------------------------------------------------------
+		"COMPONENT_DATAFLASH": {
+			"friendly_name": "Generic DataFlash Memory",
+            "description": "Component for boards with an SPI flash supporting the Atmel DataFlash interface"
+        },
+        "COMPONENT_I2CEE": {
+			"friendly_name": "Generic I2C EEPROM",
+            "description": "Component for boards with an I2C EEPROM supporting the 24LC/AT24C interface convention"
+        },
+        "COMPONENT_SPIF": {
+        	"friendly_name": "SFDP SPI Flash",
+            "description": "Component for generic SPI flashes supporting the SFDP standard"
+        },
+        "COMPONENT_QSPIF": {
+        	"friendly_name": "SFDP QuadSPI Flash",
+            "description": "Component for generic QuadSPI flashes supporting the SFDP standard"
+        },
+        "COMPONENT_OSPIF": {
+        	"friendly_name": "SFDP Octal SPI Flash",
+            "description": "Component for generic Octal SPI flashes supporting the SFDP standard"
+        },
+		"COMPONENT_SD": {
+			"friendly_name": "SD/SDHC Card",
+            "description": "Component for SD card support via the SPI bus."
+        },
+        // Note: Currently I am unsure whether the SPINANDBlockDevice implementation
+        // requires a flash device with built-in ECC, or whether it does no error correcting
+        // at all and requires a flash which does error correcting.  Also, per the original
+        // PR: https://github.com/ARMmbed/mbed-os/pull/14397
+        // this block device has only been tested with Macronix MX31LF4GE4BC, so
+        // I'm unsure how generic it is, or whether it will only work with that flash device.
+        "COMPONENT_SPINAND": {
+        	"friendly_name": "QuadSPI NAND Flash",
+            "description": "Component for QuadSPI NAND flash devices."
+        },
+
 // Other ----------------------------------------------------------------------------
 
         "COMPONENT_CM0P_SECURE": {
@@ -157,58 +203,21 @@
             "description": "Used on Cypress PSoC6 dual core processors.  When enabled, this activates the Cortex-M0 coprocessor in sleep mode.",
             "friendly_name": "PSoC CM0 in Sleep Mode"
         },
-        
-        
-        "COMPONENT_FLASHIAP": {
-            "description": "",
-            "friendly_name": ""
-        },
-        
-        "COMPONENT_LAN91C111": {
-            "description": "",
-            "friendly_name": ""
-        },
         "COMPONENT_LOCALFILESYSTEM": {
             "description": "Mbed interface chip on the board can store a local filesystem and make it available on the USB drive",
             "friendly_name": "LocalFileSystem"
         },
-        "COMPONENT_OSPIF": {
-            "description": "",
-            "friendly_name": ""
-        },
-        "COMPONENT_QSPIF": {
-            "description": "",
-            "friendly_name": ""
-        },
-        "COMPONENT_RTX": {
-            "description": "",
-            "friendly_name": ""
-        },
         "COMPONENT_SCL": {
-            "description": "",
-            "friendly_name": ""
-        },
-        "COMPONENT_SD": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Wi-Fi Cortex-M0 coprocessor present on Infineon/Cypress CYSBSYS-RP01",
+            "friendly_name": "Infineon Wi-Fi Coprocessor"
         },
         "COMPONENT_SMSC9220": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Parallel bus-connected Ethernet MAC/PHY",
+            "friendly_name": "Microchip LAN9220"
         },
-        "COMPONENT_SOFTFP": {
-            "description": "",
-            "friendly_name": ""
-        },
-        "COMPONENT_SPIF": {
-            "description": "",
-            "friendly_name": ""
-        },
-        
-        
         "COMPONENT_TFM_S_FW": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Component for devices with a separate firmware image that must be merged for the TFM Secure processor.",
+            "friendly_name": "TFM Secure Firmware"
         },
         "COMPONENT_hm01b0": {
             "description": "320x320 monochrome camera module",
@@ -221,20 +230,20 @@
     },
     "Feature": {
         "FEATURE_BLE": {
-            "description": "",
-            "friendly_name": ""
+            "description": "This feature enables Mbed's BLE stack.",
+            "friendly_name": "Bluetooth Low Energy"
         },
         "FEATURE_CRYPTOCELL310": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Embedded security peripheral providing TRNG and H/W accelerated encryption algorithms.",
+            "friendly_name": "Arm CryptoCell 310"
         },
         "FEATURE_EXPERIMENTAL_API": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Feature flag to enable Mbed OS experimental API features, including driver virtual base classes and PSA.",
+            "friendly_name": "Experimental API"
         },
         "FEATURE_PSA": {
-            "description": "",
-            "friendly_name": ""
+            "description": "Feature representing support for the Arm PSA Root of Trust peripheral.  This provides a secure storage environment, cryptography acceleration, secure boot and updates, and more.",
+            "friendly_name": "Arm Platform Security Architecture (PSA)"
         },
         "FEATURE_STORAGE": {
             "description": "",

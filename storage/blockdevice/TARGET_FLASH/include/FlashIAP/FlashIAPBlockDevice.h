@@ -24,6 +24,14 @@
 #include "blockdevice/BlockDevice.h"
 #include "platform/mbed_toolchain.h"
 
+#ifndef MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS
+#define MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS 0xFFFFFFFF
+#endif
+
+#ifndef MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE
+#define MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE 0
+#endif
+
 /** BlockDevice using the FlashIAP API
  *
  */

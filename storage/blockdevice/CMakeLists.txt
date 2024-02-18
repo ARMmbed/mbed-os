@@ -12,33 +12,44 @@ endif()
 
 add_library(mbed-storage-blockdevice STATIC EXCLUDE_FROM_ALL)
 
-if("DATAFLASH" IN_LIST MBED_TARGET_LABELS)
+# Note: For the storage components, we always make them available as CMake targets if supported,
+# even if the COMPONENT is not enabled.
+# This is because the COMPONENT not being enabled means that they don't exist on the given dev board,
+# but a user can still add one via their own circuitry.
+# However, it's still correct for the directories to be named COMPONENT_xxx, because that keeps the JSON
+# files inside from being parsed for default pins unless the relevant COMPONENT is enabled.
+if("DEVICE_SPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
     add_subdirectory(COMPONENT_DATAFLASH)
 endif()
 
-if("FLASHIAP" IN_LIST MBED_TARGET_LABELS)
-    add_subdirectory(COMPONENT_FLASHIAP)
+if("DEVICE_FLASH=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    add_subdirectory(TARGET_FLASH)
 endif()
 
-if("I2CEE" IN_LIST MBED_TARGET_LABELS)
+if("DEVICE_I2C=1" IN_LIST MBED_TARGET_DEFINITIONS)
     add_subdirectory(COMPONENT_I2CEE)
 endif()
 
-if("QSPIF" IN_LIST MBED_TARGET_LABELS)
+if("DEVICE_QSPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
     add_subdirectory(COMPONENT_QSPIF)
 endif()
 
-if("OSPIF" IN_LIST MBED_TARGET_LABELS)
+if("DEVICE_OSPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
     add_subdirectory(COMPONENT_OSPIF)
 endif()
 
-if("SD" IN_LIST MBED_TARGET_LABELS)
+if("DEVICE_SPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
     add_subdirectory(COMPONENT_SD)
 endif()
 
-if("SPIF" IN_LIST MBED_TARGET_LABELS)
+if("DEVICE_SPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
     add_subdirectory(COMPONENT_SPIF)
 endif()
+
+if("DEVICE_QSPI=1" IN_LIST MBED_TARGET_DEFINITIONS)
+    add_subdirectory(COMPONENT_SPINAND)
+endif()
+
 
 target_include_directories(mbed-storage-blockdevice
     PUBLIC

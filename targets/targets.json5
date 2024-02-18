@@ -543,9 +543,6 @@
         "supported_toolchains": [
             "GCC_ARM"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "extra_labels": [
             "Freescale",
             "MCUXpresso_MCUS",
@@ -639,9 +636,6 @@
         "macros": [
             "CPU_MKL43Z256VLH4",
             "FSL_RTOS_MBED"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "is_disk_virtual": true,
         "inherits": [
@@ -751,7 +745,6 @@
         ],
         "components_add": [
             "SD",
-            "FLASHIAP"
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
@@ -836,9 +829,6 @@
     "SDT64B": {
         "inherits": [
             "K64F"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "extra_labels_add": [
             "K64F"
@@ -1024,7 +1014,6 @@
         ],
         "components_add": [
             "SD",
-            "FLASHIAP"
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
@@ -1104,7 +1093,6 @@
         ],
         "components_add": [
             "SPIF",
-            "FLASHIAP"
         ],
         "core": "Cortex-M4F",
         "supported_toolchains": [
@@ -1493,9 +1481,6 @@
             "MCU_STM32F1"
         ],
         "public": false,
-        "components_add": [
-            "FLASHIAP"
-        ],
         "extra_labels_add": [
             "STM32F103xE"
         ],
@@ -1532,9 +1517,6 @@
             "MCU_STM32"
         ],
         "public": false,
-        "components_add": [
-            "FLASHIAP"
-        ],
         "core": "Cortex-M3",
         "extra_labels_add": [
             "STM32F2"
@@ -1698,9 +1680,6 @@
         "macros_add": [
             "STM32F303xE"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -1755,9 +1734,6 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "config": {
             "clock_source": {
@@ -1904,9 +1880,6 @@
         "overrides": {
             "clock_source": "USE_PLL_HSE_XTAL"
         },
-        "components_remove": [
-            "FLASHIAP"
-        ],
         "device_has_remove": [
             "FLASH",
             "SERIAL_FC"
@@ -2405,9 +2378,6 @@
         "extra_labels_add": [
             "STM32F7"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
@@ -2702,9 +2672,6 @@
         },
         "extra_labels_add": [
             "STM32G0"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "macros_add": [
             "EXTRA_IDLE_STACK_REQUIRED",
@@ -3004,9 +2971,6 @@
         "extra_labels_add": [
             "STM32G4"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "macros_add": [
             "EXTRA_IDLE_STACK_REQUIRED",
             "MBED_TICKLESS"
@@ -3208,9 +3172,6 @@
                 "value": false
             }
         },
-        "components_add": [
-            "FLASHIAP"
-        ],
         "macros_add": [
             "EXTRA_IDLE_STACK_REQUIRED",
             "MBED_TICKLESS"
@@ -4303,9 +4264,6 @@
             "MCU_STM32L4"
         ],
         "public": false,
-        "components_add": [
-            "FLASHIAP"
-        ],
         "extra_labels_add": [
             "STM32L475xG"
         ],
@@ -4352,9 +4310,6 @@
         "public": false,
         "extra_labels_add": [
             "STM32L476xG"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "overrides": {
             "lpuart_clock_source": "USE_LPUART_CLK_HSI"
@@ -4418,9 +4373,6 @@
         "extra_labels_add": [
             "STM32L486xG"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "overrides": {
             "lpuart_clock_source": "USE_LPUART_CLK_HSI"
         },
@@ -4470,9 +4422,6 @@
         "public": false,
         "extra_labels_add": [
             "STM32L496xG"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "overrides": {
             "lpuart_clock_source": "USE_LPUART_CLK_HSI"
@@ -4558,9 +4507,6 @@
             "MCU_STM32L4"
         ],
         "public": false,
-        "components_add": [
-            "FLASHIAP"
-        ],
         "extra_labels_add": [
             "STM32L4P5xG"
         ],
@@ -4573,9 +4519,6 @@
             "MCU_STM32L4"
         ],
         "public": false,
-        "components_add": [
-            "FLASHIAP"
-        ],
         "extra_labels_add": [
             "STM32L4R5xI"
         ],
@@ -4618,9 +4561,6 @@
         "extra_labels_add": [
             "STM32L4R9xI"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "macros_add": [
             "STM32L4R9xx"
         ]
@@ -4658,9 +4598,7 @@
             "MCU_STM32L4"
         ],
         "public": false,
-        "components_add": [
-            "FLASHIAP"
-        ],
+
         "extra_labels_add": [
             "STM32L4S5xI"
         ],
@@ -4709,9 +4647,7 @@
         "extra_labels_add": [
             "STM32L5"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
+
         "macros_add": [
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
@@ -4823,9 +4759,6 @@
         "core": "Cortex-M33FE",
         "extra_labels_add": [
             "STM32U5"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "macros_add": [
             "MBED_TICKLESS",
@@ -5188,9 +5121,6 @@
             "MBED_MPU_CUSTOM",
             "MBED_TICKLESS",
             "DATA_SECTION_IS_CACHEABLE=1"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "inherits": [
             "Target"
@@ -6008,7 +5938,6 @@
         ],
         "components_add": [
             "SD",
-            "FLASHIAP"
         ],
         "device_has_add": [
             "USBDEVICE",
@@ -6046,7 +5975,6 @@
         ],
         "components_add": [
             "SD",
-            "FLASHIAP"
         ],
         "device_has_add": [
             "USBDEVICE",
@@ -6344,9 +6272,6 @@
         ],
         "supported_toolchains": [
             "GCC_ARM"
-        ],
-        "features_add": [
-            "STORAGE"
         ],
         "components_add": [
             "SD"
@@ -6944,9 +6869,6 @@
             "TRNG",
             "USTICKER"
         ],
-        "components": [
-            "FLASHIAP"
-        ],
         "extra_labels": [
             "NORDIC",
             "NRF5x",
@@ -7057,7 +6979,6 @@
         ],
         "components_add": [
             "QSPIF",
-            "FLASHIAP"
         ],
         "core": "Cortex-M4F",
         "macros": [
@@ -7199,9 +7120,6 @@
         "inherits": [
             "MCU_NRF52840"
         ],
-        "features_add": [
-            "STORAGE"
-        ],
         "components_remove": [
             "QSPIF"
         ],
@@ -7241,9 +7159,6 @@
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
-        "components_add": [
-            "FLASHIAP"
-        ],
         "default_toolchain": "ARM",
         "extra_labels": [
             "NUVOTON",
@@ -7437,9 +7352,6 @@
             "WATCHDOG",
             "RESET_REASON",
             "USBDEVICE"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "release_versions": [
             "5"
@@ -7719,9 +7631,6 @@
             "EMAC",
             "USBDEVICE"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "release_versions": [
             "5"
         ],
@@ -7892,9 +7801,6 @@
             "WATCHDOG",
             "RESET_REASON",
             "USBDEVICE"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "release_versions": [
             "5"
@@ -8069,10 +7975,6 @@
         ],
         "release_versions": [
             "5"
-        ],
-        "components_add": [
-            "LAN91C111",
-            "FLASHIAP"
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
@@ -8402,9 +8304,6 @@
             "MPU",
             "WATCHDOG"
         ],
-        "components_add": [
-            "FLASHIAP"
-        ],
         "sectors": [
             [
                 0,
@@ -8576,7 +8475,6 @@
             "MCU_PSOC6"
         ],
         "components_add": [
-            "FLASHIAP",
             "QSPIF",
             "CM0P_SLEEP"
         ],
@@ -8994,6 +8892,10 @@
         "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CYTFM_064B0S2_4343W/COMPONENT_TFM_S_FW",
         "TFM_OUTPUT_EXT": "hex"
     },
+    // Also known as CYSBSYSKIT-DEV-01 Rapid IoT Connect Developer Kit
+    // Note: It appears that Infineon is also maintaining this as a custom target here:
+    // https://github.com/Infineon/TARGET_CYSBSYSKIT-DEV-01
+    // However, as of 2024, I cannot find this board anywhere for sale, so it may be a candidate for removal.
     "CYSBSYSKIT_01": {
         "inherits": [
             "MCU_PSOC6_M4"
@@ -9137,9 +9039,6 @@
             "ARDUINO"
         ],
         "core": "Cortex-M4F",
-        "components_add": [
-            "FLASHIAP"
-        ],
         "extra_labels_add": [
             "GD32F4XX",
             "GD32F450ZI",
@@ -9302,9 +9201,6 @@
             "WATCHDOG",
             "USBDEVICE",
             "CAN"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "release_versions": [
             "5"
@@ -9471,9 +9367,6 @@
             "I2C",
             "SLEEP",
             "ITM"
-        ],
-        "components": [
-            "FLASHIAP"
         ],
         "macros": [
             "CORDIO_ZERO_COPY_HCI",
@@ -9695,7 +9588,6 @@
             "RASPBERRYPI",
             "memmap_default"
         ],
-        "components_add": ["FLASHIAP"],
         "overrides": {
             "xip-enable": true
         },
