@@ -79,7 +79,14 @@ target_link_libraries(mbed-netsocket
 
 target_link_libraries(mbed-netsocket
     INTERFACE
-        mbed-wifi
         mbed-cellular
         mbed-nanostack-libservice
 )
+
+# Link in mbed-wifi if we have any wifi drivers
+if(TARGET mbed-wifi)
+    target_link_libraries(mbed-netsocket
+        INTERFACE
+            mbed-wifi
+    )
+endif()

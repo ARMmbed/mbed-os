@@ -8893,8 +8893,6 @@
         "TFM_OUTPUT_EXT": "hex"
     },
     // Also known as CYSBSYSKIT-DEV-01 Rapid IoT Connect Developer Kit
-    // Note: It appears that Infineon is also maintaining this as a custom target here:
-    // https://github.com/Infineon/TARGET_CYSBSYSKIT-DEV-01
     // However, as of 2024, I cannot find this board anywhere for sale, so it may be a candidate for removal.
     "CYSBSYSKIT_01": {
         "inherits": [
