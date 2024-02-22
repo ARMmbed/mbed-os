@@ -25,85 +25,107 @@
  *                        opensource.org/licenses/BSD-3-Clause
  *
  */
-
+    
   .syntax unified
   .cpu cortex-m4
   .fpu softvfp
   .thumb
 
-.global  g_apm32_Vectors
+.global  g_pfnVectors
 .global  Default_Handler
 
-/* start address for the initialization values of the .data section.
+/* start address for the initialization values of the .data section. 
 defined in linker script */
-.word  _start_address_init_data
-/* start address for the .data section. defined in linker script */
-.word  _start_address_data
+.word  _sidata
+/* start address for the .data section. defined in linker script */  
+.word  _sdata
 /* end address for the .data section. defined in linker script */
-.word  _end_address_data
+.word  _edata
 /* start address for the .bss section. defined in linker script */
-.word  _start_address_bss
+.word  _sbss
 /* end address for the .bss section. defined in linker script */
-.word  _end_address_bss
+.word  _ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
 
-  .section  .text.Reset_Handler
+/**
+ * @brief  This is the code that gets called when the processor first
+ *          starts execution following a reset event. Only the absolutely
+ *          necessary set is performed, after which the application
+ *          supplied main() routine is called. 
+ * @param  None
+ * @retval : None
+*/
+
+    .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
-// Reset handler routine
-Reset_Handler:
-  ldr   sp, =_end_stack
+Reset_Handler:  
+  ldr   sp, =_estack     /* set stack pointer */
 
-/* Copy the data segment initializers from flash to SRAM */
-  ldr r0, =_start_address_data
-  ldr r1, =_end_address_data
-  ldr r2, =_start_address_init_data
+/* Copy the data segment initializers from flash to SRAM */  
+  ldr r0, =_sdata
+  ldr r1, =_edata
+  ldr r2, =_sidata
   movs r3, #0
-  b L_loop0_0
+  b LoopCopyDataInit
 
-L_loop0:
+CopyDataInit:
   ldr r4, [r2, r3]
   str r4, [r0, r3]
   adds r3, r3, #4
 
-L_loop0_0:
+LoopCopyDataInit:
   adds r4, r0, r3
   cmp r4, r1
-  bcc L_loop0
-
-  ldr r2, =_start_address_bss
-  ldr r4, =_end_address_bss
+  bcc CopyDataInit
+  
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+  ldr r4, =_ebss
   movs r3, #0
-  b L_loop1
+  b LoopFillZerobss
 
-L_loop2:
+FillZerobss:
   str  r3, [r2]
   adds r2, r2, #4
 
-L_loop1:
+LoopFillZerobss:
   cmp r2, r4
-  bcc L_loop2
+  bcc FillZerobss
 
-  bl  SystemInit
-  bl __libc_init_array
-  bl  main
-  bx  lr
+/* Call the clock system intitialization function.*/
+  bl  SystemInit   
+	bl _start
+	bx lr
+  bx  lr    
 .size  Reset_Handler, .-Reset_Handler
 
-// This is the code that gets called when the processor receives an unexpected interrupt.
+/**
+ * @brief  This is the code that gets called when the processor receives an 
+ *         unexpected interrupt.  This simply enters an infinite loop, preserving
+ *         the system state for examination by a debugger.
+ * @param  None     
+ * @retval None       
+*/
     .section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop
   .size  Default_Handler, .-Default_Handler
-// The minimal vector table for a Cortex M4.
-   .section  .apm32_isr_vector,"a",%progbits
-  .type  g_apm32_Vectors, %object
-  .size  g_apm32_Vectors, .-g_apm32_Vectors
-
-// Vector Table Mapped to Address 0 at Reset
-g_apm32_Vectors:
-  .word  _end_stack                        // Top of Stack
+/******************************************************************************
+*
+* The minimal vector table for a Cortex M3. Note that the proper constructs
+* must be placed on this to ensure that it ends up at physical address
+* 0x0000.0000.
+* 
+*******************************************************************************/
+   .section  .isr_vector,"a",%progbits
+  .type  g_pfnVectors, %object
+  .size  g_pfnVectors, .-g_pfnVectors
+    
+    
+g_pfnVectors:
+  .word  _estack
   .word  Reset_Handler                     // Reset Handler
   .word  NMI_Handler                       // NMI Handler
   .word  HardFault_Handler                 // Hard Fault Handler
@@ -119,7 +141,7 @@ g_apm32_Vectors:
   .word  0                                 // Reserved
   .word  PendSV_Handler                    // PendSV Handler
   .word  SysTick_Handler                   // SysTick Handler
-
+  
   /* External Interrupts */
   .word     WWDT_IRQHandler                   // Window WatchDog
   .word     PVD_IRQHandler                    // PVD through EINT Line detection
@@ -205,9 +227,17 @@ g_apm32_Vectors:
   .word     FPU_IRQHandler                    // FPU
   .word     SM3_IRQHandler                    // SM3
   .word     SM4_IRQHandler                    // SM4
-  .word     BN_IRQHandler                     // BN
-
-// Default exception/interrupt handler
+  .word     BN_IRQHandler                     // BN             */
+                         
+                         
+/*******************************************************************************
+*
+* Provide weak aliases for each Exception handler to the Default_Handler. 
+* As they are weak aliases, any function with the same name will override 
+* this definition.
+* 
+*******************************************************************************/
+   // Default exception/interrupt handler
 
    .weak      NMI_Handler
    .thumb_set NMI_Handler,Default_Handler
@@ -487,3 +517,4 @@ g_apm32_Vectors:
 
    .weak      BN_IRQHandler
    .thumb_set BN_IRQHandler,Default_Handler
+
