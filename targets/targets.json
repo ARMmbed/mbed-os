@@ -9698,7 +9698,7 @@
             "full", "bare-metal"
         ]
     },
-    "APM32_F407IG": {
+    "APM32_F407IG-Tiny": {
         "inherits": [
             "MCU_APM32"
         ],
