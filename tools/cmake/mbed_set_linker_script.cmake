@@ -128,7 +128,7 @@ function(mbed_set_custom_linker_script target new_linker_script_path)
         COMMAND
             ${CMAKE_C_COMPILER} @${linker_defs_response_file}
             -E -x assembler-with-cpp
-            -include ${CMAKE_BINARY_DIR}/mbed-os/mbed-target-config.h
+            -include ${CMAKE_BINARY_DIR}/mbed-os/generated-headers/mbed-target-config.h
             -P ${RAW_LINKER_SCRIPT_PATHS}
             -o ${CUSTOM_LINKER_SCRIPT_PATH}
         DEPENDS
