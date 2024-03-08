@@ -1190,7 +1190,7 @@ bool ESP8266::get_sntp_config(bool *enable, int *timezone, char *server0,
                                  &tmp, timezone, server0, server1, server2)
                 && _parser.recv("OK\n");
     _smutex.unlock();
-    *enable = tmp ? true : false;
+    *enable = (done && tmp) ? true : false;
     return done;
 }
 
