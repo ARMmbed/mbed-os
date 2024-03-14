@@ -9,17 +9,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        
+
       - name: Install Python packages
         run: |
-            python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements.txt
 
+      # Note: For this CI job we use MBED_CREATE_PYTHON_VENV=FALSE so that we can make sure
+      # this mode works.
       - name: Build the multiple_executables example
         run: |
             cd tools/cmake/tests/multiple_executables/
             mkdir cmake_build
             cd cmake_build
-            cmake -DMBED_TARGET=ARM_MUSCA_S1 ..
+            cmake -DMBED_TARGET=ARM_MUSCA_S1 -DMBED_CREATE_PYTHON_VENV=FALSE ..
             cmake --build .
 
       - name: Verify the post-build command has run successfully on each image

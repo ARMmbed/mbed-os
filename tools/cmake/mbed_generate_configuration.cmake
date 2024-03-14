@@ -32,6 +32,12 @@ set(MBED_INTERNAL_LAST_MBED_TARGET "${MBED_TARGET}" CACHE INTERNAL "Previous mbe
 get_filename_component(MBED_APP_JSON_PATH "${MBED_APP_JSON_PATH}" ABSOLUTE BASE_DIR ${CMAKE_SOURCE_DIR})
 get_filename_component(CUSTOM_TARGETS_JSON_PATH "${CUSTOM_TARGETS_JSON_PATH}" ABSOLUTE BASE_DIR ${CMAKE_SOURCE_DIR})
 
+# Make it so that if mbed_app.json or custom_targets.json are modified, CMake is rerun.
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${MBED_APP_JSON_PATH})
+if(EXISTS "${CUSTOM_TARGETS_JSON_PATH}" AND (NOT IS_DIRECTORY "${CUSTOM_TARGETS_JSON_PATH}"))
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CUSTOM_TARGETS_JSON_PATH})
+endif()
+
 # Check if mbed_app.json was modified
 # Note: if the path is an empty string, get_filename_component(ABSOLUTE) will convert it to a directory,
 # so we have to verify that the path we have is a file, not a dir.
@@ -92,6 +98,7 @@ if(MBED_NEED_TO_RECONFIGURE)
 
     set(MBEDTOOLS_CONFIGURE_COMMAND ${Python3_EXECUTABLE}
         -c "import mbed_tools.cli.main\; exit(mbed_tools.cli.main.cli())" # This is used instead of invoking mbed_tools as a script, because it might not be on the user's PATH.
+        -v # without -v, warnings (e.g. "you have tried to override a nonexistent parameter") do not get printed
         configure
         -t GCC_ARM # GCC_ARM is currently the only supported toolchain
         -m "${MBED_TARGET}"

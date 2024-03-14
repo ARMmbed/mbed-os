@@ -11,28 +11,7 @@ if(CCACHE)
 endif()
 
 # Find Python (needed to generate configurations)
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-include(CheckPythonPackage)
-
-# Check python packages
-set(PYTHON_PACKAGES_TO_CHECK intelhex prettytable future jinja2)
-foreach(PACKAGE_NAME ${PYTHON_PACKAGES_TO_CHECK})
-    string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UCASE) # Ucase name needed for CMake variable
-    string(TOLOWER ${PACKAGE_NAME} PACKAGE_NAME_LCASE) # Lcase name needed for import statement
-
-    check_python_package(${PACKAGE_NAME_LCASE} HAVE_PYTHON_${PACKAGE_NAME_UCASE})
-    if(NOT HAVE_PYTHON_${PACKAGE_NAME_UCASE})
-        message(WARNING "Missing Python dependency ${PACKAGE_NAME}")
-    endif()
-endforeach()
-
-# Check deps for memap
-if(Python3_FOUND AND HAVE_PYTHON_INTELHEX AND HAVE_PYTHON_PRETTYTABLE)
-    set(HAVE_MEMAP_DEPS TRUE)
-else()
-    set(HAVE_MEMAP_DEPS FALSE)
-    message(STATUS "Missing Python dependencies (at least one of: python3, intelhex, prettytable) so the memory map cannot be printed")
-endif()
+include(mbed_python_interpreter)
 
 include(mbed_generate_config_header)
 include(mbed_target_functions)
