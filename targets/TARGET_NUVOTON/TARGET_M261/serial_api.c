@@ -23,6 +23,7 @@
 #include "mbed_error.h"
 #include "mbed_assert.h"
 #include "PeripheralPins.h"
+#include "gpio_api.h"
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
 #include <string.h>
