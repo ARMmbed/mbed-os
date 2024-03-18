@@ -22,6 +22,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "gpio_api.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
