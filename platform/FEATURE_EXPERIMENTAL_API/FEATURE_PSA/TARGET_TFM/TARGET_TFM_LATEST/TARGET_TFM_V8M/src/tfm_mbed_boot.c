@@ -18,6 +18,8 @@
 #include "mbed_error.h"
 #include "tfm_ns_interface.h"
 
+int32_t tfm_ns_interface_init(void);
+
 void mbed_tfm_init(void)
 {
     /*
