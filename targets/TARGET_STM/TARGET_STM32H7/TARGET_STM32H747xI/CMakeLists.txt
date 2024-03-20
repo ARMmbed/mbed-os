@@ -8,9 +8,4 @@ add_subdirectory(TARGET_PORTENTA_H7 EXCLUDE_FROM_ALL)
 
 add_library(mbed-stm32h747xi INTERFACE)
 
-target_sources(mbed-stm32h747xi
-    INTERFACE
-        system_clock.c
-)
-
 target_link_libraries(mbed-stm32h747xi INTERFACE mbed-stm32h7)
