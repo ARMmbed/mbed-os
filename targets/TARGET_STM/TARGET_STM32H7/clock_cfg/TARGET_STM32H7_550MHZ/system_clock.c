@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  ******************************************************************************
  *
- * Copyright (c) 2015-2020 STMicroelectronics.
+ * Copyright (c) 2015-2024 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -15,27 +15,37 @@
 
 /**
   * This file configures the system clock as follows:
-  *--------------------------------------------------------------------
-  * System clock source   | 1- USE_PLL_HSE_EXTC (external 8 MHz clock)
-  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)
-  *                       | 3- USE_PLL_HSI (internal 64 MHz clock)
-  *--------------------------------------------------------------------
-  * SYSCLK(MHz)           |            550
-  * AHBCLK (MHz)          |            275
-  * APB1CLK (MHz)         |            137.5
-  * APB2CLK (MHz)         |            137.5
-  * APB3CLK (MHz)         |            137.5
-  * APB4CLK (MHz)         |            137.5
-  * USB capable (48 MHz)  |            YES
-  *--------------------------------------------------------------------
+  *------------------------------------------------------------------------------
+  * System clock source   | 1- USE_PLL_HSE_EXTC (overdrive) | 1- USE_PLL_HSE_EXTC
+  *                       | 2- USE_PLL_HSE_XTAL (overdrive) | 2- USE_PLL_HSE_XTAL
+  *                       | 3- USE_PLL_HSI (overdrive)      | 3- USE_PLL_HSI
+  *------------------------------------------------------------------------------
+  * SYSCLK(MHz)           |            550                  |        400
+  * AHBCLK (MHz)          |            275                  |        200
+  * APB1CLK (MHz)         |            137.5                |        100
+  * APB2CLK (MHz)         |            137.5                |        100
+  * APB3CLK (MHz)         |            137.5                |        100
+  * APB4CLK (MHz)         |            137.5                |        100
+  * USB capable (48 MHz)  |            YES                  |        YES
+  *------------------------------------------------------------------------------
+  *
+  * It is used for all STM32H7 family microcontrollers with a top speed of 550MHz.
+  * The input clock from the external oscillator may be any frequency evenly divisible by
+  * 5MHz or 2MHz, and must be between 4MHz and 50MHz.
+  * 
+  * Note that 550MHz is the "overdrive" mode and is basically an overclock.  It is only supported
+  * under certain conditions (LDO in use) and cannot be used over the full temperature range.
+  * For industrial applications it is recommended to disable overdrive. Overdrive can be enabled/
+  * disabled via the "target.enable-overdrive-mode" option in mbed_app.json.
+  * 
 **/
 
 #include "stm32h7xx.h"
 #include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
-#define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
-#define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
+#define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO or CMOS oscillator)
+#define USE_PLL_HSE_XTAL     0x4  // Use external xtal (not provided by default on nucleo boards)
 #define USE_PLL_HSI          0x2  // Use HSI internal clock
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
@@ -45,6 +55,14 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
 uint8_t SetSysClock_PLL_HSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+#define FLASH_LATENCY FLASH_LATENCY_3
+#define VOLTAGE_SCALE PWR_REGULATOR_VOLTAGE_SCALE0
+#else
+#define FLASH_LATENCY FLASH_LATENCY_2
+#define VOLTAGE_SCALE PWR_REGULATOR_VOLTAGE_SCALE1
+#endif
 
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors,
@@ -76,6 +94,16 @@ void SetSysClock(void)
             }
         }
     }
+
+    /* Make sure that 64MHz HSI clock is selected as the PER_CLOCK source, as this
+       vastly simplifies peripheral clock logic (since peripherals' input clocks will always
+       be 64MHz regardless of HSE frequency)*/
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CKPER;
+    PeriphClkInitStruct.CkperClockSelection = RCC_CLKPSOURCE_HSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        error("HAL_RCCEx_PeriphCLKConfig failed\n");
+    }
 }
 
 
@@ -92,12 +120,8 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
 
     /* Configure the main internal regulator output voltage */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(VOLTAGE_SCALE);
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
-
-    /* Configure LSE Drive Capability */
-    HAL_PWR_EnableBkUpAccess();
-    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
 
     /* Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure. */
@@ -110,14 +134,45 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = 1;    // 8 MHz
-    RCC_OscInitStruct.PLL.PLLN = 68;   // 550 MHz (see PLLFRACN)
-    RCC_OscInitStruct.PLL.PLLP = 1;    // 550 MHz
-    RCC_OscInitStruct.PLL.PLLQ = 5;    // 110 MHz
-    RCC_OscInitStruct.PLL.PLLR = 2;    // 275 MHz
-    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN = 6144;
+
+    if(HSE_VALUE % 2000000 == 0)
+    {
+        // Clock divisible by 2.  Divide down to 2MHz and then multiply up again.
+        RCC_OscInitStruct.PLL.PLLM = (HSE_VALUE / 2000000); // PLL1 input clock = 2MHz
+        RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_1; // PLL1 input clock is between 2 and 4 MHz
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+        RCC_OscInitStruct.PLL.PLLN = 275; // PLL1 internal (VCO) clock = 550 MHz
+#else
+        RCC_OscInitStruct.PLL.PLLN = 200; // PLL1 internal (VCO) clock = 400 MHz
+#endif
+    }
+    else if(HSE_VALUE % 5000000 == 0)
+    {
+        RCC_OscInitStruct.PLL.PLLM = (HSE_VALUE / 5000000); // PLL1 input clock = 5MHz
+        RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_2; // PLL1 input clock is between 4 and 8 MHz
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+        RCC_OscInitStruct.PLL.PLLN = 110; // PLL1 internal (VCO) clock = 550 MHz
+#else
+        RCC_OscInitStruct.PLL.PLLN = 80; // PLL1 internal (VCO) clock = 400 MHz
+#endif
+    }
+    else
+    {
+        error("HSE_VALUE not divisible by 2MHz or 5MHz\n");
+    }
+
+    RCC_OscInitStruct.PLL.PLLP = 1;    // 550/400 MHz
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE; // PLL1 VCO clock is between 192 and 836 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 55;  // PLL1Q used for FDCAN = 10 MHz
+#else
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOMEDIUM; // PLL1 VCO clock is between 150 and 420 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 40;  // PLL1Q used for FDCAN = 10 MHz
+#endif
+
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
@@ -134,7 +189,7 @@ MBED_WEAK uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY) != HAL_OK) {
         return 0; // FAIL
     }
 
@@ -166,12 +221,8 @@ uint8_t SetSysClock_PLL_HSI(void)
     HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
 
     /* Configure the main internal regulator output voltage */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(VOLTAGE_SCALE);
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
-
-    /* Configure LSE Drive Capability */
-    HAL_PWR_EnableBkUpAccess();
-    __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
 
     /* Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure. */
@@ -181,14 +232,27 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-    RCC_OscInitStruct.PLL.PLLM = 4;    // 16 MHz
-    RCC_OscInitStruct.PLL.PLLN = 34;   // 550 MHz (see PLLFRACN)
-    RCC_OscInitStruct.PLL.PLLP = 1;    // 550 MHz
-    RCC_OscInitStruct.PLL.PLLQ = 5;    // 110 MHz
+    RCC_OscInitStruct.PLL.PLLM = 32; // PLL1 input clock = 2MHz
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+    RCC_OscInitStruct.PLL.PLLN = 275; // PLL1 internal (VCO) clock = 550 MHz
+#else
+    RCC_OscInitStruct.PLL.PLLN = 200; // PLL1 internal (VCO) clock = 400 MHz
+#endif
+
+    RCC_OscInitStruct.PLL.PLLP = 1;    // 550/400 MHz
+
+#if MBED_CONF_TARGET_ENABLE_OVERDRIVE_MODE
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE; // PLL1 VCO clock is between 192 and 836 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 55;  // PLL1Q used for FDCAN = 10 MHz
+#else
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOMEDIUM; // PLL1 VCO clock is between 150 and 420 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 40;  // PLL1Q used for FDCAN = 10 MHz
+#endif
+
     RCC_OscInitStruct.PLL.PLLR = 2;    // 275 MHz
-    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN = 3072;
+    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_1; // PLL1 input clock is between 2 and 4 MHz
+    
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
@@ -205,7 +269,7 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY) != HAL_OK) {
         return 0; // FAIL
     }
 
