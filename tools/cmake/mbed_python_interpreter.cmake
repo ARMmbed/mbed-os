@@ -11,7 +11,7 @@ if(MBED_CREATE_PYTHON_VENV)
 
     # Note: venv is stored in the source directory as it can be shared between all the build directories
     # (not target specific)
-    set(MBED_VENV_LOCATION ${CMAKE_SOURCE_DIR}/mbed-os/venv)
+    set(MBED_VENV_LOCATION ${MBED_SOURCE_DIR}/venv)
     set(VENV_STAMP_FILE ${MBED_VENV_LOCATION}/mbed-venv.stamp)
     set(MBED_REQUIREMENTS_TXT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/../requirements.txt")
 

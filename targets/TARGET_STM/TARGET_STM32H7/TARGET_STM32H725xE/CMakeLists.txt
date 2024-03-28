@@ -20,7 +20,6 @@ target_include_directories(mbed-stm32h725xe
 
 target_sources(mbed-stm32h725xe
     INTERFACE
-	system_clock.c
         ${STARTUP_FILE}
 )
 

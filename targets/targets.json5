@@ -3150,7 +3150,7 @@
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC | USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
             "lpticker_lptim": {
@@ -3170,7 +3170,16 @@
             "i2c_timing_value_algo": {
                 "help": "If value was set to true I2C timing algorithm is enabled. Enabling may leads to performance issue. Keeping this false and changing system clock will trigger assert.)",
                 "value": false
-            }
+            },
+            "enable-overdrive-mode": {
+                "help": "Enable 'overdrive mode' (also known as VOS0) and raise core clock to the maximum value.  Only supported when the internal LDO is used for core voltage source.  Reduces the temperature range of the chip, see datasheet for details.",
+                "value": 1
+            },
+            "hse_value": {
+                "help": "Frequency in MHz of external oscillator / crystal.  Will be used to compute PLL parameters.",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            },
         },
         "macros_add": [
             "EXTRA_IDLE_STACK_REQUIRED",
@@ -3196,15 +3205,15 @@
         "public": false,
         "core": "Cortex-M7FD",
         "extra_labels_add": [
-            "STM32H723xG"
+            "STM32H723xG",
+            "STM32H7_550MHZ"
         ],
         "macros_add": [
             "MBED_SPLIT_HEAP",
-            "STM32H723xx"
+            "STM32H723xx",
         ],
         "overrides": {
-            "system_power_supply": "PWR_LDO_SUPPLY",
-            "i2c_timing_value_algo": true
+            "system_power_supply": "PWR_LDO_SUPPLY"
         }
     },
     "MCU_STM32H725xE": {
@@ -3214,7 +3223,8 @@
         "public": false,
         "core": "Cortex-M7FD",
         "extra_labels_add": [
-            "STM32H725xE"
+            "STM32H725xE",
+            "STM32H7_550MHZ"
         ],
         "macros_add": [
             "MBED_SPLIT_HEAP",
@@ -3229,11 +3239,6 @@
             "MCU_STM32H725xE"
         ],
         "config": {
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "25000000",
-                "macro_name": "HSE_VALUE"
-            },
             "usb_speed": {
                 "help": "USE_USB_OTG_HS or USE_USB_HS_IN_FS",
                 "value": "USE_USB_HS_IN_FS"
@@ -3246,7 +3251,8 @@
             "lse_available":  1,
             "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY",
             "clock_source": "USE_PLL_HSI | USE_PLL_HSE_XTAL",
-            "lse_drive_load_level": "RCC_LSEDRIVE_MEDIUMLOW"
+            "lse_drive_load_level": "RCC_LSEDRIVE_MEDIUMLOW",
+            "enable-overdrive-mode": 0
         },
         "device_name": "STM32H725AEIx"
     },
@@ -3261,7 +3267,8 @@
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x50000",
         "extra_labels_add": [
-            "STM32H735xG"
+            "STM32H735xG",
+            "STM32H7_550MHZ"
         ],
         "macros_add": [
             "STM32H735xx"
@@ -3277,7 +3284,8 @@
         "public": false,
         "core": "Cortex-M7FD",
         "extra_labels_add": [
-            "STM32H743xI"
+            "STM32H743xI",
+            "STM32H7_480MHZ"
         ],
         "macros_add": [
             "STM32H743xx"
@@ -3295,11 +3303,6 @@
                 "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
                 "value": "PB_5",
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
-            },
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
             }
         },
         "device_has_add": [
@@ -3328,11 +3331,7 @@
             "STM32H723ZG"
         ],
         "config": {
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            },
+            
             "d11_configuration": {
                 "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
                 "value": "PB_5",
@@ -3366,13 +3365,16 @@
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32H745xI"
+            "STM32H745xI",
+            "STM32H7_480MHZ"
         ],
         "macros_add": [
             "STM32H745xx"
         ],
         "overrides": {
-            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY",
+            // Cannot enable overdrive mode because the default power supply is SMPS
+            "enable-overdrive-mode": 0
         }
     },
     "MCU_STM32H745xI_CM4": {
@@ -3423,11 +3425,6 @@
                 "value": "PB_5",
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             },
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            },
             "usb_speed": {
                 "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
                 "value": "USE_USB_OTG_FS"
@@ -3455,11 +3452,6 @@
                 "value": "PB_5",
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             },
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            },
             "usb_speed": {
                 "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
                 "value": "USE_USB_OTG_FS"
@@ -3484,13 +3476,16 @@
         ],
         "public": false,
         "extra_labels_add": [
-            "STM32H747xI"
+            "STM32H747xI",
+            "STM32H7_480MHZ"
         ],
         "macros_add": [
             "STM32H747xx"
         ],
         "overrides": {
-            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY",
+            // Cannot enable overdrive mode because the default power supply is SMPS
+            "enable-overdrive-mode": 0
         }
     },
     "MCU_STM32H747xI_CM7": {
@@ -3582,11 +3577,6 @@
         "public": false,
         "inherits": ["MCU_STM32H747xI"],
         "config": {
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "25000000",
-                "macro_name": "HSE_VALUE"
-            },
             "usb_speed": {
                 "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
                 "value": "USE_USB_OTG_HS"
@@ -3622,7 +3612,11 @@
             "lse_bypass": 1,
             "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET",
-            "i2c_timing_value_algo": true
+            "i2c_timing_value_algo": true,
+            "hse_value": 25000000,
+            // Can use overdrive because LDO is regulating core voltage (even though
+            // the LDO power comes from the SMPS).
+            "enable-overdrive-mode": 1
         },
         "device_name": "STM32H747XIHx"
     },
@@ -3669,7 +3663,8 @@
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x80000",
         "extra_labels_add": [
-            "STM32H750xB"
+            "STM32H750xB",
+            "STM32H7_480MHZ"
         ],
         "macros_add": [
             "STM32H750xx"
@@ -3685,7 +3680,8 @@
         "public": false,
         "core": "Cortex-M7FD",
         "extra_labels_add": [
-            "STM32H753xI"
+            "STM32H753xI",
+            "STM32H7_480MHZ"
         ],
         "macros_add": [
             "STM32H753xx"
@@ -3708,22 +3704,19 @@
             "STM32H7A3xIQ"
         ],
         "macros_add": [
-            "STM32H7A3xxQ"
+            "STM32H7A3xxQ",
+            "STM32H7_280MHZ"
         ],
         "overrides": {
-            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY",
+            // Cannot enable overdrive mode because the default power supply is SMPS
+            "enable-overdrive-mode": 0
         }
     },
     "NUCLEO_H7A3ZI_Q": {
         "inherits": [
             "MCU_STM32H7A3xIQ"
         ],
-        "config": {
-            "hse_value": {
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            }
-        },
         "supported_form_factors": [
             "ARDUINO_UNO"
         ],
@@ -3743,13 +3736,16 @@
         "mbed_ram_start": "0x24000000",
         "mbed_ram_size": "0x100000",
         "extra_labels_add": [
-            "STM32H7B3xIQ"
+            "STM32H7B3xIQ",
+            "STM32H7_280MHZ"
         ],
         "macros_add": [
             "STM32H7B3xxQ"
         ],
         "overrides": {
-            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY"
+            "system_power_supply": "PWR_DIRECT_SMPS_SUPPLY",
+            // Cannot enable overdrive mode because the default power supply is SMPS
+            "enable-overdrive-mode": 0
         }
     },
     "MCU_STM32L0": {

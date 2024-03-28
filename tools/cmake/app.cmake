@@ -10,6 +10,9 @@ if(CCACHE)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
 endif()
 
+# Figure out path to Mbed source
+get_filename_component(MBED_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../.. REALPATH)
+
 # Find Python (needed to generate configurations)
 include(mbed_python_interpreter)
 
@@ -57,7 +60,7 @@ endif()
 #
 # default expected paths
 set(EXPECTED_CUSTOM_UPLOAD_CFG_FILE_PATH ${CMAKE_SOURCE_DIR}/custom_targets/upload_method_cfg/${MBED_TARGET}.cmake)
-set(EXPECTED_MBED_UPLOAD_CFG_FILE_PATH ${CMAKE_SOURCE_DIR}/mbed-os/targets/upload_method_cfg/${MBED_TARGET}.cmake)
+set(EXPECTED_MBED_UPLOAD_CFG_FILE_PATH ${MBED_SOURCE_DIR}/targets/upload_method_cfg/${MBED_TARGET}.cmake)
 
 # check if a custom upload config path is defined in top lvl cmake
 if((DEFINED CUSTOM_UPLOAD_CFG_PATH))
