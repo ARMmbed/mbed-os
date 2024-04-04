@@ -37,6 +37,12 @@ target_include_directories(mbed-nrf52840-dk
         TARGET_NRF52840_DK
 )
 
+target_include_directories(mbed-nrf52840-dongle
+    INTERFACE
+        TARGET_NRF52840_DONGLE
+)
+
+
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/nRF52840.sct)
     set(STARTUP_FILE device/TOOLCHAIN_ARM_STD/startup_nrf52840.S)
