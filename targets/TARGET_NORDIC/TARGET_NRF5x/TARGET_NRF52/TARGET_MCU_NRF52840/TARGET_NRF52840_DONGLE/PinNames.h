@@ -160,18 +160,18 @@ typedef enum {
     p46 = P1_14,
     p47 = P1_15,
     
-    LED1    = P0_6,  /* On board Green */
-    LED2    = P0_8,  /* RGB Red        */
-    LED3    = P1_9,  /* RGB Green      */
-    LED4    = P0_12, /* RGB Blue       */
+    LED1    = p6,  /* On board Green */
+    LED2    = p8,  /* RGB Red        */
+    LED3    = p41, /* RGB Green      */
+    LED4    = p12, /* RGB Blue       */
 
-    BUTTON1 = P1_6,
+    BUTTON1 = p38,
 
     /* Available on castelled board edges */
-    RX_PIN_NUMBER  = P0_24,
-    TX_PIN_NUMBER  = P0_20,
-    CTS_PIN_NUMBER = P0_17,
-    RTS_PIN_NUMBER = P0_22,
+    RX_PIN_NUMBER  = p24,
+    TX_PIN_NUMBER  = p20,
+    CTS_PIN_NUMBER = p17,
+    RTS_PIN_NUMBER = p22,
 
     // mBed interface Pins
     CONSOLE_TX = TX_PIN_NUMBER,
@@ -190,14 +190,14 @@ typedef enum {
     STDIO_UART_RTS = RTS_PIN_NUMBER,
 
     /* Available on castelled board edges */
-    SPI_PSELMOSI0 = P1_10,
-    SPI_PSELMISO0 = P1_13,
-    SPI_PSELSS0   = P0_2,
-    SPI_PSELSCK0  = P1_15,
+    SPI_PSELMOSI0 = p42,
+    SPI_PSELMISO0 = p45,
+    SPI_PSELSS0   = p2,
+    SPI_PSELSCK0  = p47,
 
     /* Available on castelled board edges */
-    I2C_SDA0 = P0_9,
-    I2C_SCL0 = P0_10,
+    I2C_SDA0 = p9,
+    I2C_SCL0 = p10,
 
     // Not connected
     NC = (int)0xFFFFFFFF
