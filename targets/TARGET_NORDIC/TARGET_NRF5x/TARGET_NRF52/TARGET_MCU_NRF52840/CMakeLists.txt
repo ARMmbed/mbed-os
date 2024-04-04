@@ -5,6 +5,8 @@ add_library(mbed-arduino-nano33ble INTERFACE)
 add_library(mbed-ep-agora INTERFACE)
 add_library(mbed-ep-atlas INTERFACE)
 add_library(mbed-nrf52840-dk INTERFACE)
+add_library(mbed-nrf52840-dongle INTERFACE)
+
 
 target_include_directories(mbed-arduino-nano33ble
     INTERFACE
