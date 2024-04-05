@@ -36,6 +36,8 @@
 #define USE_LPUART_CLK_LSE    0x01
 #define USE_LPUART_CLK_PCLK1  0x02
 #define USE_LPUART_CLK_HSI    0x04
+#define USE_LPUART_CLK_PCLK3  0x08
+#define USE_LPUART_CLK_SYSCLK 0x10
 
 int stdio_uart_inited = 0; // used in platform/mbed_board.c and platform/mbed_retarget.cpp
 serial_t stdio_uart;
@@ -376,8 +378,8 @@ void serial_baud(serial_t *obj, int baudrate)
     if (obj_s->uart == LPUART_1) {
         RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE)
-        if (baudrate <= 9600) {
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE) && MBED_CONF_TARGET_LSE_AVAILABLE
+        if (baudrate <= (int)(LSE_VALUE / 3)) {
             // Enable LSE in case it is not already done
             if (!__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
                 RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -417,7 +419,7 @@ void serial_baud(serial_t *obj, int baudrate)
             return;
         }
 #endif
-#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_PCLK3)
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_PCLK3) && defined(RCC_LPUART1CLKSOURCE_PCLK3)
         PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK3;
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
         if (init_uart(obj) == HAL_OK) {
@@ -425,38 +427,42 @@ void serial_baud(serial_t *obj, int baudrate)
         }
 #endif
 #if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_HSI)
-        // Enable HSI in case it is not already done
-        if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
-            RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-            RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
-            RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
-            RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_OFF;
-            RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-#if defined(DUAL_CORE) && (TARGET_STM32H7)
-            while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
+        if (baudrate <= (int)(HSI_VALUE / 3)) {
+            // Enable HSI in case it is not already done
+            if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
+                RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+                RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+                RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+                RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_OFF;
+                RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    #if defined(DUAL_CORE) && (TARGET_STM32H7)
+                while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
+                }
+    #endif /* DUAL_CORE */
+                HAL_RCC_OscConfig(&RCC_OscInitStruct);
+    #if defined(DUAL_CORE) && (TARGET_STM32H7)
+                LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+    #endif /* DUAL_CORE */
             }
-#endif /* DUAL_CORE */
-            HAL_RCC_OscConfig(&RCC_OscInitStruct);
+            // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
+            if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
+                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
-            LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+                while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
+                }
 #endif /* DUAL_CORE */
-        }
-        // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
-        if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
-            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
+                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
-            while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
-            }
+                LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
-            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-#if defined(DUAL_CORE) && (TARGET_STM32H7)
-            LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
-#endif /* DUAL_CORE */
-            if (init_uart(obj) == HAL_OK) {
-                return;
+                if (init_uart(obj) == HAL_OK) {
+                    return;
+                }
             }
         }
 #endif
+
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_SYSCLK)
         // Last chance using SYSCLK
         PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
@@ -467,6 +473,15 @@ void serial_baud(serial_t *obj, int baudrate)
 #if defined(DUAL_CORE) && (TARGET_STM32H7)
         LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
+
+        if (init_uart(obj) == HAL_OK) {
+            return;
+        }
+        else
+#endif
+        {
+            debug("Cannot initialize LPUART with baud rate %u using any enabled clock source\n", baudrate);
+        }
     }
 #endif /* LPUART1_BASE */
 
@@ -653,8 +668,8 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
 
 #if defined(LPUART1_BASE)
     if (huart->Instance == LPUART1) {
-        if (obj_s->baudrate <= 9600) {
-#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE) && defined(USART_CR3_UCESM)
+        if (obj_s->baudrate <= (int)(LSE_VALUE / 3)) {
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE) && MBED_CONF_TARGET_LSE_AVAILABLE && defined(USART_CR3_UCESM)
             HAL_UARTEx_EnableClockStopMode(huart);
 #endif
             HAL_UARTEx_EnableStopMode(huart);

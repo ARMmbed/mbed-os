@@ -1203,8 +1203,8 @@
                 "value": "USE_RTC_CLK_LSE_OR_LSI"
             },
             "lpuart_clock_source": {
-                "help": "Define the LPUART clock source. Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_HSI",
-                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1|USE_LPUART_CLK_PCLK3"
+                "help": "Define the LPUART clock source. LSE clock source will only be used when baudrate is slow (<= LSE freq / 3).  Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_PCLK3, USE_LPUART_CLK_HSI, USE_LPUART_CLK_SYSCLK.",
+                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1|USE_LPUART_CLK_PCLK3|USE_LPUART_CLK_SYSCLK"
             },
             "stdio_uart_tx": {
                 "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
@@ -3186,7 +3186,9 @@
             "MBED_TICKLESS"
         ],
         "overrides": {
-            "lpticker_delay_ticks": 0
+            "lpticker_delay_ticks": 0,
+            // Mbed's clock code does not initialize PLL2, so we have to disable USE_LPUART_CLK_PCLK1 here.
+            "lpuart_clock_source": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_HSI|USE_LPUART_CLK_SYSCLK"
         },
         "device_has_add": [
             "ANALOGOUT",
@@ -4264,7 +4266,7 @@
             "STM32L475xG"
         ],
         "overrides": {
-            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI|USE_LPUART_CLK_SYSCLK"
         },
         "macros_add": [
             "STM32L475xx",
@@ -4308,7 +4310,7 @@
             "STM32L476xG"
         ],
         "overrides": {
-            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI|USE_LPUART_CLK_SYSCLK"
         },
         "macros_add": [
             "STM32L476xx",
@@ -4370,7 +4372,7 @@
             "STM32L486xG"
         ],
         "overrides": {
-            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI|USE_LPUART_CLK_SYSCLK"
         },
         "macros_add": [
             "STM32L486xx",
@@ -4420,7 +4422,7 @@
             "STM32L496xG"
         ],
         "overrides": {
-            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI|USE_LPUART_CLK_SYSCLK"
         },
         "macros_add": [
             "STM32L496xx"
@@ -4781,7 +4783,7 @@
         },
         "overrides": {
             "lpticker_delay_ticks": 0,
-            "lpuart_clock_source": "USE_LPUART_CLK_HSI"
+            "lpuart_clock_source": "USE_LPUART_CLK_HSI|USE_LPUART_CLK_SYSCLK"
         },
         "device_has_add": [
             "ANALOGOUT",
