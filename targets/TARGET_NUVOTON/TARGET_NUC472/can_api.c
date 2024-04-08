@@ -35,6 +35,8 @@
  static can_irq_handler can0_irq_handler;
  static can_irq_handler can1_irq_handler;
 
+ extern uint32_t CAN_IsNewDataReceived(CAN_T *tCAN, uint8_t u8MsgObj);
+ extern void CAN_CLR_INT_PENDING_ONLY_BIT(CAN_T *tCAN, uint32_t u32MsgNum);
  
  static const struct nu_modinit_s can_modinit_tab[] = {
     {CAN_0, CAN0_MODULE, 0, 0, CAN0_RST, CAN0_IRQn, NULL},
@@ -133,19 +135,10 @@ static void can_irq(CANName name, int id)
         /**************************/
         if(can->STATUS & CAN_STATUS_RXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_RXOK_Msk;   /* Clear Rx Ok status*/
-            if(id)
-                can1_irq_handler(can_irq_contexts[id] , IRQ_RX);
-            else
-                can0_irq_handler(can_irq_contexts[id], IRQ_RX);
         }
 
         if(can->STATUS & CAN_STATUS_TXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_TXOK_Msk;    /* Clear Tx Ok status*/
-            if(id)
-                can1_irq_handler(can_irq_contexts[id] , IRQ_TX);
-            else
-                can0_irq_handler(can_irq_contexts[id], IRQ_TX);
-
         }
 
         /**************************/
@@ -163,6 +156,24 @@ static void can_irq(CANName name, int id)
                 can1_irq_handler(can_irq_contexts[id] , IRQ_BUS);
             else
                 can0_irq_handler(can_irq_contexts[id], IRQ_BUS);
+        }
+    } else if (u8IIDRstatus >= 1 && u8IIDRstatus <= 32) {
+        if (CAN_IsNewDataReceived(can, u8IIDRstatus - 1)) {
+            if (id) {
+                can1_irq_handler(can_irq_contexts[id], IRQ_RX);
+            }
+            else {
+                can0_irq_handler(can_irq_contexts[id], IRQ_RX);
+            }
+            CAN_CLR_INT_PENDING_ONLY_BIT(can, (u8IIDRstatus -1));
+        } else {
+            if (id) {
+                can1_irq_handler(can_irq_contexts[id], IRQ_TX);
+            }
+            else {
+                can0_irq_handler(can_irq_contexts[id], IRQ_TX);
+            }
+            CAN_CLR_INT_PENDING_BIT(can, (u8IIDRstatus -1));
         }
     } else if (u8IIDRstatus!=0) {
 

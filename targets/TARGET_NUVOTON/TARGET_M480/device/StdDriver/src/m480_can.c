@@ -1264,7 +1264,7 @@ int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T* pCanMsg)
   *
   * @details An interrupt remains pending until the application software has cleared it.
   */
-void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum)
+void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint32_t u32MsgNum)
 {
     uint32_t u32MsgIfNum;
 
@@ -1282,6 +1282,24 @@ void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum)
     ReleaseIF(tCAN, u32MsgIfNum);
 }
 
+/* Clone of CAN_CLR_INT_PENDING_BIT() with NewDat not cleared */
+void CAN_CLR_INT_PENDING_ONLY_BIT(CAN_T *tCAN, uint32_t u32MsgNum)
+{
+    uint32_t u32MsgIfNum;
+
+    if((u32MsgIfNum = LockIF_TL(tCAN)) == 2ul)
+    {
+        u32MsgIfNum = 0ul;
+    }
+    else
+    {
+    }
+
+    tCAN->IF[u32MsgIfNum].CMASK = CAN_IF_CMASK_CLRINTPND_Msk;
+    tCAN->IF[u32MsgIfNum].CREQ = 1ul + u32MsgNum;
+
+    ReleaseIF(tCAN, u32MsgIfNum);
+}
 
 /*@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
 

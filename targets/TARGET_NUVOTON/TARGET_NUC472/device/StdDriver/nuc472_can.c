@@ -716,7 +716,7 @@ int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg)
   * @return   None
   *
   */
-void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum)
+void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint32_t u32MsgNum)
 {
     uint32_t u32MsgIfNum = 0;
     uint32_t u32IFBusyCount = 0;
@@ -738,6 +738,28 @@ void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum)
 
 }
 
+/* Clone of CAN_CLR_INT_PENDING_BIT() with NewDat not cleared */
+void CAN_CLR_INT_PENDING_ONLY_BIT(CAN_T *tCAN, uint32_t u32MsgNum)
+{
+    uint32_t u32MsgIfNum = 0;
+    uint32_t u32IFBusyCount = 0;
+
+    while(u32IFBusyCount < 0x10000000) {
+        if((tCAN->IF[0].CREQ & CAN_IF_CREQ_BUSY_Msk) == 0) {
+            u32MsgIfNum = 0;
+            break;
+        } else if((tCAN->IF[1].CREQ  & CAN_IF_CREQ_BUSY_Msk) == 0) {
+            u32MsgIfNum = 1;
+            break;
+        }
+
+        u32IFBusyCount++;
+    }
+
+    tCAN->IF[u32MsgIfNum].CMASK = CAN_IF_CMASK_CLRINTPND_Msk;
+    tCAN->IF[u32MsgIfNum].CREQ = 1 + u32MsgNum;
+
+}
 
 /*@}*/ /* end of group NUC472_442_CAN_EXPORTED_FUNCTIONS */
 

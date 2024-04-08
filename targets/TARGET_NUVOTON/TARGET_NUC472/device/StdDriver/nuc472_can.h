@@ -143,7 +143,7 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate);
 uint32_t CAN_Open(CAN_T *tCAN, uint32_t u32BaudRate, uint32_t u32Mode);
 int32_t CAN_Transmit(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
 int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
-void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum);
+void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint32_t u32MsgNum);
 void CAN_EnableInt(CAN_T  *tCAN, uint32_t u32Mask);
 void CAN_DisableInt(CAN_T  *tCAN, uint32_t u32Mask);
 int32_t CAN_SetMultiRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32MsgCount, uint32_t u32IDType, uint32_t u32ID);

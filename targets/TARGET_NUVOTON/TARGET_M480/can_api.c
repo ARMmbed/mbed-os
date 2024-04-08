@@ -43,6 +43,7 @@ extern void CAN_EnterInitMode(CAN_T *tCAN, uint8_t u8Mask);
 extern void CAN_LeaveInitMode(CAN_T *tCAN);
 extern void CAN_LeaveTestMode(CAN_T *tCAN);
 extern void CAN_EnterTestMode(CAN_T *tCAN, uint8_t u8TestMask);
+extern void CAN_CLR_INT_PENDING_ONLY_BIT(CAN_T *tCAN, uint32_t u32MsgNum);
 
 static const struct nu_modinit_s can_modinit_tab[] = {
     {CAN_0, CAN0_MODULE, 0, 0, CAN0_RST, CAN0_IRQn, NULL},
@@ -139,19 +140,10 @@ static void can_irq(CANName name, int id)
         /**************************/
         if(can->STATUS & CAN_STATUS_RXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_RXOK_Msk;   /* Clear Rx Ok status*/
-            if(id)
-                can1_irq_handler(can_irq_contexts[id], IRQ_RX);
-            else
-                can0_irq_handler(can_irq_contexts[id], IRQ_RX);
         }
 
         if(can->STATUS & CAN_STATUS_TXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_TXOK_Msk;    /* Clear Tx Ok status*/
-            if(id)
-                can1_irq_handler(can_irq_contexts[id], IRQ_TX);
-            else
-                can0_irq_handler(can_irq_contexts[id], IRQ_TX);
-
         }
 
         /**************************/
@@ -170,6 +162,24 @@ static void can_irq(CANName name, int id)
             else
                 can0_irq_handler(can_irq_contexts[id], IRQ_BUS);
         }
+    } else if (u8IIDRstatus >= 1 && u8IIDRstatus <= 32) {
+        if (CAN_IsNewDataReceived(can, u8IIDRstatus - 1)) {
+            if (id) {
+                can1_irq_handler(can_irq_contexts[id], IRQ_RX);
+            }
+            else {
+                can0_irq_handler(can_irq_contexts[id], IRQ_RX);
+            }
+            CAN_CLR_INT_PENDING_ONLY_BIT(can, (u8IIDRstatus -1));
+        } else {
+            if (id) {
+                can1_irq_handler(can_irq_contexts[id], IRQ_TX);
+            }
+            else {
+                can0_irq_handler(can_irq_contexts[id], IRQ_TX);
+            }
+            CAN_CLR_INT_PENDING_BIT(can, (u8IIDRstatus -1));
+        }
     } else if (u8IIDRstatus!=0) {
 
         if(id)
@@ -178,7 +188,6 @@ static void can_irq(CANName name, int id)
             can0_irq_handler(can_irq_contexts[id], IRQ_OVERRUN);
 
         CAN_CLR_INT_PENDING_BIT(can, ((can->IIDR) -1));      /* Clear Interrupt Pending */
-
     } else if(can->WU_STATUS == 1) {
 
         can->WU_STATUS = 0;                       /* Write '0' to clear */
@@ -293,6 +302,7 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
 int can_mode(can_t *obj, CanMode mode)
 {
     int success = 0;
+
     switch (mode) {
     case MODE_RESET:
         CAN_LeaveTestMode((CAN_T*)NU_MODBASE(obj->can));
@@ -325,7 +335,6 @@ int can_mode(can_t *obj, CanMode mode)
         break;
 
     }
-
 
     return success;
 }
