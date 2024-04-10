@@ -4,6 +4,7 @@
 #
 """Tests for parsing the attributes for targets in targets.json that accumulate."""
 from unittest import TestCase, mock
+import copy
 
 from mbed_tools.targets._internal.targets_json_parsers.accumulating_attribute_parser import (
     ALL_ACCUMULATING_ATTRIBUTES,
@@ -142,6 +143,21 @@ class TestAccumulatingAttributes(TestCase):
         result = _determine_accumulated_attributes(accumulation_order)
         self.assertEqual(result, expected_attributes)
 
+    # Regression test: make sure that the JSON data in memory is not modified when we
+    # accumulate attributes.
+    def test_determine_accumulated_attributes_basic_add(self):
+        accumulation_order = [
+            {"attribute_1": "something"},
+            {f"{ALL_ACCUMULATING_ATTRIBUTES[0]}_add": ["2", "3"]},
+            {ALL_ACCUMULATING_ATTRIBUTES[0]: ["1"]},
+        ]
+        orig_accumulation_order = copy.deepcopy(accumulation_order)
+
+        expected_attributes = {ALL_ACCUMULATING_ATTRIBUTES[0]: ["1", "2", "3"]}
+        result = _determine_accumulated_attributes(accumulation_order)
+        self.assertEqual(result, expected_attributes)
+
+        self.assertEqual(orig_accumulation_order, accumulation_order)
 
 class TestElementMatches(TestCase):
     def test_element_matches_exactly(self):

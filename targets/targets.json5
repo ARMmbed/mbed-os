@@ -358,7 +358,9 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "is_mcu_family_target": true,
+        "image_url": "https://os.mbed.com/media/cache/platforms/LPC1768.jpg.250x250_q85.jpg"
     },
     "ARCH_PRO": {
         "supported_form_factors": [
@@ -522,7 +524,7 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "MKL46Z256xxx4",
+        "device_name": "MKL46Z256VLL4",
         "bootloader_supported": true,
         "supported_c_libs": {
             "arm": [
@@ -587,7 +589,7 @@
             "USBDEVICE",
             "FLASH"
         ],
-        "device_name": "MK22DN512xxx5",
+        "device_name": "MK22FN512VLH12",
         "supported_c_libs": {
             "arm": [
                 "std",
@@ -667,7 +669,7 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "MKL43Z256xxx4",
+        "device_name": "MKL43Z256VLH4",
         "supported_c_libs": {
             "arm": [
                 "std",
@@ -824,7 +826,8 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "SDT64B": {
         "inherits": [
@@ -1154,7 +1157,8 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32": {
         "inherits": [
@@ -1287,7 +1291,8 @@
             "CRC",
             "SERIAL_ASYNCH",
             "FLASH"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32F030x8": {
         "inherits": [
@@ -1542,7 +1547,8 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32F207xZ": {
         "inherits": [
@@ -1612,7 +1618,8 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32F302x8": {
         "inherits": [
@@ -1749,7 +1756,8 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32F401xE": {
         "inherits": [
@@ -1906,7 +1914,7 @@
         "detect_code": [
             "0740"
         ],
-        "device_name": "MCU_STM32F411CE"
+        "device_name": "STM32F411CEYx"
     },
     "MCU_STM32F412xE": {
         "inherits": [
@@ -2413,7 +2421,8 @@
             "TRNG",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "NUCLEO_F722ZE": {
         "inherits": [
@@ -2685,7 +2694,8 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32G030x8": {
         "inherits": [
@@ -2986,7 +2996,8 @@
             "TRNG",
             "CAN",
             "CRC"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32G431xB": {
         "inherits": [
@@ -3198,7 +3209,8 @@
             "FLASH",
             "MPU",
             "SPI_32BIT_WORDS"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32H723xG": {
         "inherits": [
@@ -3236,7 +3248,7 @@
             "system_power_supply": "PWR_LDO_SUPPLY"
         }
     },
-	"WIO_H725AE": {
+    "WIO_H725AE": {
         "inherits": [
             "MCU_STM32H725xE"
         ],
@@ -3790,7 +3802,8 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32L053x8": {
         "inherits": [
@@ -3942,7 +3955,8 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32L151xB": {
         "inherits": [
@@ -4109,7 +4123,8 @@
             "MPU",
             "SERIAL_ASYNCH",
             "TRNG"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32L412xB": {
         "inherits": [
@@ -4681,7 +4696,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "USBDEVICE"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32L552xE": {
         "inherits": [
@@ -4794,9 +4810,10 @@
             "TRNG",
             "SERIAL_ASYNCH",
             "SPI_32BIT_WORDS"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
-	"MCU_STM32U575xI": {
+    "MCU_STM32U575xI": {
         "inherits": [
             "MCU_STM32U5"
         ],
@@ -4837,7 +4854,7 @@
             "STM32U575xx"
         ]
     },
-	"MCU_STM32U585xI": {
+    "MCU_STM32U585xI": {
         "inherits": [
             "MCU_STM32U5"
         ],
@@ -4918,7 +4935,8 @@
         ],
         "features": [
             "BLE"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32WB15xC": {
         "inherits": [
@@ -5045,7 +5063,8 @@
             "ANALOGOUT",
             "ANALOGIN",
             "TRNG"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "MCU_STM32WL55xC": {
         "inherits": [
@@ -5104,7 +5123,7 @@
             "MCUXpresso_MCUS",
             "IMX",
             "NXP_EMAC",
-	        "USB",
+            "USB",
             "MIMXRT105X"
         ],
         "macros": [
@@ -5144,7 +5163,6 @@
             "USBDEVICE",
             "LPTICKER"
         ],
-        "device_name": "MIMXRT1052",
         "overrides": {
             "deep-sleep-latency": 10
         },
@@ -5153,7 +5171,8 @@
                  "help": "Enable 'overdrive mode' and raise core clock from 528MHz to 600MHz.  Only allowed on MIMXRT10xxD parts, not MIMXRT10xxC",
                  "value": 1
              }
-         }
+         },
+         "is_mcu_family_target": true
      },
     "MIMXRT1050_EVK": {
         "inherits": [
@@ -5181,7 +5200,8 @@
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         },
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "device_name": "MIMXRT1052DVL6A"
     },
     "MIMXRT1060_EVK": {
         "inherits": [
@@ -5204,7 +5224,8 @@
         ],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "device_name": "MIMXRT1062DVL6B"
     },
     "TEENSY_40": {
         "inherits": [
@@ -5221,7 +5242,8 @@
         },
         "device_has_remove": [
             "EMAC"
-        ]
+        ],
+        "device_name": "MIMXRT1062DVL6B"
     },
     "TEENSY_41": {
         "inherits": [
@@ -5236,7 +5258,8 @@
             "console-usb": true,
             "console-uart": false,
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "device_name": "MIMXRT1062DVL6B"
     },
     "MIMXRT1170_EVK": {
         "supported_form_factors": [
@@ -5251,7 +5274,7 @@
             "MCUXpresso_MCUS",
             "EVK",
             "MIMXRT1170",
-	        "IMX"
+            "IMX"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -5920,7 +5943,8 @@
                 "std",
                 "small"
             ]
-        }
+        },
+        "is_mcu_family_target": true
     },
     "RZ_A1H": {
         "inherits": [
@@ -6043,7 +6067,8 @@
                 "std",
                 "small"
             ]
-        }
+        },
+        "is_mcu_family_target": true
     },
     "GR_MANGO": {
         "inherits": ["RZ_A2XX"],
@@ -6215,7 +6240,8 @@
             "iar": [
                 "std"
             ]
-        }
+        },
+        "is_mcu_family_target": true
     },
     "MAX32625MBED": {
         "inherits": [
@@ -7510,7 +7536,7 @@
             "NUVOTON",
             "M460",
             "FLASH_CMSIS_ALGO",
-	    "NUVOTON_EMAC"
+        "NUVOTON_EMAC"
         ],
         "is_disk_virtual": true,
         "supported_toolchains": [
@@ -7658,7 +7684,8 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "NUMAKER_IOT_M467": {
         "inherits": [
@@ -7826,7 +7853,8 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "NUMAKER_PFM_M487": {
         "inherits": [
@@ -7987,7 +8015,8 @@
                 "std",
                 "small"
             ]
-        }
+        },
+        "is_mcu_family_target": true
     },
     "FVP_MPS2_M0": {
         "inherits": [
@@ -8154,7 +8183,8 @@
             ]
         ],
         "bootloader_supported": true,
-        "forced_reset_timeout": 5
+        "forced_reset_timeout": 5,
+        "is_mcu_family_target": true
     },
     "NU_M2354": {
         "inherits": [
@@ -8321,7 +8351,8 @@
         },
         "supported_application_profiles": [
             "full", "bare-metal"
-        ]
+        ],
+        "is_mcu_family_target": true
     },
     "NUMAKER_IOT_M252": {
         "inherits": [
@@ -8466,7 +8497,8 @@
         "forced_reset_timeout": 5,
         "overrides": {
             "deep-sleep-latency": "CY_CFG_PWR_DEEPSLEEP_LATENCY"
-        }
+        },
+        "is_mcu_family_target": true
     },
     "MCU_PSOC6_M4": {
         "inherits": [
@@ -9297,7 +9329,8 @@
         "release_versions": ["5"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
-        ]
+        ],
+        "image_url": "https://www.embeddedplanet.com/wp-content/uploads/2021/04/Atlas_4-768x719.png"
     },
     "S1SBP6A": {
         "inherits": ["Target"],
@@ -9384,7 +9417,9 @@
     "AMA3B1KK": {
         "public": false,
         "inherits": ["FAMILY_Apollo3"],
-        "macros_add": ["AM_PACKAGE_BGA", "MBED_TICKLESS"]
+        "macros_add": ["AM_PACKAGE_BGA", "MBED_TICKLESS"],
+        "device_name": "AMA3B1KK-KBR",
+        "is_mcu_family_target": true
     },
     "SFE_ARTEMIS": {
         "inherits": ["AMA3B1KK"]
@@ -9394,7 +9429,8 @@
     },
     "SFE_ARTEMIS_DK": {
         "inherits": ["AMA3B1KK"],
-        "components_add": ["lis2dh12", "hm01b0"]
+        "components_add": ["lis2dh12", "hm01b0"],
+        "image_url": "https://cdn.sparkfun.com/assets/parts/1/5/7/4/6/16828-SparkFun_Artemis_Development_Kit-01.jpg"
     },
     "SFE_ARTEMIS_MODULE": {
         "inherits": ["AMA3B1KK"]
@@ -9426,22 +9462,22 @@
         "supported_toolchains": ["GCC_ARM"],
         "device_has": [
         "ANALOGIN",
-	    "INTERRUPTIN",
-	    "CRC",
-	    "I2C",
-	    "I2CSLAVE",
-	    "PORTIN",
+        "INTERRUPTIN",
+        "CRC",
+        "I2C",
+        "I2CSLAVE",
+        "PORTIN",
         "PORTINOUT",
         "PORTOUT",
-	    "PWMOUT",
-	    "RESET_REASON",
-	    "SERIAL",
-	    "SLEEP",
-	    "SPI",
-	    "SPISLAVE",
-	    "USTICKER",
+        "PWMOUT",
+        "RESET_REASON",
+        "SERIAL",
+        "SLEEP",
+        "SPI",
+        "SPISLAVE",
+        "USTICKER",
         "MPU",
-	    "FLASH"
+        "FLASH"
         ],
         "device_name": "TMPM4KNFYAFG",
         "detect_code": ["7020"],
@@ -9471,7 +9507,7 @@
         ],
         "supported_toolchains": [
             "GCC_ARM"
-	],
+    ],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
@@ -9503,7 +9539,7 @@
             "5"
         ],
         "bootloader_supported": true,
-	    "supported_c_libs": {
+        "supported_c_libs": {
             "arm": [
                 "std",
                 "small"
@@ -9529,7 +9565,7 @@
         ],
         "supported_toolchains": [
             "GCC_ARM"
-	],
+    ],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
@@ -9570,10 +9606,10 @@
                 "std",
                 "small"
             ]
-    	}
+        }
     },
     "RP2040": {
-		"public": false,
+        "public": false,
         "inherits": ["Target"],
         "core": "Cortex-M0+",
         "supported_toolchains": ["GCC_ARM"],
@@ -9602,7 +9638,8 @@
             "USBDEVICE",
             "RESET_REASON",
             "RTC"
-        ]
+        ],
+        "is_mcu_family_target": true,
     },
     "RASPBERRY_PI_PICO": {
         "inherits": ["RP2040"],

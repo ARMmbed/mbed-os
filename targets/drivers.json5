@@ -1,10 +1,10 @@
-// This JSON5 file contains a list of all the features used in Mbed.
-// There are three types of features:
-// Peripherals - Represents a peripheral present on this target and supported by Mbed CE.
-//     Peripherals have names starting with DEVICE.
+// This JSON5 file contains a list of all the drivers used in Mbed.
+// There are three types of drivers:
+// Peripherals - Drives a peripheral present on this target MCU and supported by Mbed CE.
+//     Peripheral drivers have names starting with DEVICE.
 // Feature - A larger Mbed OS optional feature supported for this target.
-// Component - An external component present on a given board.  This is commonly
-//     used to mark a given eval board as having flash support, etc.
+// Component - A driver for an external component present on a given board.  This is commonly
+//     used to set up a given eval board as having flash support, etc.
 // Each feature is defined here before it can be used in targets.json5.
 // The contents of this file are not used during the build, but are used
 // when generating documentation.
@@ -252,7 +252,7 @@
     },
     "Peripheral": {
         "DEVICE_802_15_4_PHY": {
-            "description": "802.15.4 radio peripheral, used to implement mesh networking (Wi-SUN, Thread, LoWPAN)",
+            "description": "802.15.4 radio driver, used to implement mesh networking (Wi-SUN, Thread, LoWPAN)",
             "friendly_name": "802.15.4 Radio"
         },
         // Mystery ARM feature, used only on ARM FPGA reference designs
@@ -262,15 +262,15 @@
             "hidden_from_docs": true
         },
         "DEVICE_ANALOGIN": {
-            "description": "Analog input (ADC) peripheral",
+            "description": "Analog input (ADC) peripheral driver",
             "friendly_name": "Analog Inputs"
         },
         "DEVICE_ANALOGOUT": {
-            "description": "Analog output (DAC) peripheral",
+            "description": "Analog output (DAC) peripheral driver",
             "friendly_name": "Analog Outputs"
         },
         "DEVICE_CAN": {
-            "description": "Controller Area Network (CAN) peripheral",
+            "description": "Controller Area Network (CAN) peripheral driver",
             "friendly_name": "CAN"
         },
         // mystery ARM feature, used only on reference designs (SPI related?)
@@ -280,7 +280,7 @@
             "hidden_from_docs": true
         },
         "DEVICE_CRC": {
-            "description": "CRC Acclerator peripheral, used to accelerate certain CRC computations.",
+            "description": "Driver for CRC Accelerator peripheral, used to accelerate certain CRC computations.",
             "friendly_name": "Hardware CRC"
         },
         "DEVICE_DEBUG_AWARENESS": {
@@ -288,7 +288,7 @@
             "friendly_name": "Semihost Debug Aware"
         },
         "DEVICE_EMAC": {
-            "description": "Ethernet MAC peripheral.  Combine with a PHY chip to connect to Ethernet networks.",
+            "description": "Ethernet MAC peripheral driver.  Combine the MAC with a PHY chip to connect to Ethernet networks.",
             "friendly_name": "Ethernet MAC"
         },
         "DEVICE_FLASH": {
@@ -296,15 +296,15 @@
             "friendly_name": "Flash IAP"
         },
         "DEVICE_I2C": {
-            "description": "I2C in controller/master mode",
+            "description": "I2C driver for synchronous (blocking) controller/master mode",
             "friendly_name": "I2C Controller/Master"
         },
         "DEVICE_I2CSLAVE": {
-            "description": "I2C in peripheral/slave mode",
+            "description": "I2C for interrupt-based peripheral/slave mode",
             "friendly_name": "I2C Peripheral/Slave"
         },
         "DEVICE_I2C_ASYNCH": {
-            "description": "Allows use of I2C controller mode in the background via interrupts and/or DMA.",
+            "description": "Driver allowing I2C controller mode to be used in the background via interrupts and/or DMA.",
             "friendly_name": "Async I2C Controller/Master"
         },
         "DEVICE_INTERRUPTIN": {
@@ -312,7 +312,7 @@
             "friendly_name": "GPIO Interrupts"
         },
         "DEVICE_ITM": {
-            "description": "Support for ARM Instrumentation Trace Macrocell (ITM).  Basically a fast serial port designed for application logging and tracing that runs over the SWO pin.",
+            "description": "Driver for for ARM Instrumentation Trace Macrocell (ITM).  Basically a fast serial port designed for application logging and tracing that runs over the SWO pin.",
             "friendly_name": "ITM"
         },
         "DEVICE_LPTICKER": {
@@ -321,26 +321,26 @@
         },
         "DEVICE_MPU": {
             "description": "Mbed supports configuring the MPU on this device to disable writing to ROM and executing from RAM.",
-            "friendly_name": "Mempoy Protection Unit"
+            "friendly_name": "Memory Protection Unit"
         },
         "DEVICE_OSPI": {
-            "description": "Octal SPI peripheral, usually used to communicate with flash memory chips.  Has 8 bidirectional data lines and one clock line, plus optionally a CS line and a DQS line.",
+            "description": "Octal SPI peripheral driver, usually used to communicate with flash memory chips.  OSPI uses 8 bidirectional data lines and one clock line, plus optionally a CS line and a DQS line.",
             "friendly_name": "Octal SPI"
         },
         "DEVICE_PORTIN": {
-            "description": "Support for reading from an entire GPIO port at a time",
+            "description": "Driver for reading from an entire GPIO port at a time",
             "friendly_name": "GPIO Port Input"
         },
         "DEVICE_PORTINOUT": {
-            "description": "Support for using an entire GPIO port as a bidirectional I/O port.",
+            "description": "Driver for using an entire GPIO port as a bidirectional I/O port.",
             "friendly_name": "GPIO Port I/O"
         },
         "DEVICE_PORTOUT": {
-            "description": "Support for writing to an entire GPIO port at a time",
+            "description": "Driver for writing to an entire GPIO port at a time",
             "friendly_name": "GPIO Port Output"
         },
         "DEVICE_PWMOUT": {
-            "description": "Pulse Width Modulation (PWM) generator peripheral",
+            "description": "Pulse Width Modulation (PWM) generator peripheral driver",
             "friendly_name": "PWM Out"
         },
         "DEVICE_QSPI": {

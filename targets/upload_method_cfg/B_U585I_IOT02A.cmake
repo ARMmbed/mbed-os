@@ -6,7 +6,8 @@
 # 1. To use this target with PyOCD, you need to install a pack: `pyocd pack install STM32U585AIIxQ`.
 #    You might also need to run `pyocd pack update` first.
 # 2. PyOCD 0.35 can flash this device but not debug -- it is unable to hit breakpoints in my testing.
-# 3. Flashing via OpenOCD seems somewhat unreliable with this processor (at least with OpenOCD 0.12).
+# 3. Flashing via OpenOCD seems somewhat unreliable with this processor with OpenOCD 0.12.  It works great with
+#   latest Git OpenOCD though (as of Jan 2024)
 
 # General config parameters
 # -------------------------------------------------------------

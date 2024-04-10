@@ -178,7 +178,7 @@ def _calculate_attribute_for_target(
     Returns:
         A dictionary representation of a single accumulating attribute for that target
     """
-    starting_state = {attribute_name: target[attribute_name]}
+    starting_state = {attribute_name: target[attribute_name].copy()}
     # Reduces the order list to only the targets in the hierarchy between the starting state and the target itself
     applicable_accumulation_order = targets_in_order[: targets_in_order.index(target)]
     return _calculate_attribute_elements(attribute_name, starting_state, applicable_accumulation_order)
