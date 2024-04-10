@@ -341,7 +341,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
     {
       numask = (mask << 18);
     }
-    numask = (numask | CAN_IF_MASK2_MDIR_Msk | CAN_IF_MASK2_MXTD_Msk);
+    numask = (numask | ((CAN_IF_MASK2_MDIR_Msk | CAN_IF_MASK2_MXTD_Msk) << 16));
     return CAN_SetRxMsgAndMsk((CAN_T *)NU_MODBASE(obj->can), handle, (uint32_t)format, id, numask);
 }
 
