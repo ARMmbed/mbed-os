@@ -89,15 +89,15 @@ jobs:
         run: |
           value=`cat dev_tag`
           echo "DEV TAG is $value"
-          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          echo "DOCKER_DEV_TAG=$value" >> "$GITHUB_OUTPUT"
           value=`cat prod_tag_dated`
           echo "PROD TAG DATED is $value"
-          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          echo "DOCKER_PROD_TAG_DATED=$value" >> "$GITHUB_OUTPUT"
           value=`cat prod_tag_latest`
-          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          echo "DOCKER_PROD_TAG_LATEST=$value" >> "$GITHUB_OUTPUT"
           echo "PROD TAG is $value"
           value=`cat repository_owner`
-          echo "::set-output name=REPO_OWNER::$value"
+          echo "REPO_OWNER=$value" >> "$GITHUB_OUTPUT"
 
       - 
         name: Set up Docker Buildx
@@ -151,16 +151,16 @@ jobs:
         run: |
           value=`cat dev_tag`
           echo "TAG is $value"
-          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          echo "DOCKER_DEV_TAG=$value" >> "$GITHUB_OUTPUT"
           value=`cat prod_tag_dated`
           echo "TAG is $value"
-          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          echo "DOCKER_PROD_TAG_DATED=$value" >> "$GITHUB_OUTPUT"
           value=`cat prod_tag_latest`
-          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          echo "DOCKER_PROD_TAG_LATEST=$value" >> "$GITHUB_OUTPUT"
           value=`cat mbed_os_version`
-          echo "::set-output name=MBED_OS_VERSION::$value"
+          echo "MBED_OS_VERSION=$value" >> "$GITHUB_OUTPUT"
           value=`cat repository_owner`
-          echo "::set-output name=REPO_OWNER::$value"
+          echo "REPO_OWNER=$value" >> "$GITHUB_OUTPUT"
 
       -
         name: Checkout
@@ -171,7 +171,7 @@ jobs:
         id: docker_info_dev
         run: |
           DIGEST=$(python ./.github/workflows/ci_scripts/ghcr_utils.py -u ${{ steps.build_info.outputs.REPO_OWNER }} -p ${{ secrets.GITHUB_TOKEN }} get-digest -r mbed-os-env-tmp -t ${{ steps.build_info.outputs.DOCKER_DEV_TAG }} -p ${{ matrix.platform }} )
-          echo "::set-output name=DIGEST::$DIGEST"
+          echo "DIGEST=$DIGEST" >> "$GITHUB_OUTPUT"
           echo "Docker DIGEST: $DIGEST"
 
       # as the dev images are created only for master branch, run test against
@@ -228,14 +228,14 @@ jobs:
         run: |
           value=`cat dev_tag`
           echo "TAG is $value"
-          echo "::set-output name=DOCKER_DEV_TAG::$value"
+          echo "DOCKER_DEV_TAG=$value" >> "$GITHUB_OUTPUT"
           value=`cat prod_tag_dated`
           echo "TAG is $value"
-          echo "::set-output name=DOCKER_PROD_TAG_DATED::$value"
+          echo "DOCKER_PROD_TAG_DATED=$value" >> "$GITHUB_OUTPUT"
           value=`cat prod_tag_latest`
-          echo "::set-output name=DOCKER_PROD_TAG_LATEST::$value"
+          echo "DOCKER_PROD_TAG_LATEST=$value" >> "$GITHUB_OUTPUT"
           value=`cat repository_owner`
-          echo "::set-output name=REPO_OWNER::$value"
+          echo "REPO_OWNER=$value" >> "$GITHUB_OUTPUT"
           
       - 
         name: copy dev tag to prod
