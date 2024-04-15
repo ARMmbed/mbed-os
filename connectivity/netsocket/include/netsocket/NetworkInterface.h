@@ -90,6 +90,22 @@ public:
      */
     virtual void set_as_default();
 
+    /** Get hostname.
+     *
+     *  @return         Hostname if configured, null otherwise
+     */
+    virtual const char *get_hostname();
+
+    /** Set hostname.
+     *
+     *  @param          hostname Hostname string
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if hostname is not valid
+     *  @retval         NSAPI_ERROR_BUSY if hostname can't be set
+     */
+    virtual nsapi_error_t set_hostname(const char *hostname);
+
     /** Get the local MAC address.
      *
      *  Provided MAC address is intended for info or debug purposes and
