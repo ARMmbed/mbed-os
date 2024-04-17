@@ -18,10 +18,8 @@ endmacro(create_mbed_802_15_4_target)
 
 
 if("Freescale" IN_LIST MBED_TARGET_LABELS)
-	create_mbed_802_15_4_target()
     add_subdirectory(TARGET_Freescale)
 elseif("Silicon_Labs" IN_LIST MBED_TARGET_LABELS)
-	create_mbed_802_15_4_target()
     add_subdirectory(TARGET_Silicon_Labs)
 endif()
 

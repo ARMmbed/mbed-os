@@ -17,7 +17,7 @@ limitations under the License.
 """
 
 import argparse
-import json
+import json5
 import pathlib
 import hashlib
 import re
@@ -26,6 +26,12 @@ from tabulate import tabulate
 from itertools import chain
 from enum import Enum
 
+# Load targets data from JSON
+mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
+with (
+        mbed_os_root.joinpath("targets", "targets.json5")
+    ).open() as targets_json_file:
+        target_data = json5.load(targets_json_file)
 
 class ReturnCode(Enum):
     """Return codes."""
@@ -76,11 +82,6 @@ def find_target_by_path(target_path):
         print("WARNING: MBED TARGET LIST marker invalid or not found in file " + target_path)
         print("Target could not be determined. Only the generic test suite will run. You can manually specify additional suites.")
 
-    with (
-        mbed_os_root.joinpath("targets", "targets.json")
-    ).open() as targets_json_file:
-        target_data = json.load(targets_json_file)
-
         # find target in targets.json
         for target in target_data:
             if "public" in target_data[target]:
@@ -97,7 +98,6 @@ def find_target_by_path(target_path):
 
 def find_target_by_name(target_name=""):
     """Find a target by name."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
 
     targets = dict()
 
@@ -133,14 +133,9 @@ def find_target_by_name(target_name=""):
 
 def check_markers(test_mode=False):
     """Validate markers in PinNames.h files"""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
+    
 
     errors = []
-
-    with (
-        mbed_os_root.joinpath("targets", "targets.json")
-    ).open() as targets_json_file:
-        targets_json = json.load(targets_json_file)
 
     if test_mode:
         search_dir = pathlib.Path(__file__).parent.joinpath('test_files').absolute()
@@ -187,8 +182,6 @@ def check_markers(test_mode=False):
 
 def check_duplicate_pinnames_files(test_mode=False):
     """Check for duplicate PinNames.h files"""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
-
     errors = []
 
     file_hash_dict = dict()
@@ -220,8 +213,6 @@ def check_duplicate_pinnames_files(test_mode=False):
 
 def check_duplicate_markers(test_mode=False):
     """Check target markers in PinNames.h files for duplicates."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
-
     errors = []
 
     markers = dict()
@@ -262,13 +253,6 @@ def check_duplicate_markers(test_mode=False):
 
 def target_has_form_factor(target_name, form_factor):
     """Check if the target has the Arduino form factor."""
-    mbed_os_root = pathlib.Path(__file__).absolute().parents[3]
-
-    with (
-        mbed_os_root.joinpath("targets", "targets.json")
-    ).open() as targets_json_file:
-        target_data = json.load(targets_json_file)
-
     if target_name in target_data:
         if "supported_form_factors" in target_data[target_name]:
             form_factors = target_data[target_name]["supported_form_factors"]

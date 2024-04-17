@@ -262,17 +262,6 @@ typedef enum {
 #define BUTTON2 SW3
 
 
-// SPI Pins for SD card.
-// Note: They are different from the Arduino Uno SPI pins
-// (ARDUINO_UNO_SPI_xxx) for general purpose uses.
-// By default, Mbed OS maps those alias to Arduino Uno pins, but
-// for backward compatibility we map them to the SD card SPI.
-#define SPI_MOSI PTE3
-#define SPI_MISO PTE1
-#define SPI_SCK  PTE2
-#define SPI_CS   PTE4
-
-
 #ifdef __cplusplus
 }
 #endif

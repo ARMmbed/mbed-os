@@ -361,7 +361,7 @@ static void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void 
 bool spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if (spi_active(obj)) {
-        return;
+        return false;
     }
 
     /* check corner case */

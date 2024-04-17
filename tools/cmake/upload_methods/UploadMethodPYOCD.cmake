@@ -19,7 +19,7 @@ set(UPLOAD_PYOCD_FOUND ${HAVE_PYOCD})
 set(PYOCD_PROBE_UID "" CACHE STRING "Probe UID to pass to pyOCD commands. You can get the UIDs from `python -m pyocd list`.  Set to empty to detect any probe.")
 
 ### Function to generate upload target
-set(PYOCD_PROBE_ARGS "")
+set(PYOCD_PROBE_ARGS "" CACHE INTERNAL "" FORCE)
 if(NOT "${PYOCD_PROBE_UID}" STREQUAL "")
 	set(PYOCD_PROBE_ARGS --probe ${PYOCD_PROBE_UID} CACHE INTERNAL "" FORCE)
 endif()

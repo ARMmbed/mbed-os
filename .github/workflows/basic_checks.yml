@@ -193,6 +193,7 @@ jobs:
         name: validate pins
         run: |
           set -x
+          python3 -m pip install json5
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git diff --name-only --diff-filter=d origin/${GITHUB_BASE_REF} \
             | ( grep '.*[\\|\/]PinNames.h$' || true ) \
