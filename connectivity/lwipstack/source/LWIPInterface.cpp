@@ -432,6 +432,11 @@ LWIP::Interface::Interface() :
 
 nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out, NetworkInterface *user_network_interface)
 {
+    return add_ethernet_interface(emac, default_if, interface_out, NULL, user_network_interface);
+}
+
+nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out, const uint8_t *mac_addr, NetworkInterface *user_network_interface)
+{
 #if LWIP_ETHERNET
     Interface *interface = new (std::nothrow) Interface();
     if (!interface) {
@@ -441,16 +446,20 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
     interface->memory_manager = &memory_manager;
     interface->ppp_enabled = false;
 
+    if(mac_addr) {
+        memcpy(interface->netif.hwaddr, mac_addr, 6);
+    } else {
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
-    netif->interface.hwaddr[0] = MBED_MAC_ADDR_0;
-    netif->interface.hwaddr[1] = MBED_MAC_ADDR_1;
-    netif->interface.hwaddr[2] = MBED_MAC_ADDR_2;
-    netif->interface.hwaddr[3] = MBED_MAC_ADDR_3;
-    netif->interface.hwaddr[4] = MBED_MAC_ADDR_4;
-    netif->interface.hwaddr[5] = MBED_MAC_ADDR_5;
+      netif->interface.hwaddr[0] = MBED_MAC_ADDR_0;
+      netif->interface.hwaddr[1] = MBED_MAC_ADDR_1;
+      netif->interface.hwaddr[2] = MBED_MAC_ADDR_2;
+      netif->interface.hwaddr[3] = MBED_MAC_ADDR_3;
+      netif->interface.hwaddr[4] = MBED_MAC_ADDR_4;
+      netif->interface.hwaddr[5] = MBED_MAC_ADDR_5;
 #else
     mbed_mac_address((char *) interface->netif.hwaddr);
 #endif
+    }
 
     interface->netif.hwaddr_len = 6;
     interface->user_network_interface = user_network_interface;
