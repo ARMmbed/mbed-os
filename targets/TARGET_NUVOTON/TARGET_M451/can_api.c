@@ -314,10 +314,6 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
     }
 
     uint32_t numask = mask;
-    if( numask == 0x0000 )
-    {
-      return CAN_SetRxMsg((CAN_T *)NU_MODBASE(obj->can), handle, (uint32_t)format, id);
-    }
     if( format == CANStandard )
     {
       numask = (mask << 18);
