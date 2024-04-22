@@ -36,7 +36,7 @@
 
 #include "nrf52.h"
 #include "cmsis.h"
-
+#include "nrf52832_memory_regions.h"
 
 #ifdef __cplusplus
 extern "C" {

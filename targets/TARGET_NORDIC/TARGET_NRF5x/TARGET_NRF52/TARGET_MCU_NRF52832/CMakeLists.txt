@@ -3,6 +3,7 @@
 
 add_library(mbed-nrf52-dk INTERFACE)
 add_library(mbed-sdt52832b INTERFACE)
+add_library(mbed-arduino-nicla-sense-me INTERFACE)
 
 target_include_directories(mbed-nrf52-dk
     INTERFACE
@@ -13,6 +14,12 @@ target_include_directories(mbed-sdt52832b
     INTERFACE
         TARGET_SDT52832B
 )
+
+target_include_directories(mbed-arduino-nicla-sense-me
+    INTERFACE
+        TARGET_ARDUINO_NICLA_SENSE_ME
+)
+
 
 if(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE device/TOOLCHAIN_ARM_STD/nRF52832.sct)
@@ -46,3 +53,4 @@ mbed_set_linker_script(mbed-mcu-nrf52832 ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FI
 target_link_libraries(mbed-mcu-nrf52832 INTERFACE mbed-nrf52 mbed-sdk-15-0)
 target_link_libraries(mbed-nrf52-dk INTERFACE mbed-mcu-nrf52832)
 target_link_libraries(mbed-sdt52832b INTERFACE mbed-mcu-nrf52832)
+target_link_libraries(mbed-arduino-nicla-sense-me INTERFACE mbed-mcu-nrf52832)

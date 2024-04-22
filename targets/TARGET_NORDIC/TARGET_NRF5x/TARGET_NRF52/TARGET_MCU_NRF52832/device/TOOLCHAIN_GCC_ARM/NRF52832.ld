@@ -16,28 +16,12 @@
 
 /* Linker script to configure memory regions. */
 
-/* Default to no softdevice */
-#if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x0
-#endif
-
-#if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x80000
-#endif
-
-#if !defined(MBED_RAM_START)
-  #define MBED_RAM_START 0x20000000
-  #define MBED_RAM_SIZE 0x10000
-#endif
+#include "../nrf52832_memory_regions.h"
 
 #if !defined(MBED_CONF_TARGET_BOOT_STACK_SIZE)
     #define MBED_CONF_TARGET_BOOT_STACK_SIZE 0x800
 #endif
 
-#define MBED_RAM0_START MBED_RAM_START
-#define MBED_RAM0_SIZE  0xE0
-#define MBED_RAM1_START (MBED_RAM_START + MBED_RAM0_SIZE)
-#define MBED_RAM1_SIZE  (MBED_RAM_SIZE - MBED_RAM0_SIZE)
 
 MEMORY
 {

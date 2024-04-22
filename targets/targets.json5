@@ -6926,7 +6926,6 @@
                 "value": 32
             }
         },
-        "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": [
             "GCC_ARM"
@@ -6947,7 +6946,8 @@
                 "std",
                 "small"
             ]
-        }
+        },
+        "is_mcu_family_target": true
     },
     "NRF52_DK": {
         "supported_form_factors": [
@@ -6996,6 +6996,33 @@
             "3104"
         ],
         "device_name": "nRF52832_xxAA"
+    },
+    "ARDUINO_NICLA_SENSE_ME": {
+        "inherits": ["MCU_NRF52832"],
+        "components_add": [
+            "FLASHIAP",
+            "SPIF"
+        ],
+        "device_name": "nRF52832_xxAA",
+        "macros_add": [
+            "CONFIG_GPIO_AS_PINRESET",
+            "CONFIG_NFCT_PINS_AS_GPIOS",
+            "NRF52_PAN_12",
+            "NRF52_PAN_15",
+            "NRF52_PAN_20",
+            "NRF52_PAN_30",
+            "NRF52_PAN_31",
+            "NRF52_PAN_36",
+            "NRF52_PAN_51",
+            "NRF52_PAN_53",
+            "NRF52_PAN_54",
+            "NRF52_PAN_55",
+            "NRF52_PAN_58",
+            "NRF52_PAN_62",
+            "NRF52_PAN_63",
+            "NRF52_PAN_64"
+        ],
+        "image_url": "https://store-usa.arduino.cc/cdn/shop/products/ABX00050_03.front_1000x750.jpg?v=1631089821"
     },
     "MCU_NRF52840": {
         "inherits": [
