@@ -133,12 +133,6 @@
           "SPI_MOSI": "SPI_MOSI",
           "SPI_MISO": "SPI_MISO",
           "SPI_CLK": "SPI_SCK"
-        },
-      "ARDUINO_NICLA_SENSE_ME": {
-          "SPI_MOSI": "P0_13",
-          "SPI_MISO": "P0_14",
-          "SPI_CLK":  "P0_12",
-          "SPI_CS":   "P0_16"
-      }
+        }
     }
 }

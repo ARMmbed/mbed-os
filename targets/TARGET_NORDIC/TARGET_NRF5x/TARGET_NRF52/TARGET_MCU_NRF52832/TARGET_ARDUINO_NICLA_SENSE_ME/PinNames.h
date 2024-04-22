@@ -153,30 +153,33 @@ typedef enum {
 } PinName;
 
 // Alternate names for pins
-#define SPI_PSELSCK0   p3,
-#define SPI_PSELMISO0  p5,
-#define SPI_PSELMOSI0  p4,
-#define SPI_PSELSS0    p31,
-#define CS_FLASH       p26,
+#define SPI_PSELSCK0   p3
+#define SPI_PSELMISO0  p5
+#define SPI_PSELMOSI0  p4
+#define SPI_PSELSS0    p31
+#define CS_FLASH       p26
 
-#define SPI_PSELSS1    p29,
-#define SPI_PSELMISO1  p28,
-#define SPI_PSELMOSI1  p27,
-#define SPI_PSELSCK1   p11,
+#define SPI_PSELSS1    p29
+#define SPI_PSELMISO1  p28
+#define SPI_PSELMOSI1  p27
+#define SPI_PSELSCK1   p11
 
-#define SPI_MOSI       SPI_PSELMOSI0,
-#define SPI_MISO       SPI_PSELMISO0,
-#define SPI_CLK        SPI_PSELSCK0,
-#define SPI_CS         SPI_PSELSS0,
+#define SPI_MOSI       SPI_PSELMOSI0
+#define SPI_MISO       SPI_PSELMISO0
+#define SPI_SCK        SPI_PSELSCK0
+#define SPI_CS         SPI_PSELSS0
 
-#define SPI_COPI       SPI_PSELMOSI0,
-#define SPI_CIPO       SPI_PSELMISO0,
+#define SPI_COPI       SPI_PSELMOSI0
+#define SPI_CIPO       SPI_PSELMISO0
 
-#define I2C_SDA0  p15,
-#define I2C_SCL0  p16,
+#define I2C_SDA0  p15
+#define I2C_SCL0  p16
 
-#define I2C_SDA1  p22,
-#define I2C_SCL1  p23,
+#define I2C_SDA1  p22
+#define I2C_SCL1  p23
+
+// LEDs & buttons
+#define BUTTON1 p21
 
 typedef enum {
     PullNone = 0,
