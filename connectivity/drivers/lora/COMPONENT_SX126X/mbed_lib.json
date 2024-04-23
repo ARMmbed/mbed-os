@@ -38,6 +38,10 @@
             "help": "Default: -1 = use crystal-select, TXCO = 0, XTAL = 1",
             "value": -1
         },
+        "tcxo-ctrl": {
+            "help": "TCXO Control voltage. Default: TCXO control TCXO_CTRL_1_7V (RAK4630 use TCXO_CTRL_3_0V)",
+            "value": "TCXO_CTRL_1_7V"
+        },
         "spi-mosi": {
             "value": "NC"
         },

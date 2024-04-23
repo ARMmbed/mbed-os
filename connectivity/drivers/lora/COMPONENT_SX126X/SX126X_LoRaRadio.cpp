@@ -437,7 +437,7 @@ void SX126X_LoRaRadio::cold_start_wakeup()
     if (MBED_CONF_SX126X_LORA_DRIVER_XTAL == 0) {
 #endif
         caliberation_params_t calib_param;
-        set_dio3_as_tcxo_ctrl(TCXO_CTRL_1_7V, 320); //5 ms
+        set_dio3_as_tcxo_ctrl(MBED_CONF_SX126X_LORA_DRIVER_TCXO_CTRL, 320); //5 ms
         calib_param.value = 0x7F;
         write_opmode_command(RADIO_CALIBRATE, &calib_param.value, 1);
     }
