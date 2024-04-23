@@ -27,14 +27,26 @@
  #include "nu_miscutil.h"
  #include "nu_bitutil.h"
  #include "mbed_critical.h"
+ #include "mbed_error.h"
  
  #define NU_CAN_DEBUG    0
  #define CAN_NUM         2
  
+ /* Reserve Message Object number 31 for Tx */
+#define NU_CAN_MSG_OBJ_NUM_TX   31
+
+/* Convert to string literal */
+#define NU_STR_(X)  #X
+#define NU_STR(X)   NU_STR_(X)
+
+/* Max number of message ID filter handle */
+#define NU_CAN_MAXNUM_HNDL      NU_CAN_MSG_OBJ_NUM_TX
+
  static uintptr_t can_irq_contexts[CAN_NUM] = {0};
  static can_irq_handler can0_irq_handler;
  static can_irq_handler can1_irq_handler;
 
+ extern void CAN_CLR_INT_PENDING_ONLY_BIT(CAN_T *tCAN, uint32_t u32MsgNum);
  
  static const struct nu_modinit_s can_modinit_tab[] = {
     {CAN_0, CAN0_MODULE, 0, 0, CAN0_RST, CAN0_IRQn, NULL},
@@ -133,19 +145,10 @@ static void can_irq(CANName name, int id)
         /**************************/
         if(can->STATUS & CAN_STATUS_RXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_RXOK_Msk;   /* Clear Rx Ok status*/
-            if(id)
-                can1_irq_handler(can_irq_contexts[id] , IRQ_RX);
-            else
-                can0_irq_handler(can_irq_contexts[id], IRQ_RX);
         }
 
         if(can->STATUS & CAN_STATUS_TXOK_Msk) {
             can->STATUS &= ~CAN_STATUS_TXOK_Msk;    /* Clear Tx Ok status*/
-            if(id)
-                can1_irq_handler(can_irq_contexts[id] , IRQ_TX);
-            else
-                can0_irq_handler(can_irq_contexts[id], IRQ_TX);
-
         }
 
         /**************************/
@@ -163,6 +166,24 @@ static void can_irq(CANName name, int id)
                 can1_irq_handler(can_irq_contexts[id] , IRQ_BUS);
             else
                 can0_irq_handler(can_irq_contexts[id], IRQ_BUS);
+        }
+    } else if (u8IIDRstatus >= 1 && u8IIDRstatus <= 32) {
+        if ((u8IIDRstatus - 1) != NU_CAN_MSG_OBJ_NUM_TX) {
+            if (id) {
+                can1_irq_handler(can_irq_contexts[id], IRQ_RX);
+            }
+            else {
+                can0_irq_handler(can_irq_contexts[id], IRQ_RX);
+            }
+            CAN_CLR_INT_PENDING_ONLY_BIT(can, (u8IIDRstatus -1));
+        } else {
+            if (id) {
+                can1_irq_handler(can_irq_contexts[id], IRQ_TX);
+            }
+            else {
+                can0_irq_handler(can_irq_contexts[id], IRQ_TX);
+            }
+            CAN_CLR_INT_PENDING_BIT(can, (u8IIDRstatus -1));
         }
     } else if (u8IIDRstatus!=0) {
 
@@ -263,6 +284,9 @@ void can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable)
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
 {
+    /* Unused */
+    (void) cc;
+
     STR_CANMSG_T CMsg;
     
     CMsg.IdType = (uint32_t)msg.format;
@@ -271,7 +295,7 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     CMsg.DLC = msg.len;
     memcpy((void *)&CMsg.Data[0],(const void *)&msg.data[0], (unsigned int)8);
 
-    return CAN_Transmit((CAN_T *)NU_MODBASE(obj->can), cc, &CMsg);
+    return CAN_Transmit((CAN_T *)NU_MODBASE(obj->can), NU_CAN_MSG_OBJ_NUM_TX, &CMsg);
 }
 
 int can_read(can_t *obj, CAN_Message *msg, int handle)
@@ -335,6 +359,13 @@ int can_mode(can_t *obj, CanMode mode)
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
+    /* Check validity of filter handle */
+    if (handle < 0 || handle >= NU_CAN_MAXNUM_HNDL) {
+        /* NOTE: 0 is ambiguous, error or filter handle 0. */
+        error("Support max " NU_STR(NU_CAN_MAXNUM_HNDL) " CAN filters");
+        return 0;
+    }
+
     return CAN_SetRxMsg((CAN_T *)NU_MODBASE(obj->can), handle , (uint32_t)format, id);
 }
 
