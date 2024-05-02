@@ -3,6 +3,7 @@
 
 # This is the boilerplate for Mbed OS
 
+
 cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
 
 option(BUILD_GREENTEA_TESTS "Build greentea tests only." OFF)
