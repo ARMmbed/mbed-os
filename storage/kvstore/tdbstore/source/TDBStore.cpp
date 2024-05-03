@@ -374,6 +374,10 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
 
             if (calc_hash) {
                 hash = calc_crc(hash, chunk_size, dest_buf);
+#ifdef KVSTORE_RAM_TABLE_NO_CRC_CHECK
+                next_offset = align_up(offset + total_size, _prog_size);
+                return ret;
+#endif /* KVSTORE_RAM_TABLE_NO_CRC_CHECK */
             }
 
             user_key_ptr += chunk_size;
