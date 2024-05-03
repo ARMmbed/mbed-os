@@ -123,6 +123,8 @@ struct i2c_s {
     uint8_t slave;
     volatile uint8_t pending_slave_tx_master_rx;
     volatile uint8_t pending_slave_rx_maxter_tx;
+    volatile uint8_t slave_tx_transfer_in_progress;
+    volatile uint8_t slave_rx_transfer_in_progress;
     uint8_t *slave_rx_buffer;
     volatile uint16_t slave_rx_buffer_size;
     volatile uint16_t slave_rx_count;
