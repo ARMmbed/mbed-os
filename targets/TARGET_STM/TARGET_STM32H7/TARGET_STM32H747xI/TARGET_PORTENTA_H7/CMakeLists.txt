@@ -8,7 +8,6 @@ add_library(mbed-portenta-h7-m4 INTERFACE)
 target_sources(mbed-portenta-h7-m4
     INTERFACE
         PeripheralPins.c
-        system_clock_override.c
         portenta_power.cpp
 )
 
@@ -25,7 +24,6 @@ add_library(mbed-portenta-h7-m7 INTERFACE)
 target_sources(mbed-portenta-h7-m7
     INTERFACE
         PeripheralPins.c
-        system_clock_override.c
         portenta_power.cpp
 )
 
