@@ -1165,6 +1165,7 @@ int TDBStore::deinit()
         delete[] ram_table;
         delete[] _work_buf;
         delete[] _key_buf;
+        delete reinterpret_cast<inc_set_handle_t *>(_inc_set_handle);
     }
 
     _is_initialized = false;
