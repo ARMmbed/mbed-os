@@ -82,7 +82,7 @@ public:
         /**
          * Get the scan interval.
          */
-        const scan_window_t &getInterval() const
+        const scan_interval_t &getInterval() const
         {
             return interval;
         }
@@ -90,7 +90,7 @@ public:
         /**
          * Get the scan window.
          */
-        const scan_interval_t &getWindow() const
+        const scan_window_t &getWindow() const
         {
             return window;
         }
