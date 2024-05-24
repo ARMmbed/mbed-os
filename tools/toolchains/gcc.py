@@ -19,13 +19,19 @@ import re
 import fnmatch
 from os.path import join, basename, splitext, dirname, exists
 from os import getcwd, getenv
-from distutils.spawn import find_executable
-from distutils.version import LooseVersion
+from sys import version_info
 
 from tools.toolchains.mbed_toolchain import (
     mbedToolchain, TOOLCHAIN_PATHS, should_replace_small_c_lib
 )
 from tools.utils import run_cmd
+
+if version_info >= (3,10):
+    from shutil import which
+    from packaging.version import Version
+else:
+    from distutils.spawn import find_executable as which
+    from distutils.version import LooseVersion as Version
 
 
 class GCC(mbedToolchain):
@@ -36,7 +42,7 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
-    GCC_RANGE = (LooseVersion("9.0.0"), LooseVersion("10.0.0"))
+    GCC_RANGE = (Version("9.0.0"), Version("10.0.0"))
     GCC_VERSION_RE = re.compile(b"\d+\.\d+\.\d+")
     DWARF_PRODUCER_RE = re.compile(r'(DW_AT_producer)(.*:\s*)(?P<producer>.*)')
 
@@ -183,7 +189,7 @@ class GCC(mbedToolchain):
         msg = None
         match = self.GCC_VERSION_RE.search(stdout.encode("utf-8"))
         if match:
-            found_version = LooseVersion(match.group(0).decode('utf-8'))
+            found_version = Version(match.group(0).decode('utf-8'))
         else:
             found_version = None
         min_ver, max_ver = self.GCC_RANGE
@@ -395,7 +401,7 @@ class GCC(mbedToolchain):
             not TOOLCHAIN_PATHS['GCC_ARM'] or
             not exists(TOOLCHAIN_PATHS['GCC_ARM'])
         ):
-            if find_executable('arm-none-eabi-gcc'):
+            if which('arm-none-eabi-gcc'):
                 TOOLCHAIN_PATHS['GCC_ARM'] = ''
                 return True
             else:

@@ -18,12 +18,16 @@ limitations under the License.
 import re
 from os import remove
 from os.path import join, splitext, exists
-from distutils.version import LooseVersion
-
+from sys import version_info
 from tools.toolchains.mbed_toolchain import (
     mbedToolchain, TOOLCHAIN_PATHS, should_replace_small_c_lib
 )
 from tools.utils import run_cmd
+
+if version_info >= (3,10):
+    from packaging.version import Version
+else:
+    from distutils.version import LooseVersion as Version 
 
 class IAR(mbedToolchain):
     OFFICIALLY_SUPPORTED = True
@@ -34,7 +38,7 @@ class IAR(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
     INDEX_PATTERN = re.compile('(?P<col>\s*)\^')
     IAR_VERSION_RE = re.compile(b"IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
-    IAR_VERSION = LooseVersion("8.32")
+    IAR_VERSION = Version("8.32")
 
     @staticmethod
     def check_executable():
@@ -123,7 +127,7 @@ class IAR(mbedToolchain):
         msg = None
         match = self.IAR_VERSION_RE.search(stdout.encode("utf-8"))
         found_version = match.group(1).decode("utf-8") if match else None
-        if found_version and LooseVersion(found_version) != self.IAR_VERSION:
+        if found_version and Version(found_version) != self.IAR_VERSION:
             msg = "Compiler version mismatch: Have {}; expected {}".format(
                 found_version, self.IAR_VERSION)
         elif not match or len(match.groups()) != 1:

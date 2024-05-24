@@ -24,13 +24,18 @@ from os.path import join, dirname, splitext, basename, exists, isfile, relpath, 
 from os import makedirs, write, remove
 from tempfile import mkstemp
 from shutil import rmtree
-from distutils.version import LooseVersion
+from sys import version_info
 
 from tools.toolchains.mbed_toolchain import (
     mbedToolchain, TOOLCHAIN_PATHS, should_replace_small_c_lib
 )
 from tools.utils import mkdir, NotSupportedException, run_cmd
 from tools.resources import FileRef
+
+if version_info >= (3,10):
+    from packaging.version import Version
+else:
+    from distutils.version import LooseVersion as Version 
 
 ARMC5_MIGRATION_WARNING = (
     "Warning: Arm Compiler 5 is no longer supported as of Mbed 6. "
@@ -59,7 +64,7 @@ class ARM(mbedToolchain):
         "Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4", "Cortex-M4F",
         "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A5", "Cortex-A9"
     ]
-    ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
+    ARMCC_RANGE = (Version("5.06"), Version("5.07"))
     ARMCC_PRODUCT_RE = re.compile(b"Product: (.*)")
     ARMCC_VERSION_RE = re.compile(b"Component: ARM Compiler (\d+\.\d+)")
 
@@ -142,7 +147,7 @@ class ARM(mbedToolchain):
         output = stdout.encode("utf-8")
         match = self.ARMCC_VERSION_RE.search(output)
         if match:
-            found_version = LooseVersion(match.group(1).decode("utf-8"))
+            found_version = Version(match.group(1).decode("utf-8"))
         else:
             found_version = None
         min_ver, max_ver = self.ARMCC_RANGE
@@ -546,7 +551,7 @@ class ARMC6(ARM_STD):
         "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FE-NS", "Cortex-M33FE",
         "Cortex-A5", "Cortex-A9"
     ]
-    ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
+    ARMCC_RANGE = (Version("6.10"), Version("7.0"))
     LD_DIAGNOSTIC_PATTERN = re.compile(
         '(?P<severity>Warning|Error): (?P<message>.+)'
     )

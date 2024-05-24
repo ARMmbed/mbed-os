@@ -29,9 +29,9 @@ from inspect import getmro
 from copy import deepcopy
 from collections import namedtuple
 from abc import ABCMeta, abstractmethod
-from distutils.spawn import find_executable
 from multiprocessing import Pool, cpu_count
 from hashlib import md5
+from sys import version_info
 
 from ..utils import (
     run_cmd,
@@ -52,6 +52,11 @@ from ..settings import COMPARE_FIXED
 from ..settings import ARM_PATH, ARMC6_PATH, GCC_ARM_PATH, IAR_PATH
 from future.utils import with_metaclass
 
+if version_info >= (3,10):
+    from shutil import which
+else:
+    from distutils.spawn import find_executable as which
+    
 
 TOOLCHAIN_PATHS = {
     'ARM': ARM_PATH,
@@ -1143,7 +1148,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         """
         if (not TOOLCHAIN_PATHS[tool_key] or
                 not exists(TOOLCHAIN_PATHS[tool_key])):
-            exe = find_executable(executable_name)
+            exe = which(executable_name)
             if not exe:
                 return False
             for level in range(levels_up):
