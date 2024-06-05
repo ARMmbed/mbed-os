@@ -222,7 +222,7 @@ ospi_status_t ospi_prepare_command(const ospi_command_t *command, OSPI_RegularCm
             break;
     }
 
-    debug_if(ospi_api_c_debug, "ospi_prepare_command Out: InstructionMode %x Instruction %x AddressMode %x AddressSize %x Address %x DataMode %x\n",
+    debug_if(ospi_api_c_debug, "ospi_prepare_command Out: InstructionMode %lx Instruction %lx AddressMode %lx AddressSize %lx Address %lx DataMode %lx\n",
              st_command->InstructionMode, st_command->Instruction, st_command->AddressMode, st_command->AddressSize, st_command->Address, st_command->DataMode);
 
     return OSPI_STATUS_OK;
@@ -479,7 +479,7 @@ ospi_status_t ospi_frequency(ospi_t *obj, int hz)
             div = div + 1;
         }
     }
-    tr_debug("ospi_frequency hz %d source %d Prescaler %d", hz, OSPI_clock_source, div);
+    tr_debug("ospi_frequency hz %d source %ld Prescaler %d", hz, OSPI_clock_source, div);
 
     obj->handle.Init.ClockPrescaler = div;
 
@@ -544,7 +544,7 @@ ospi_status_t ospi_read(ospi_t *obj, const ospi_command_t *command, void *data, 
 
 ospi_status_t ospi_command_transfer(ospi_t *obj, const ospi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    tr_debug("ospi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
+    tr_debug("ospi_command_transfer tx %u rx %u command %#04lx", tx_size, rx_size, command->instruction.value);
     ospi_status_t status = OSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
