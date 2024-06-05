@@ -167,7 +167,7 @@ ssize_t BufferedSerial::write(const void *buffer, size_t length)
     // write everything if blocking. Without signals we can always write all.
     while (data_written < length) {
 
-        if (_txbuf.full()) {
+        if (!_txbuf.empty()) {
             if (!_blocking) {
                 break;
             }
@@ -176,7 +176,7 @@ ssize_t BufferedSerial::write(const void *buffer, size_t length)
                 // Should we have a proper wait?
                 thread_sleep_for(1);
                 api_lock();
-            } while (_txbuf.full());
+            } while (!_txbuf.empty());
         }
 
         while (data_written < length && !_txbuf.full()) {
