@@ -28,6 +28,7 @@
 #include "BufferedBlockDevice.h"
 #include "BlockDevice.h"
 #include <algorithm>
+#include "mx78_armor2_provision_example.h"
 
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
@@ -55,6 +56,10 @@
 
 #if COMPONENT_SPINAND
 #include "SPINANDBlockDevice.h"
+#endif
+
+#if COMPONENT_SECUREF
+#include "SecureFBlockDevice.h"
 #endif
 
 // Debug available
@@ -97,10 +102,11 @@ enum bd_type {
     flashiap,
     ospif,
     spinand,
+    securef,
     default_bd
 };
 
-uint8_t bd_arr[6] = {0};
+uint8_t bd_arr[default_bd] = {0};
 
 static uint8_t test_iteration = 0;
 
@@ -241,6 +247,19 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
 #endif
             break;
         }
+        case securef: {
+#if COMPONENT_SECUREF
+            static SecureFBlockDevice default_bd(
+                MBED_CONF_SECUREF_DRIVER_SPI_MOSI,
+                MBED_CONF_SECUREF_DRIVER_SPI_MISO,
+                MBED_CONF_SECUREF_DRIVER_SPI_CLK,
+                MBED_CONF_SECUREF_DRIVER_SPI_CS,
+                MBED_CONF_SECUREF_DRIVER_SPI_FREQ
+            );
+            return &default_bd;
+#endif
+            break;
+        }
     }
     return NULL;
 }
@@ -273,16 +292,43 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
         write_block[i_ind] = 0xff & rand();
     }
     // Write, sync, and read the block
-    DEBUG_PRINTF("test  %0*llx:%llu...\n", addrwidth, block, curr_block_size);
+    DEBUG_PRINTF("test  %llx:%llu...\n", addrwidth, block);
+    if (!strcmp(block_device->get_type(), "SECUREF")) {
+        uint32_t valid_app_id, valid_zone_id;
+        bd_size_t access_zone_id = block / block_device->secure_zone_size();
+        int n;
 
-    err = block_device->erase(block, curr_block_size);
-    TEST_ASSERT_EQUAL(0, err);
+        for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+            if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                valid_app_id = app_zone_available_pair[n].app_id;
+                valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                break;
+            }
+        }
+        if (AVAILABLE_PAIR_NUM == n) {
+            utest_printf("Address %llx is not in the avaliable zone %llx , SKIP!!!\n", block, access_zone_id);
+            _mutex->unlock();
+            return;
+        }
+        err = block_device->secure_erase(block, curr_block_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
 
-    err = block_device->program(write_block, block, block_size);
-    TEST_ASSERT_EQUAL(0, err);
+        err = block_device->secure_program(write_block, block, block_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
 
-    err = block_device->read(read_block, block, block_size);
-    TEST_ASSERT_EQUAL(0, err);
+        err = block_device->secure_read(read_block, block, block_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+    } else {
+
+        err = block_device->erase(block, curr_block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = block_device->program(write_block, block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = block_device->read(read_block, block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+    }
 
     // Check that the data was unmodified
     srand(seed);
@@ -406,6 +452,7 @@ void test_multi_threads()
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+    TEST_SKIP_UNLESS_MESSAGE(strcmp(block_device->get_type(), "SECUREF"), "Secure Flash currently does not support this type of test.");
 
     for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
         static const char *prefixes[] = {"", "k", "M", "G"};
@@ -575,44 +622,94 @@ void test_erase_functionality()
     uint8_t *out_data_buf = new (std::nothrow) uint8_t[data_buf_size];
     TEST_SKIP_UNLESS_MESSAGE(out_data_buf != NULL, "Not enough memory for test");
 
-    // First must Erase given memory region
-    utest_printf("erasing given memory region\n");
-    int err = block_device->erase(start_address, data_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
+    if (!strcmp(block_device->get_type(), "SECUREF")) {
+        uint32_t valid_app_id, valid_zone_id;
+        bd_size_t access_zone_id = start_address / block_device->secure_zone_size();
+        int n;
 
-    // Write random data to selected region to make sure data is not accidentally set to "erased" value.
-    // With this pre-write, the test case will fail even if block_device->erase() is broken.
-    for (bd_size_t i = 0; i < data_buf_size; i++) {
-        data_buf[i] = (uint8_t) rand();
+        for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+            if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                valid_app_id = app_zone_available_pair[n].app_id;
+                valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                break;
+            }
+        }
+        // First must Erase given memory region
+        utest_printf("erasing given memory region\n");
+        int err = block_device->secure_erase(start_address, data_buf_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Write random data to selected region to make sure data is not accidentally set to "erased" value.
+        // With this pre-write, the test case will fail even if block_device->erase() is broken.
+        for (bd_size_t i = 0; i < data_buf_size; i++) {
+            data_buf[i] = (uint8_t) rand();
+        }
+
+        utest_printf("writing given memory region\n");
+        err = block_device->secure_program((const void *)data_buf, start_address, data_buf_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Read written memory region to verify it contains information
+        memset(out_data_buf, 0, data_buf_size);
+        utest_printf("reading written memory region\n");
+        err = block_device->secure_read((void *)out_data_buf, start_address, data_buf_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Verify erased memory region
+        utest_printf("verifying written memory region\n");
+        for (bd_size_t i = 0; i < data_buf_size; i++) {
+            TEST_ASSERT_EQUAL(out_data_buf[i], data_buf[i]);
+        }
+
+        // Erase given memory region
+        utest_printf("erasing written memory region\n");
+        err = block_device->secure_erase(start_address, data_buf_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Read erased memory region
+        utest_printf("reading erased memory region\n");
+        memset(out_data_buf, 0, data_buf_size);
+        err = block_device->secure_read((void *)out_data_buf, start_address, data_buf_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+    } else {
+        // First must Erase given memory region
+        utest_printf("erasing given memory region\n");
+        int err = block_device->erase(start_address, data_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Write random data to selected region to make sure data is not accidentally set to "erased" value.
+        // With this pre-write, the test case will fail even if block_device->erase() is broken.
+        for (bd_size_t i = 0; i < data_buf_size; i++) {
+            data_buf[i] = (uint8_t) rand();
+        }
+
+        utest_printf("writing given memory region\n");
+        err = block_device->program((const void *)data_buf, start_address, data_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Read written memory region to verify it contains information
+        memset(out_data_buf, 0, data_buf_size);
+        utest_printf("reading written memory region\n");
+        err = block_device->read((void *)out_data_buf, start_address, data_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Verify erased memory region
+        utest_printf("verifying written memory region\n");
+        for (bd_size_t i = 0; i < data_buf_size; i++) {
+            TEST_ASSERT_EQUAL(out_data_buf[i], data_buf[i]);
+        }
+
+        // Erase given memory region
+        utest_printf("erasing written memory region\n");
+        err = block_device->erase(start_address, data_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Read erased memory region
+        utest_printf("reading erased memory region\n");
+        memset(out_data_buf, 0, data_buf_size);
+        err = block_device->read((void *)out_data_buf, start_address, data_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
     }
-
-    utest_printf("writing given memory region\n");
-    err = block_device->program((const void *)data_buf, start_address, data_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    // Read written memory region to verify it contains information
-    memset(out_data_buf, 0, data_buf_size);
-    utest_printf("reading written memory region\n");
-    err = block_device->read((void *)out_data_buf, start_address, data_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    // Verify erased memory region
-    utest_printf("verifying written memory region\n");
-    for (bd_size_t i = 0; i < data_buf_size; i++) {
-        TEST_ASSERT_EQUAL(out_data_buf[i], data_buf[i]);
-    }
-
-    // Erase given memory region
-    utest_printf("erasing written memory region\n");
-    err = block_device->erase(start_address, data_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
-    // Read erased memory region
-    utest_printf("reading erased memory region\n");
-    memset(out_data_buf, 0, data_buf_size);
-    err = block_device->read((void *)out_data_buf, start_address, data_buf_size);
-    TEST_ASSERT_EQUAL(0, err);
-
     // Verify erased memory region
     utest_printf("verifying erased memory region\n");
     for (bd_size_t i = 0; i < data_buf_size; i++) {
@@ -637,6 +734,7 @@ void test_contiguous_erase_write_read()
     //  3. Return step 2 for whole erase region
 
     // Test parameters
+    int err = 0;
     bd_size_t program_size = block_device->get_program_size();
     TEST_ASSERT(program_size > 0);
     utest_printf("program_size=%" PRId64 "\n", program_size);
@@ -679,8 +777,27 @@ void test_contiguous_erase_write_read()
 
     // Must Erase the whole region first
     utest_printf("erasing memory, from 0x%" PRIx64 " of size 0x%" PRIx64 "\n", start_address, contiguous_erase_size);
-    int err = block_device->erase(start_address, contiguous_erase_size);
-    TEST_ASSERT_EQUAL(0, err);
+    if (!strcmp(block_device->get_type(), "SECUREF")) {
+        uint32_t valid_app_id, valid_zone_id;
+        bd_size_t access_zone_id = start_address / block_device->secure_zone_size();
+        int n;
+
+        for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+            if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                valid_app_id = app_zone_available_pair[n].app_id;
+                valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                break;
+            }
+        }
+        if (AVAILABLE_PAIR_NUM == n) {
+            utest_printf("Address %llx is not in the avaliable zone(%llu), SKIP!!!\n", start_address, access_zone_id);
+        }
+        err = block_device->secure_erase(start_address, contiguous_erase_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+    } else {
+        int err = block_device->erase(start_address, contiguous_erase_size);
+        TEST_ASSERT_EQUAL(0, err);
+    }
 
     // Pre-fill the to-be-erased region. By pre-filling the region,
     // we can be sure the test will not pass if the erase doesn't work.
@@ -694,14 +811,54 @@ void test_contiguous_erase_write_read()
         }
         DEBUG_PRINTF("pre-filling memory, from 0x%" PRIx64 " of size 0x%" PRIx64 "", start_address + offset,
                      write_read_buf_size);
-        err = block_device->program((const void *)write_read_buf, start_address + offset, write_read_buf_size);
-        TEST_ASSERT_EQUAL(0, err);
+        if (!strcmp(block_device->get_type(), "SECUREF")) {
+            uint32_t valid_app_id, valid_zone_id;
+            bd_size_t access_zone_id = start_address / block_device->secure_zone_size();
+            int n;
+
+            for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+                if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                    valid_app_id = app_zone_available_pair[n].app_id;
+                    valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                    break;
+                }
+            }
+            if (AVAILABLE_PAIR_NUM == n) {
+                utest_printf("Address %llx is not in the avaliable zone(%llu), SKIP!!!\n", start_address, access_zone_id);
+                continue;
+            }
+            DEBUG_PRINTF("Test secure_program in zone %d\n", valid_zone_id);
+            err = block_device->secure_program((const void *)write_read_buf, start_address + offset, write_read_buf_size, valid_app_id);
+            TEST_ASSERT_EQUAL(0, err);
+        } else {
+            err = block_device->program((const void *)write_read_buf, start_address + offset, write_read_buf_size);
+            TEST_ASSERT_EQUAL(0, err);
+        }
     }
 
     // Erase the whole region again
     utest_printf("erasing memory, from 0x%" PRIx64 " of size 0x%" PRIx64 "\n", start_address, contiguous_erase_size);
-    err = block_device->erase(start_address, contiguous_erase_size);
-    TEST_ASSERT_EQUAL(0, err);
+    if (!strcmp(block_device->get_type(), "SECUREF")) {
+        uint32_t valid_app_id, valid_zone_id;
+        bd_size_t access_zone_id = start_address / block_device->secure_zone_size();
+        int n;
+
+        for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+            if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                valid_app_id = app_zone_available_pair[n].app_id;
+                valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                break;
+            }
+        }
+        if (AVAILABLE_PAIR_NUM == n) {
+            utest_printf("Address %llx is not in the avaliable zone(%llu), SKIP!!!\n", start_address, access_zone_id);
+        }
+        err = block_device->secure_erase(start_address, contiguous_erase_size, valid_app_id);
+        TEST_ASSERT_EQUAL(0, err);
+    } else {
+        err = block_device->erase(start_address, contiguous_erase_size);
+        TEST_ASSERT_EQUAL(0, err);
+    }
 
     // Loop through all write/read regions
     int region = 0;
@@ -718,13 +875,55 @@ void test_contiguous_erase_write_read()
         }
 
         // Write test data
-        err = block_device->program((const void *)write_read_buf, start_address, write_read_buf_size);
-        TEST_ASSERT_EQUAL(0, err);
+        if (!strcmp(block_device->get_type(), "SECUREF")) {
+            uint32_t valid_app_id, valid_zone_id;
+            bd_size_t access_zone_id = start_address / block_device->secure_zone_size();
+            int n;
+
+            for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+                if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                    valid_app_id = app_zone_available_pair[n].app_id;
+                    valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                    break;
+                }
+            }
+            if (AVAILABLE_PAIR_NUM == n) {
+                utest_printf("Address %llx is not in the avaliable zone(%llu), SKIP!!!\n", start_address, access_zone_id);
+                continue;
+            }
+            DEBUG_PRINTF("Test secure_program in zone %d\n", valid_zone_id);
+            err = block_device->secure_program((const void *)write_read_buf, start_address, write_read_buf_size, valid_app_id);
+            TEST_ASSERT_EQUAL(0, err);
+        } else {
+            err = block_device->program((const void *)write_read_buf, start_address, write_read_buf_size);
+            TEST_ASSERT_EQUAL(0, err);
+        }
 
         // Read test data
         memset(write_read_buf, 0, (size_t)write_read_buf_size);
-        err = block_device->read(write_read_buf, start_address, write_read_buf_size);
-        TEST_ASSERT_EQUAL(0, err);
+        if (!strcmp(block_device->get_type(), "SECUREF")) {
+            uint32_t valid_app_id, valid_zone_id;
+            bd_size_t access_zone_id = start_address / block_device->secure_zone_size();
+            int n;
+
+            for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+                if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                    valid_app_id = app_zone_available_pair[n].app_id;
+                    valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                    break;
+                }
+            }
+            if (AVAILABLE_PAIR_NUM == n) {
+                utest_printf("Address %llx is not in the avaliable zone(%llu), SKIP!!!\n", start_address, access_zone_id);
+                continue;
+            }
+            DEBUG_PRINTF("Test secure_read in zone %d\n", valid_zone_id);
+            err = block_device->secure_read(write_read_buf, start_address, write_read_buf_size, valid_app_id);
+            TEST_ASSERT_EQUAL(0, err);
+        } else {
+            err = block_device->read(write_read_buf, start_address, write_read_buf_size);
+            TEST_ASSERT_EQUAL(0, err);
+        }
 
         // Verify read data
         srand(seed);
@@ -746,6 +945,7 @@ void test_program_read_small_data_sizes()
     utest_printf("\nTest program-read small data sizes, from 1 to 7 bytes..\n");
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+    TEST_SKIP_UNLESS_MESSAGE(strcmp(block_device->get_type(), "SECUREF"), "Secure Flash currently does not support this type of test.");
 
     bd_size_t program_size = block_device->get_program_size();
     bd_size_t read_size = block_device->get_read_size();
@@ -803,6 +1003,7 @@ void test_unaligned_erase_blocks()
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
     TEST_SKIP_UNLESS_MESSAGE(block_device->get_erase_value() != -1, "block device has no erase functionality.");
+    TEST_SKIP_UNLESS_MESSAGE(strcmp(block_device->get_type(), "SECUREF"), "Secure Flash currently does not support this type of test.");
 
     bd_addr_t addr = 0;
     bd_size_t sector_erase_size = block_device->get_erase_size(addr);
@@ -856,6 +1057,7 @@ void test_deinit_bd()
 void test_write_deinit_init()
 {
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+    const char *bd_type = block_device->get_type();
     // Determine start_address & stop_address
     bd_addr_t addr = sectors_addr[rand() % num_of_sectors];
     bd_size_t erase_size = block_device->get_erase_size(addr);
@@ -871,17 +1073,46 @@ void test_write_deinit_init()
             prog[j] = (uint8_t)'0' + i + j;
         }
 
-        int err;
-        err = block_device->erase(addr, erase_size);
-        TEST_ASSERT_EQUAL(err, 0);
-        err = block_device->program(prog, addr, prog_size);
-        TEST_ASSERT_EQUAL(err, 0);
-        err = block_device->deinit();
-        TEST_ASSERT_EQUAL(0, err);
-        err = block_device->init();
-        TEST_ASSERT_EQUAL(0, err);
-        err = block_device->read(buf, addr, prog_size);
-        TEST_ASSERT_EQUAL(0, memcmp(prog, buf, prog_size));
+        int err, n;
+        if (!strcmp(bd_type, "SECUREF")) {
+            uint32_t valid_app_id, valid_zone_id;
+            bd_size_t access_zone_id = addr / block_device->secure_zone_size();
+
+            for (n = 0; n < AVAILABLE_PAIR_NUM; n++) {
+                if (access_zone_id == app_zone_available_pair[n].secure_zone_id) {
+                   valid_app_id = app_zone_available_pair[n].app_id;
+                   valid_zone_id = app_zone_available_pair[n].secure_zone_id;
+                   break;
+                }
+            }
+            if (AVAILABLE_PAIR_NUM == n) {
+                utest_printf("Address %llx is not in the avaliable zone(%llu), SKIP!!!\n", addr, access_zone_id);
+                continue;
+            }
+            err = block_device->secure_erase(addr, erase_size, valid_app_id);
+            TEST_ASSERT_EQUAL(err, 0);
+            err = block_device->secure_program(prog, addr, prog_size, valid_app_id);
+            TEST_ASSERT_EQUAL(err, 0);
+            err = block_device->deinit();
+            TEST_ASSERT_EQUAL(0, err);
+            err = block_device->init();
+            TEST_ASSERT_EQUAL(0, err);
+            // err = block_device->secure_read(buf, addr, prog_size, app_id);
+            err = block_device->secure_read(buf, addr, prog_size, valid_app_id);
+            TEST_ASSERT_EQUAL(0, memcmp(prog, buf, prog_size));
+
+        } else {
+            err = block_device->erase(addr, erase_size);
+            TEST_ASSERT_EQUAL(err, 0);
+            err = block_device->program(prog, addr, prog_size);
+            TEST_ASSERT_EQUAL(err, 0);
+            err = block_device->deinit();
+            TEST_ASSERT_EQUAL(0, err);
+            err = block_device->init();
+            TEST_ASSERT_EQUAL(0, err);
+            err = block_device->read(buf, addr, prog_size);
+            TEST_ASSERT_EQUAL(0, memcmp(prog, buf, prog_size));
+        }
     }
     free(prog);
     free(buf);
@@ -911,6 +1142,8 @@ void test_get_type_functionality()
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #elif COMPONENT_SPINAND
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPINAND"));
+#elif COMPONENT_SECUREF
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SECUREF"));
 #endif
 }
 
@@ -975,11 +1208,14 @@ int get_bd_count()
 #if COMPONENT_SPINAND
     bd_arr[count++] = spinand;        //6
 #endif
+#if COMPONENT_SECUREF
+    bd_arr[count++] = securef;        //7
+#endif
 
     return count;
 }
 
-static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "SPINAND ", "DEFAULT "};
+static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "SPINAND ", "SECUREF ", "DEFAULT "};
 
 int main()
 {
