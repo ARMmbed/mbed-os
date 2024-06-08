@@ -290,7 +290,7 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         goto fail;
     }
 
-    if (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG)) {
+    if (_rbp_kv && (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
         _ih->key = new char[strlen(key) + 1];
         strcpy(_ih->key, key);
     }
