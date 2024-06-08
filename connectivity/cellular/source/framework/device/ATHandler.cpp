@@ -484,6 +484,26 @@ void ATHandler::skip_param(ssize_t len, uint32_t count)
     return;
 }
 
+void ATHandler::skip_param_bytes(ssize_t len, uint32_t count)
+{
+    if (!ok_to_proceed()) {
+        return;
+    }
+
+    for (uint32_t i = 0; i < count; i++) {
+        ssize_t read_len = 0;
+        while (read_len < len) {
+            int c = get_char();
+            if (c == -1) {
+                set_error(NSAPI_ERROR_DEVICE_ERROR);
+                return;
+            }
+            read_len++;
+        }
+    }
+    return;
+}
+
 ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 {
     if (!ok_to_proceed()) {
@@ -1090,6 +1110,26 @@ bool ATHandler::consume_to_stop_tag()
 
     tr_debug("AT stop tag not found");
     set_error(NSAPI_ERROR_DEVICE_ERROR);
+    return false;
+}
+
+
+bool ATHandler::consume_to_stop_tag_even_found()
+{
+    if (_error_found) {
+        return true;
+    }
+
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return true;
+    }
+
+    if (consume_to_tag((const char *)_stop_tag->tag, true)) {
+        return true;
+    }
+
+    clear_error();
     return false;
 }
 

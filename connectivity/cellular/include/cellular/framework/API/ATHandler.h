@@ -318,6 +318,13 @@ public:
      */
     void skip_param(ssize_t len, uint32_t count);
 
+    /** Consumes the given length from the reading buffer even if the stop tag has been found
+     *
+     *  @param len length to be consumed from reading buffer
+     *  @param count number of parameters to be skipped
+     */
+    void skip_param_bytes(ssize_t len, uint32_t count);
+
     /** Reads given number of bytes from receiving buffer without checking any subparameter delimiters, such as comma.
      *
      *  @param buf output buffer for the read
@@ -407,6 +414,12 @@ public:
      *  @return true if stop tag is found, false otherwise
      */
     bool consume_to_stop_tag();
+
+    /**  Consumes the received content until current stop tag is found even if stop tag has been found previously
+     *
+     *  @return true if stop tag is found, false otherwise
+     */
+    bool consume_to_stop_tag_even_found();
 
     /** Return the last 3GPP error code.
      *  @return last 3GPP error code
