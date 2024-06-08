@@ -21,7 +21,6 @@ target_include_directories(mbed-stm32h723xg
 target_sources(mbed-stm32h723xg
     INTERFACE
         ${STARTUP_FILE}
-        system_clock.c
 )
 
 mbed_set_linker_script(mbed-stm32h723xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
