@@ -351,7 +351,7 @@ def test_detect_duplicates(filenames):
 @settings(max_examples=20)
 def test_path_specified_gcc(gcc_loc, exists_at_loc, exists_in_path):
     with patch('tools.toolchains.gcc.exists') as _exists:
-        with patch('tools.toolchains.gcc.find_executable') as _find:
+        with patch('tools.toolchains.gcc.which') as _find:
             _exists.return_value = exists_at_loc
             _find.return_value = exists_in_path
             TOOLCHAIN_PATHS['GCC_ARM'] = gcc_loc
