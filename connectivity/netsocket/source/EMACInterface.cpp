@@ -88,6 +88,32 @@ nsapi_error_t EMACInterface::disconnect()
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
+const char *EMACInterface::get_hostname()
+{
+    if (_hostname_set) {
+        return _hostname;
+    }
+    return nullptr;
+}
+
+nsapi_error_t EMACInterface::set_hostname(const char *hostname)
+{
+    if (!hostname || strlen(hostname) > NSAPI_HOSTNAME_SIZE-1) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    if (_interface) {
+        // can't set hostname once initialized
+        return NSAPI_ERROR_BUSY;
+    }
+
+    memset(_hostname, 0, NSAPI_HOSTNAME_SIZE);
+    strncpy(_hostname, hostname, NSAPI_HOSTNAME_SIZE-1);
+    _hostname_set = true;
+
+    return NSAPI_ERROR_OK;
+}
+
 const char *EMACInterface::get_mac_address()
 {
     if (_interface && _interface->get_mac_address(_mac_address, sizeof(_mac_address))) {

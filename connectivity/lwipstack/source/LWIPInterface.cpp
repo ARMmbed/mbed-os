@@ -433,6 +433,7 @@ LWIP::Interface::Interface() :
 nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out, NetworkInterface *user_network_interface)
 {
 #if LWIP_ETHERNET
+    const char *hostname;
     Interface *interface = new (std::nothrow) Interface();
     if (!interface) {
         return NSAPI_ERROR_NO_MEMORY;
@@ -440,6 +441,11 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
     interface->emac = &emac;
     interface->memory_manager = &memory_manager;
     interface->ppp_enabled = false;
+
+    hostname = user_network_interface->get_hostname();
+    if(hostname) {
+        netif_set_hostname(&interface->netif, hostname);
+    }
 
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
     netif->interface.hwaddr[0] = MBED_MAC_ADDR_0;

@@ -29,6 +29,16 @@ void NetworkInterface::set_as_default()
 
 }
 
+const char *NetworkInterface::get_hostname()
+{
+    return 0;
+}
+
+nsapi_error_t NetworkInterface::set_hostname(const char *hostname)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *NetworkInterface::get_mac_address()
 {
     return 0;

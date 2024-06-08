@@ -83,6 +83,12 @@ public:
     /** @copydoc NetworkInterface::disconnect */
     nsapi_error_t disconnect() override;
 
+    /** @copydoc NetworkInterface::get_hostname */
+    const char *get_hostname() override;
+
+    /** @copydoc NetworkInterface::set_hostname */
+    nsapi_error_t set_hostname(const char *hostname) override;
+
     /** @copydoc NetworkInterface::get_mac_address */
     const char *get_mac_address() override;
 
@@ -146,6 +152,8 @@ protected:
     OnboardNetworkStack::Interface *_interface = nullptr;
     bool _dhcp = true;
     bool _blocking = true;
+    bool _hostname_set = false;
+    char _hostname[NSAPI_HOSTNAME_SIZE];
     bool _hw_mac_addr_set = false;
     char _mac_address[NSAPI_MAC_SIZE];
     char _ip_address[NSAPI_IPv6_SIZE] {};

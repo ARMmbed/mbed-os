@@ -196,6 +196,16 @@ typedef enum nsapi_security {
  */
 #define NSAPI_IP_BYTES NSAPI_IPv6_BYTES
 
+/** Maximum size of hostname
+ *
+ *  According to RFC 1034 [1], Section 3.1 "Name space specifications and
+ *  terminology", 63 is the maximum size of a hostname. +1 for the string
+ *  terminator.
+ *
+ *  [1] https://www.rfc-editor.org/rfc/rfc1034
+ */
+#define NSAPI_HOSTNAME_SIZE 64
+
 /** Maximum size of MAC address representation
  */
 #define NSAPI_MAC_SIZE 18
