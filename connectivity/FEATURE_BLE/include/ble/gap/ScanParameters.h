@@ -82,7 +82,7 @@ public:
         /**
          * Get the scan interval.
          */
-        const scan_window_t &getInterval() const
+        const scan_interval_t &getInterval() const
         {
             return interval;
         }
@@ -90,7 +90,7 @@ public:
         /**
          * Get the scan window.
          */
-        const scan_interval_t &getWindow() const
+        const scan_window_t &getWindow() const
         {
             return window;
         }
@@ -121,8 +121,8 @@ public:
      */
     ScanParameters(
         phy_t phy = phy_t::LE_1M,
-        scan_window_t scan_interval = scan_interval_t::min(),
-        scan_interval_t scan_window = scan_window_t::min(),
+        scan_interval_t scan_interval = scan_interval_t::min(),
+        scan_window_t scan_window = scan_window_t::min(),
         bool active_scanning = false,
         own_address_type_t own_address_type = own_address_type_t::RANDOM,
         scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
