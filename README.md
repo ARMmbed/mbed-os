@@ -3,6 +3,14 @@
 [![Build status master][mbed-master-svg]][mbed-master]
 [![Tools coverage status][mbed-coveralls-tools-svg]][mbed-coveralls-tools]
 
+---
+
+__📣Important update:__
+
+*_Arm Announces End of Life Timeline for Mbed. [Read the full announcement][eol-full-announcement]_*.
+
+---
+
 [mbed-os-logo]: logo.png
 [mbed-os-link]: https://www.mbed.com/en/platform/mbed-os/
 [mbed-master]: https://github.com/ARMmbed/mbed-os/actions/workflows/basic_checks.yml
@@ -48,3 +56,5 @@ To contribute to this documentation, please see the [mbed-os-5-docs repository](
 Please note that if you intend to use Mbed OS in a real product then you should consider the security implications of your application. Mbed OS provides user hooks (functions prefixed with WEAK symbol) that are intended to be overridden. We recommend that you carefully consider the threat model of your application and override the default user hooks provided by Mbed OS to fit your application's security needs.
 
 For example, Mbed OS executes [`mbed_die`](https://github.com/ARMmbed/mbed-os/blob/master/platform/source/mbed_board.c#L26) when there is an error. `mbed_die` by default halts the system. A production application should override weakly linked `mbed_die` function and provide own implementation suitable for their needs taking care of any security vulnerabilities and production considerations. 
+
+[eol-full-announcement]: https://os.mbed.com/blog/entry/Important-Update-on-Mbed/
