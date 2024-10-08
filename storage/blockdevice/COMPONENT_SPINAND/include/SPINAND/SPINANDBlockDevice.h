@@ -20,6 +20,7 @@
 #include "drivers/QSPI.h"
 #include "blockdevice/BlockDevice.h"
 #include "platform/Callback.h"
+#include "bch.h"
 
 #ifndef MBED_CONF_SPINAND_QSPI_IO0
 #define MBED_CONF_SPINAND_QSPI_IO0 NC
@@ -237,6 +238,10 @@ public:
      */
     virtual const char *get_type() const;
 
+    virtual bool is_bad_block(uint16_t blk_idx);
+
+    virtual int mark_bad_block(uint16_t blk_idx);
+
 private:
     /********************************/
     /*   Different Device Csel Mgmt */
@@ -258,6 +263,9 @@ private:
     // Send Read command to Driver
     qspi_status_t _qspi_send_read_command(mbed::qspi_inst_t read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
+    // Send Continuous Read command to Driver
+    qspi_status_t _qspi_send_continuous_read_command(mbed::qspi_inst_t read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
+
     // Send Erase Instruction using command_transfer command to Driver
     qspi_status_t _qspi_send_erase_command(mbed::qspi_inst_t erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
@@ -272,6 +280,13 @@ private:
     /* Flash Configuration Functions */
     /*********************************/
 
+    // Read OTP ONFI parameters
+    bool _read_otp_onfi();
+
+    int _read_oob(void *buffer, bd_addr_t addr, bd_size_t size);
+
+    int _program_oob(const void *buffer, bd_addr_t addr, bd_size_t size);
+
     // Quad Enable in Security Register
     int _set_quad_enable();
 
@@ -281,9 +296,19 @@ private:
     // Configure Write Enable in Status Register
     int _set_write_enable();
 
+    int _set_conti_read_enable();
+
+    int _set_conti_read_disable();
+
+    int _conti_read_exit();
+
     // Wait on status register until write not-in-progress
     bool _is_mem_ready();
 
+    void _bch_init(uint8_t ecc_bits);
+    void _bch_free();
+    int _bch_calculate_ecc(unsigned char *buf, unsigned char *code);
+    int _bch_correct_data(unsigned char *buf, unsigned char *read_ecc, unsigned char *calc_ecc);
 private:
 
     // QSPI Driver Object
@@ -320,6 +345,23 @@ private:
 
     uint32_t _init_ref_count;
     bool _is_initialized;
+    char _name[32];
+    uint32_t _page_size, _block_size, _flash_size;
+    uint8_t _page_shift, _block_shift;
+    uint16_t _block_num, _page_num, _oob_size;
+    uint8_t _ecc_bits, _ecc_bytes, _ecc_steps, _ecc_layout_pos;
+    uint32_t  _ecc_size;
+    uint8_t *_ecc_calc;
+    uint8_t *_ecc_code;
+    uint8_t *_page_buf;
+    uint8_t _continuous_read;
+
+    struct nand_bch_control {
+        struct bch_code *bch;
+        unsigned int    *errloc;
+        unsigned char   *eccmask;
+    };
+    struct nand_bch_control _nbc;
 };
 
 #endif
