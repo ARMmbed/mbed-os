@@ -38,6 +38,10 @@ if("SPIF" IN_LIST MBED_TARGET_LABELS)
     list(APPEND mbed_blockdevice_libs mbed-storage-spif)
 endif()
 
+if("SECUREF" IN_LIST MBED_TARGET_LABELS)
+    list(APPEND mbed_blockdevice_libs mbed-storage-securef)
+endif()
+
 mbed_greentea_add_test(
     TEST_NAME
         ${TEST_TARGET}

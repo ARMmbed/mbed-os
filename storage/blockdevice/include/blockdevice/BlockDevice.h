@@ -139,6 +139,27 @@ public:
         return 0;
     }
 
+    virtual int secure_read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size, int app_id)
+    {
+        return -1;
+    }
+    virtual int secure_program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size, int app_id)
+    {
+        return -1;
+    }
+    virtual int secure_erase(mbed::bd_addr_t addr, mbed::bd_size_t size, int app_id)
+    {
+        return -1;
+    }
+    virtual bd_size_t secure_zone_number() const
+    {
+        return 0;
+    }
+    virtual bd_size_t secure_zone_size() const
+    {
+        return 0;
+    }
+
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
