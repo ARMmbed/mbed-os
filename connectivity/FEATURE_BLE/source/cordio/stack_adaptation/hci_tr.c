@@ -170,9 +170,18 @@ void hciTrSerialRxIncoming(uint8_t *pBuf, uint8_t len)
           hdrLen = HCI_EVT_HDR_LEN;
           break;
         default:
-          /* invalid packet type */
+          /**
+           * invalid packet type 
+           * 
+           * fix: Simply employing WSF_ASSERT in the event of 
+           * an "invalid packet type" is not reasonable. 
+           * Instead, it is advisable to discard this data packet, 
+           * exit the packet processing function, 
+           * and adjust the stateRx back to HCI_RX_STATE_IDLE.
+          */
+          stateRx = HCI_RX_STATE_IDLE;
           WSF_ASSERT(0);
-          break;
+          return;
       }
 
       /* see if entire header has been read */
