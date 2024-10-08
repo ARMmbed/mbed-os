@@ -310,7 +310,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
     _at.unlock();
 
     if (ret_val >= 0) {
-        tr_info("Socket %d sent %d bytes to %s port %d", find_socket_index(socket), ret_val, addr.get_ip_address(), addr.get_port());
+        tr_debug("Socket %d sent %d bytes to %s port %d", find_socket_index(socket), ret_val, addr.get_ip_address(), addr.get_port());
     } else if (ret_val != NSAPI_ERROR_WOULD_BLOCK) {
         tr_error("Socket %d sendto %s error %d", find_socket_index(socket), addr.get_ip_address(), ret_val);
     }
@@ -362,9 +362,9 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 
     if (ret_val >= 0) {
         if (addr) {
-            tr_info("Socket %d recv %d bytes from %s port %d", find_socket_index(socket), ret_val, addr->get_ip_address(), addr->get_port());
+            tr_debug("Socket %d recv %d bytes from %s port %d", find_socket_index(socket), ret_val, addr->get_ip_address(), addr->get_port());
         } else {
-            tr_info("Socket %d recv %d bytes", find_socket_index(socket), ret_val);
+            tr_debug("Socket %d recv %d bytes", find_socket_index(socket), ret_val);
         }
     } else if (ret_val != NSAPI_ERROR_WOULD_BLOCK) {
         tr_error("Socket %d recv error %d", find_socket_index(socket), ret_val);

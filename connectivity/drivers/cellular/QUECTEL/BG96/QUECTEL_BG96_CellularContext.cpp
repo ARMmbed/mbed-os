@@ -74,17 +74,22 @@ nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
         type = 1;
     }
 
+    auto debug = _at.get_debug();
+    _at.set_debug(false);
     if (_pwd && _uname) {
         if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s%s%s%d", _cid, type,
                                _apn, _uname, _pwd, _authentication_type) != NSAPI_ERROR_OK) {
+            _at.set_debug(debug);
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     } else {
         if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s", _cid, type,
                                _apn) != NSAPI_ERROR_OK) {
+            _at.set_debug(debug);
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     }
+    _at.set_debug(debug);
 
     return NSAPI_ERROR_OK;
 }
