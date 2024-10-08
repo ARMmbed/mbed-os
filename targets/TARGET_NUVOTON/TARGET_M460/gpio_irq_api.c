@@ -110,7 +110,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uintpt
         (void) gpio_irq_debounce_arr;
 
         // Configure de-bounce clock source and sampling cycle time
-        GPIO_SET_DEBOUNCE_TIME(MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
+        GPIO_SET_DEBOUNCE_TIME(gpio_base, MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
         GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
 #else
         // Enable de-bounce if the pin is in the de-bounce enable list
