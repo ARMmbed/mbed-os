@@ -1,0 +1,8 @@
+The "Key Down"
+LV :15
+username :Dinhhuan2le8
+Pass :Huandz2021@
+Pass login:2008
+GTDH :9t
+ event is supported from ForeUI V2.10, also we can check the "Current_Key_Code" system property to know which key is currently pressed. The key code table below is very useful when you want to test key code value in condition expression.
+0 10 20Caps Lock30 40Arrow Down1 11 21 31 41 2 12 22 32 92937378383342FC
