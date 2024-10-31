@@ -8,10 +8,10 @@ add_subdirectory(TARGET_STM32F767xI EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32F769xI EXCLUDE_FROM_ALL)
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(mbed-stm32f7 INTERFACE)
+add_library(mbed-stm32f7 ${CMAKE_LIBRARY_TYPE})
 
 target_sources(mbed-stm32f7
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         analogin_device.c
         analogout_device.c
         flash_api.c
@@ -24,8 +24,8 @@ target_sources(mbed-stm32f7
 
 
 target_include_directories(mbed-stm32f7
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         .
 )
 
-target_link_libraries(mbed-stm32f7 INTERFACE mbed-stm mbed-stm32f7cube-fw)
+target_link_libraries(mbed-stm32f7 ${CMAKE_LIBRARY_TYPE} mbed-stm mbed-stm32f7cube-fw)

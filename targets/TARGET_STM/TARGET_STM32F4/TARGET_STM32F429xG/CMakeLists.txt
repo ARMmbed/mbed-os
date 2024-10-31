@@ -9,18 +9,20 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f429xg.sct)
 endif()
 
-add_library(mbed-stm32f429xg INTERFACE)
+add_library(mbed-stm32f429xg ${CMAKE_LIBRARY_TYPE})
 
 target_include_directories(mbed-stm32f429xg
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         .
 )
 
 target_sources(mbed-stm32f429xg
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         ${STARTUP_FILE}
 )
 
 mbed_set_linker_script(mbed-stm32f429xg ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(mbed-stm32f429xg INTERFACE mbed-stm32f4)
+target_link_libraries(mbed-stm32f429xg
+    ${CMAKE_LIBRARY_TYPE}
+    INTERFACE mbed-stm32f4)

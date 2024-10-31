@@ -18,15 +18,15 @@ add_subdirectory(TARGET_STM32U5 EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32WB EXCLUDE_FROM_ALL)
 add_subdirectory(TARGET_STM32WL EXCLUDE_FROM_ALL)
 
-add_library(mbed-stm INTERFACE)
+add_library(mbed-stm ${CMAKE_LIBRARY_TYPE})
 
 target_include_directories(mbed-stm
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         .
 )
 
 target_sources(mbed-stm
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         USBPhy_STM32.cpp
         analogin_api.c
         analogout_api.c
@@ -53,4 +53,4 @@ target_sources(mbed-stm
         watchdog_api.c
 )
 
-target_link_libraries(mbed-stm INTERFACE mbed-cmsis-cortex-m)
+target_link_libraries(mbed-stm ${CMAKE_LIBRARY_TYPE} mbed-cmsis-cortex-m)

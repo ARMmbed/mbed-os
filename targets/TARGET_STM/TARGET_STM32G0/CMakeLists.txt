@@ -17,15 +17,15 @@ add_subdirectory(TARGET_STM32G0C1xE EXCLUDE_FROM_ALL)
 
 add_subdirectory(STM32Cube_FW EXCLUDE_FROM_ALL)
 
-add_library(mbed-stm32g0 INTERFACE)
+add_library(mbed-stm32g0 ${CMAKE_LIBRARY_TYPE})
 
 target_include_directories(mbed-stm32g0
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         .
 )
 
 target_sources(mbed-stm32g0
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         analogin_device.c
         analogout_device.c
         flash_api.c
@@ -36,4 +36,4 @@ target_sources(mbed-stm32g0
         spi_api.c
 )
 
-target_link_libraries(mbed-stm32g0 INTERFACE mbed-stm mbed-stm32g0cube-fw)
+target_link_libraries(mbed-stm32g0 ${CMAKE_LIBRARY_TYPE} mbed-stm mbed-stm32g0cube-fw)

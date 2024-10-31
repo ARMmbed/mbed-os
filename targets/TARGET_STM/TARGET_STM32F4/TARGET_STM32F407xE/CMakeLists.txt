@@ -11,19 +11,19 @@ elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
     set(LINKER_FILE TOOLCHAIN_ARM/stm32f407xe.sct)
 endif()
 
-add_library(mbed-stm32f407xe INTERFACE)
+add_library(mbed-stm32f407xe ${CMAKE_LIBRARY_TYPE})
 
 target_include_directories(mbed-stm32f407xe
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         .
 )
 
 target_sources(mbed-stm32f407xe
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         ${STARTUP_FILE}
         system_clock.c
 )
 
 mbed_set_linker_script(mbed-stm32f407xe ${CMAKE_CURRENT_SOURCE_DIR}/${LINKER_FILE})
 
-target_link_libraries(mbed-stm32f407xe INTERFACE mbed-stm32f4)
+target_link_libraries(mbed-stm32f407xe ${CMAKE_LIBRARY_TYPE} mbed-stm32f4)

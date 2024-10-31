@@ -40,20 +40,20 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endif()
 endif()
 
-add_library(mbed-core INTERFACE)
+add_library(mbed-core ${CMAKE_LIBRARY_TYPE})
 
-add_library(mbed-os INTERFACE)
+add_library(mbed-os ${CMAKE_LIBRARY_TYPE})
 
 target_link_libraries(mbed-os
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         mbed-rtos
         mbed-core
 )
 
-add_library(mbed-baremetal INTERFACE)
+add_library(mbed-baremetal ${CMAKE_LIBRARY_TYPE})
 
 target_link_libraries(mbed-baremetal
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         mbed-core
 )
 # Validate selected C library type
@@ -92,7 +92,7 @@ if(${CMAKE_CROSSCOMPILING})
         mbed_set_printf_lib(mbed-core ${MBED_PRINTF_LIB})
 
         target_compile_features(mbed-core
-            INTERFACE
+            ${CMAKE_LIBRARY_TYPE}
                 c_std_11
                 cxx_std_14
         )
@@ -100,7 +100,7 @@ if(${CMAKE_CROSSCOMPILING})
     endif()
 
     target_compile_definitions(mbed-core
-        INTERFACE
+        ${CMAKE_LIBRARY_TYPE}
             TARGET_NAME=${MBED_TARGET}
             ${MBED_TARGET_DEFINITIONS}
             ${MBED_CONFIG_DEFINITIONS}
@@ -110,7 +110,7 @@ if(${CMAKE_CROSSCOMPILING})
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
         if(NOT BUILD_GREENTEA_TESTS)
             target_compile_definitions(${PROJECT_NAME}
-                INTERFACE
+                ${CMAKE_LIBRARY_TYPE}
                     MBED_TEST_MODE
             )
         endif()
@@ -135,13 +135,13 @@ if(${CMAKE_CROSSCOMPILING})
     # for the GCC_ARM and ARM toolchains respectively.
     if(${MBED_TOOLCHAIN} STREQUAL "GCC_ARM")
         target_compile_definitions(mbed-core
-            INTERFACE
+            ${CMAKE_LIBRARY_TYPE}
                 TOOLCHAIN_GCC_ARM
                 TOOLCHAIN_GCC
         )
     elseif(${MBED_TOOLCHAIN} STREQUAL "ARM")
         target_compile_definitions(mbed-core
-            INTERFACE
+            ${CMAKE_LIBRARY_TYPE}
                 TOOLCHAIN_ARM
         )
     endif()
@@ -149,7 +149,7 @@ endif()
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed-core
-    INTERFACE
+    ${CMAKE_LIBRARY_TYPE}
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -157,8 +157,8 @@ target_include_directories(mbed-core
 # are spread in different directories can be referenced and can be linked against
 # by libraries that depend on them.
 # TODO CMake: Should the source files be moved?
-add_library(mbed-device_key INTERFACE)
-add_library(mbed-rtos INTERFACE)
+add_library(mbed-device_key ${CMAKE_LIBRARY_TYPE})
+add_library(mbed-rtos ${CMAKE_LIBRARY_TYPE})
 
 # Include targets/ first, because any post-build hook needs to be defined
 # before other parts of Mbed OS can add greentea tests which require
@@ -188,7 +188,7 @@ if(${CMAKE_CROSSCOMPILING})
     string(REPLACE "_" "-" MBED_TARGET_CONVERTED ${MBED_TARGET_CONVERTED})
     string(PREPEND MBED_TARGET_CONVERTED "mbed-")
 
-    target_link_libraries(mbed-core INTERFACE ${MBED_TARGET_CONVERTED})
+    target_link_libraries(mbed-core ${CMAKE_LIBRARY_TYPE} ${MBED_TARGET_CONVERTED})
 endif()
 
 # Ninja requires to be forced for response files
