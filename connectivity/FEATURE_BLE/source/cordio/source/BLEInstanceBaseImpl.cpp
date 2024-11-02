@@ -773,3 +773,9 @@ FunctionPointerWithContext<::BLE::InitializationCompleteCallbackContext *> BLEIn
 
 } // namespace impl
 } // namespace ble
+
+// Implement the createBLEInstance() function to return a valid BLEInstanceBase object
+ble::BLEInstanceBase *ble::createBLEInstance()
+{
+    return (&(ble::impl::BLEInstanceBase::deviceInstance()));
+}
