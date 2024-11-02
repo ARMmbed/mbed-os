@@ -22,6 +22,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "platform/mbed_power_mgmt.h" // Pf384
 
 
 #if STATIC_PINMAP_READY
@@ -81,6 +82,9 @@ static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
     obj->handle.Init.Oversampling.RightBitShift = 0; // workaround
     obj->handle.Init.Oversampling.TriggeredMode = 0; // workaround
     obj->handle.Init.TriggerFrequencyMode  = ADC_TRIGGER_FREQ_HIGH;
+
+    // Disable deep sleep when ADC is configured
+    sleep_manager_lock_deep_sleep(); // Pf384
 
     // Enable ADC clock
     __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
@@ -181,9 +185,8 @@ uint16_t adc_read(analogin_t *obj)
         debug("HAL_ADC_ConfigChannel error\n");
     }
 
-    if (HAL_ADC_Start(&obj->handle) != HAL_OK) {
-        debug("HAL_ADC_Start error\n");
-    }
+    // Enable ADC only when a measurement is needed
+    HAL_ADC_Start(&obj->handle); // Pc63c
 
     // Wait end of conversion and get value
     uint16_t adcValue = 0;

@@ -180,6 +180,18 @@ __WEAK void hal_deepsleep(void)
 
     save_timer_ctx();
 
+    // Save ADC registers
+    uint32_t adc_cr = ADC1->CR;
+    uint32_t adc_cfgr = ADC1->CFGR;
+    uint32_t adc_sqr1 = ADC1->SQR1;
+    uint32_t adc_sqr2 = ADC1->SQR2;
+    uint32_t adc_sqr3 = ADC1->SQR3;
+    uint32_t adc_sqr4 = ADC1->SQR4;
+    uint32_t adc_smpr1 = ADC1->SMPR1;
+    uint32_t adc_smpr2 = ADC1->SMPR2;
+    uint32_t adc_difsel = ADC1->DIFSEL;
+    uint32_t adc_calfact = ADC1->CALFACT;
+
     // Request to enter STOP mode with regulator in low power mode
     //PWR_CR1_LPMS_STOP2 -> STM32L4 ; PWR_LOWPOWERMODE_STOP2 -> STM32WL
 #if defined (PWR_CR1_LPMS_STOP2) || defined(PWR_LOWPOWERMODE_STOP2)
@@ -278,6 +290,17 @@ __WEAK void hal_deepsleep(void)
      *  deep sleep */
     wait_loop(500);
 
+    // Restore ADC registers
+    ADC1->CR = adc_cr;
+    ADC1->CFGR = adc_cfgr;
+    ADC1->SQR1 = adc_sqr1;
+    ADC1->SQR2 = adc_sqr2;
+    ADC1->SQR3 = adc_sqr3;
+    ADC1->SQR4 = adc_sqr4;
+    ADC1->SMPR1 = adc_smpr1;
+    ADC1->SMPR2 = adc_smpr2;
+    ADC1->DIFSEL = adc_difsel;
+    ADC1->CALFACT = adc_calfact;
 
     restore_timer_ctx();
 
