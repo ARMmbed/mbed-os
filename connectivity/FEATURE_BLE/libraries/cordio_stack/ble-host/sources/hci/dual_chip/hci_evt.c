@@ -2471,6 +2471,11 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
   uint8_t       cbackEvt = 0;
   hciEvtCback_t cback = hciCb.evtCback;
 
+  if (len < 3)
+  {
+    return;
+  }
+
   BSTREAM_TO_UINT8(numPkts, p);
   BSTREAM_TO_UINT16(opcode, p);
 
@@ -2684,7 +2689,7 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
     if (cbackEvt == HCI_UNHANDLED_CMD_CMPL_CBACK_EVT) {
       const uint8_t structSize = sizeof(hciUnhandledCmdCmplEvt_t) - 1 /* removing the fake 1-byte array */;
       const uint8_t remainingLen = len - 3 /* we already read opcode and numPkts */;
-      const uint8_t msgSize = structSize + remainingLen;
+      const uint16_t msgSize = structSize + remainingLen;
 
       pMsg = WsfBufAlloc(msgSize);
       if (pMsg != NULL) {
