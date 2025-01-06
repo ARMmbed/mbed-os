@@ -60,9 +60,13 @@ void software_init_hook(void)
     mbed_heap_size = (uint32_t) &__mbed_krbs_start - (uint32_t) &__mbed_sbrk_start;
     mbed_heap_start_0 = (unsigned char *) &__mbed_sbrk_start_0;
     mbed_heap_size_0 = (uint32_t) &__mbed_krbs_start_0 - (uint32_t) &__mbed_sbrk_start_0;
+
+    mbed_heap_size_total = mbed_heap_size + mbed_heap_size_0;
 #else
     mbed_heap_start = (unsigned char *) &__end__;
     mbed_heap_size = (uint32_t) &__HeapLimit - (uint32_t) &__end__;
+
+    mbed_heap_size_total = mbed_heap_size;
 #endif
 
     mbed_init();

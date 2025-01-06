@@ -119,6 +119,7 @@ extern const char __stderr_name[] = "/stderr";
 
 unsigned char *mbed_heap_start = 0;
 uint32_t mbed_heap_size = 0;
+uint32_t mbed_heap_size_total = 0;
 
 #if defined(MBED_SPLIT_HEAP)
 unsigned char *mbed_heap_start_0 = 0;

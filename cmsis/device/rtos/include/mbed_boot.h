@@ -57,6 +57,7 @@ extern "C" {
 /* Heap limits - only used if set */
 extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;
+extern uint32_t mbed_heap_size_total;
 
 #if defined(MBED_SPLIT_HEAP)
 extern unsigned char *mbed_heap_start_0;

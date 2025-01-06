@@ -73,13 +73,8 @@ static int get_malloc_block_total_size(void *ptr)
 void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 {
 #if MBED_HEAP_STATS_ENABLED
-    extern uint32_t mbed_heap_size;
-    heap_stats.reserved_size = mbed_heap_size;
-
-#if defined(MBED_SPLIT_HEAP)
-    extern uint32_t mbed_heap_size_0;
-    heap_stats.reserved_size += mbed_heap_size_0;
-#endif
+    extern uint32_t mbed_heap_size_total;
+    heap_stats.reserved_size = mbed_heap_size_total;
 
     malloc_stats_mutex->lock();
     memcpy(stats, &heap_stats, sizeof(mbed_stats_heap_t));
