@@ -12,10 +12,11 @@ SET(CMAKE_C_COMPILER_WORKS TRUE)
 SET(CMAKE_CXX_COMPILER_WORKS TRUE)
 
 # force cmake compilers
-SET(CMAKE_ASM_COMPILER    "{{asm}}")
-SET(CMAKE_C_COMPILER      "{{cc}}")
-SET(CMAKE_CXX_COMPILER    "{{cxx}}")
-SET(ELF2BIN               "{{elf2bin}}")
+SET(CMAKE_ASM_COMPILER    "${TOOLCHAIN_PATH}/{{asm}}")
+SET(CMAKE_C_COMPILER      "${TOOLCHAIN_PATH}/{{cc}}")
+SET(CMAKE_CXX_COMPILER    "${TOOLCHAIN_PATH}/{{cxx}}")
+SET(CMAKE_CPP_COMPILER    "${TOOLCHAIN_PATH}/{{pp}}")
+SET(ELF2BIN               "${TOOLCHAIN_PATH}/{{elf2bin}}")
 {% if hex_files %}
 SET(SREC_CAT "srec_cat")
 {%- endif %}
@@ -60,7 +61,7 @@ TARGET_LINK_LIBRARIES({{name}} {{ld_sys_libs|join(" ")}})
 
 {% if pp -%}
 add_custom_command(TARGET {{name}} PRE_LINK
-                   COMMAND "{{pp}}" {{pp_flags}} {{linker_script}} -o ${CMAKE_CURRENT_BINARY_DIR}/{{name}}_pp.link_script.ld
+                   COMMAND "${CMAKE_CPP_COMPILER}" {{pp_flags}} {{linker_script}} -o ${CMAKE_CURRENT_BINARY_DIR}/{{name}}_pp.link_script.ld
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/{{name}}_pp.link_script.ld"
                    )
