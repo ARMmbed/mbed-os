@@ -31,18 +31,18 @@
 
 message(STATUS "CMSIS-Core 6.1.1")
 
-# TODO: 
-# 1. Add version check for CMSIS_6 submodule
-# 2. Add CMSIS submodule presence check
+# Submodule presence
+if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6)
+    message(FATAL_ERROR "CMSIS_6 submodule directory not found at ${CMSIS_6_ROOT}.")
+endif()
 
-
-# Add CMSIS-Core include directories
+# Add CMSIS-Core base include directories
 target_include_directories(mbed-core-flags
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6/CMSIS/Core/Include 
 )
 
-if(CORTEX_CORE_LABEL STREQUAL "CORTEX_A")
+if("CORTEX_A" IN_LIST MBED_TARGET_LABELS)
     message(STATUS "CMSIS-Core CORTEX-A")
     # Cortex-A startup
     add_library(mbed-cmsis-cortex-a INTERFACE)
@@ -51,11 +51,13 @@ if(CORTEX_CORE_LABEL STREQUAL "CORTEX_A")
         INTERFACE
             ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6/CMSIS/Core/Include/a-profile
     )
-        target_sources(mbed-cmsis-cortex-a
+    
+    target_sources(mbed-cmsis-cortex-a
         INTERFACE
             ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6/CMSIS/Core/Source/irq_ctrl_gic.c
     )
-elseif(CORTEX_CORE_LABEL STREQUAL "CORTEX_M")
+
+elseif("CORTEX_M" IN_LIST MBED_TARGET_LABELS)
     message(STATUS "CMSIS-Core CORTEX-M")
     # Cortex-M startup
     add_library(mbed-cmsis-cortex-m INTERFACE)
@@ -65,6 +67,9 @@ elseif(CORTEX_CORE_LABEL STREQUAL "CORTEX_M")
             ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6/CMSIS/Core/Include/m-profile 
     )
 
-    #source files are not needed for Cortex-M in MbedCE
+    target_sources(mbed-cmsis-cortex-m
+        INTERFACE
+            ${CMAKE_CURRENT_LIST_DIR}/../device/rtos/Source/mbed_tz_context.c
+    )
 
 endif()

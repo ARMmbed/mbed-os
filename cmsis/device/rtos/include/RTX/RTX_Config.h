@@ -9,8 +9,6 @@
 
 /* Upstream license and configuration content follows with minor edits noted above. */
 
-/* Bring in Mbed's bridge configuration first (defines OS_* macros used below when not set). */
-#include "mbed_rtx_conf.h"
 
 /* Begin upstream content (with local edits) */
 
@@ -121,7 +119,7 @@
 //     <i>  - Thread functions: osThreadFeedWatchdog
 //     <i>  - Handler functions: osWatchdogAlarm_Handler
 #ifndef OS_THREAD_WATCHDOG
-#define OS_THREAD_WATCHDOG          1
+#define OS_THREAD_WATCHDOG          0
 #endif
  
 //     <q>Object Pointer checking
@@ -231,7 +229,7 @@
 //   <i> Enables stack overrun check at thread switch (requires RTX source variant).
 //   <i> Enabling this option increases slightly the execution time of a thread switch.
 #ifndef OS_STACK_CHECK
-#define OS_STACK_CHECK              1
+#define OS_STACK_CHECK              0
 #endif
  
 //   <q>Stack usage watermark

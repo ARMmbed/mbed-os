@@ -37,22 +37,14 @@ target_include_directories(mbed-core-flags
 )
 
 # OS Tick source files
-if(CORTEX_CORE_LABEL STREQUAL "CORTEX_A")
+if("CORTEX_A" IN_LIST MBED_TARGET_LABELS)
     # Cortex-A startup
     target_sources(mbed-rtos-sources INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6/CMSIS/RTOS2/Source/os_tick_ptim.c
     )
-elseif(CORTEX_CORE_LABEL STREQUAL "CORTEX_M")
+elseif("CORTEX_M" IN_LIST MBED_TARGET_LABELS)
     # Cortex-M startup
     target_sources(mbed-rtos-sources INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/../CMSIS_6/CMSIS/RTOS2/Source/os_systick.c
     )
 endif()
-
-# Define CMSIS_device_header for os_systick.c
-# This tells CMSIS 6 which device header to include (same as Mbed's RTE_Components.h does)
-# Use <> syntax in the definition to indicate it's a system header
-#target_compile_definitions(mbed-rtos-flags
-#    INTERFACE
-#       "CMSIS_device_header=<cmsis.h>"
-#)

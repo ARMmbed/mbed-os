@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#include "mbed_rtx.h"
+#include "cmsis_os2.h"
 
 /** \addtogroup rtos-internal-api */
 /** @{*/

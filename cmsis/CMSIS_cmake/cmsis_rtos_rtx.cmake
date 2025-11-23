@@ -26,11 +26,16 @@
 # Components used: CMSIS-RTX 5.9.0
 # Path: /CMSIS-RTX
 
+# Submodule presence
+if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX)
+    message(FATAL_ERROR "CMSIS-RTX submodule directory not found at ${CMSIS_6_ROOT}.")
+endif()
+
 # Make RTX headers and Mbed's device RTOS wrapper headers visible to ALL profiles
 # (needed for typedefs like mbed_rtos_storage_* used by headers even in bare-metal)
 target_include_directories(mbed-core-flags
     INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/../device/rtos/include/RTX_config
+    ${CMAKE_CURRENT_LIST_DIR}/../device/rtos/include/RTX/config
     ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Include
 )
 
@@ -46,12 +51,10 @@ if(APPLICATION_PROFILE_CONFIG_FULL)
     # RTX source files (only compiled when building with RTOS)
     target_sources(mbed-rtos-sources
         INTERFACE
+        # Old CMSIS-RTOS v1 compatibility layer
+        ${CMAKE_CURRENT_LIST_DIR}/../device/rtos/source/cmsis_os1.c     
         # Configuration
-        ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Config/RTX_Config.c
-                
-        # Note: CMSIS-RTX 5.9.0 removed cmsis_os1.c (CMSIS-RTOS v1 compatibility)
-        # MbedCE uses CMSIS-RTOS2 API exclusively, so this is not needed
-                
+        ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Config/RTX_Config.c      
         # RTX kernel sources
         ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/rtx_delay.c
         ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/rtx_evflags.c
@@ -70,6 +73,7 @@ if(APPLICATION_PROFILE_CONFIG_FULL)
 
     # Add toolchain-specific interrupt handlers based on core type
     if(${CMAKE_CROSSCOMPILING})
+        set(RTX_IRQ_FILE_PATH "${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/GCC/")
         # Determine IRQ handler file based on Cortex core type
         # CMSIS-RTX 5.9.0 uses ARM architecture names (armv6m, armv7m, armv8m, etc.)
         foreach(core_label ${MBED_TARGET_LABELS})
@@ -78,25 +82,25 @@ if(APPLICATION_PROFILE_CONFIG_FULL)
                 target_sources(mbed-rtos-sources INTERFACE
                     ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Config/handlers.c
                 )
-                set(RTX_IRQ_FILE "${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/GCC/irq_armv7a.S")
+                set(RTX_IRQ_FILE "irq_armv7a.S")
             elseif(${core_label} MATCHES "M0")
                 # Cortex-M0/M0+ use ARMv6-M architecture
-                set(RTX_IRQ_FILE "${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/GCC/irq_armv6m.S")
+                set(RTX_IRQ_FILE "irq_armv6m.S")
             elseif(${core_label} MATCHES "M23")
                 # Cortex-M23 uses ARMv8-M Baseline
-                set(RTX_IRQ_FILE "${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/GCC/irq_armv8mbl.S")
+                set(RTX_IRQ_FILE "irq_armv8mbl.S")
             elseif(${core_label} MATCHES "M(3|4|7)")
                 # Cortex-M3/M4/M7 use ARMv7-M architecture
-                set(RTX_IRQ_FILE "${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/GCC/irq_armv7m.S")
+                set(RTX_IRQ_FILE "irq_armv7m.S") #irq_cm4f.S
             elseif(${core_label} MATCHES "M(33|35|55|85)")
                 # Cortex-M33/M35/M55/M85 use ARMv8-M Mainline
-                set(RTX_IRQ_FILE "${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX/Source/GCC/irq_armv8mml.S")
+                set(RTX_IRQ_FILE "irq_armv8mml.S")
             endif()
         endforeach()
             
         # Add the IRQ handler file if determined
-        if(DEFINED RTX_IRQ_FILE AND EXISTS ${RTX_IRQ_FILE})
-            target_sources(mbed-rtos-sources INTERFACE ${RTX_IRQ_FILE})
+        if(DEFINED RTX_IRQ_FILE AND EXISTS ${RTX_IRQ_FILE_PATH}${RTX_IRQ_FILE})
+            target_sources(mbed-rtos-sources INTERFACE ${RTX_IRQ_FILE_PATH}${RTX_IRQ_FILE})
         else()
             message(WARNING "CMSIS-RTX: No IRQ handler found for this target (labels: ${MBED_TARGET_LABELS})")
         endif()
