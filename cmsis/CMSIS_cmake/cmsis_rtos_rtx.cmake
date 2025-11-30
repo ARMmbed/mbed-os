@@ -28,7 +28,7 @@
 
 # Submodule presence
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../CMSIS-RTX)
-    message(FATAL_ERROR "CMSIS-RTX submodule directory not found at ${CMSIS_6_ROOT}.")
+    message(FATAL_ERROR "CMSIS-RTX submodule directory not found!")
 endif()
 
 # Make RTX headers and Mbed's device RTOS wrapper headers visible to ALL profiles
