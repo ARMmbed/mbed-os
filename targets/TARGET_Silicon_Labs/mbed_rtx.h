@@ -18,7 +18,9 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#ifndef __ASSEMBLER__
 #include <stdint.h>
+#endif
 #include "clocking.h"
 
 #if defined(TARGET_EFM32GG)

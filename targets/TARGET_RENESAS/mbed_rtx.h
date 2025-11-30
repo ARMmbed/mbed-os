@@ -17,7 +17,9 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#ifndef __ASSEMBLER__
 #include <stdint.h>
+#endif
 
 #if defined(TARGET_RENESAS)
 
