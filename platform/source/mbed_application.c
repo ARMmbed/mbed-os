@@ -117,11 +117,7 @@ static void powerdown_scb(uint32_t vtor)
     num_pri_reg = 12;
 #endif
     for (i = 0; i < num_pri_reg; i++) {
-#if defined(__CORTEX_M7) || defined(__CORTEX_M23) || defined(__CORTEX_M33)
         SCB->SHPR[i] = 0x00;
-#else
-        SCB->SHP[i] = 0x00;
-#endif
     }
     SCB->SHCSR = 0x00000000;
 #if defined(__CORTEX_M23) || defined(__CORTEX_M0PLUS)
