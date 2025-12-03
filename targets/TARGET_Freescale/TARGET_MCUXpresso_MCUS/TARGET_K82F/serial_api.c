@@ -31,6 +31,8 @@
 #include "PeripheralPins.h"
 #include "fsl_clock_config.h"
 
+void serial_clock_init(void);
+
 static uint32_t serial_irq_ids[FSL_FEATURE_SOC_LPUART_COUNT] = {0};
 static uart_irq_handler irq_handler;
 /* Array of UART peripheral base address. */
