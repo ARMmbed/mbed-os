@@ -916,12 +916,14 @@ static volatile int epComplete = 0;
 #define HSUSBD_GET_EP_DATA_COUNT(ep)      (HSUSBD->EP[ep].EPDATCNT & 0xFFFFF)
 #define HSUSBD_SET_EP_SHORT_PACKET(ep)    HSUSBD->EP[ep].EPRSPCTL = ((HSUSBD->EP[ep].EPRSPCTL & 0x10) | 0x40)
 #define HSUSBD_SET_EP_ZERO_PACKET(ep)     HSUSBD->EP[ep].EPRSPCTL = ((HSUSBD->EP[ep].EPRSPCTL & 0x10) | 0x20)
+#define HSUSBD_CONFIG_EP_MODE(ep, mode)   HSUSBD->EP[ep].EPRSPCTL = ((HSUSBD->EP[ep].EPRSPCTL & ~HSUSBD_EPRSPCTL_MODE_Msk) | (mode))
 #define HSUSBD_GET_EP_INT_EN(ep)          HSUSBD->EP[ep].EPINTEN
 #elif defined (TARGET_NUC472)
 #define USBD_GET_EP_MAX_PAYLOAD(ep)       *((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)(ep*0x28)))
 #define USBD_GET_EP_DATA_COUNT(ep)        *((__IO uint32_t *) ((uint32_t)&USBD->EPADATCNT + (uint32_t)(ep*0x28)))
 #define USBD_SET_EP_SHORT_PACKET(ep)      *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = ((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10) | 0x40)
-#define USBD_SET_EP_ZERO_PACKET(ep)       *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = (*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10)
+#define USBD_SET_EP_ZERO_PACKET(ep)       *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = ((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10) | 0x20)
+#define USBD_CONFIG_EP_MODE(ep, mode)     *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = ((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & ~USBD_EPRSPCTL_MODE_Msk) | mode)
 #define USBD_SET_EP_BUF_FLUSH(ep)         *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = USBD_EPRSPCTL_FLUSH_Msk
 #define USBD_GET_EP_INT_EN(ep)            *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN  + (uint32_t)(ep*0x28)))
 #define USBD_GET_EP_INT(ep)               *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTSTS + (uint32_t)(ep*0x28)))
@@ -1448,6 +1450,13 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
     uint32_t ep_dir = ((endpoint & EP_DIR_Msk) == EP_DIR_IN) ? USB_EP_CFG_DIR_IN : USB_EP_CFG_DIR_OUT;
     USBD_ConfigEp(ep_hw_index, DESC_TO_LOG(endpoint), ep_type, ep_dir);
+    /* Note on operation mode of IN endpoint
+     *
+     * XUSBD_ConfigEp will configure operation mode for IN endpoint
+     * according to endpoint type. But checking on endpoint_write, this
+     * driver supports only Auto Validation mode. Make them consistent.
+     */
+    USBD_CONFIG_EP_MODE(ep_hw_index, USB_EP_RSPCTL_MODE_AUTO);
 
     /* Enable USB/EPX interrupt */
     // NOTE: Require USBD_GINTEN_EPAIE_Pos, USBD_GINTEN_EPBIE_Pos, ... USBD_GINTEN_EPLIE_Pos to be consecutive.
@@ -1477,6 +1486,8 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
     uint32_t ep_dir = ((endpoint & EP_DIR_Msk) == EP_DIR_IN) ? HSUSBD_EP_CFG_DIR_IN : HSUSBD_EP_CFG_DIR_OUT;
     HSUSBD_ConfigEp(ep_hw_index, DESC_TO_LOG(endpoint), ep_type, ep_dir);
+    /* Check above for operation mode of IN endpoint */
+    HSUSBD_CONFIG_EP_MODE(ep_hw_index, HSUSBD_EP_RSPCTL_MODE_AUTO);
 
     /* Enable USB/EPX interrupt */
     // NOTE: Require USBD_GINTEN_EPAIE_Pos, USBD_GINTEN_EPBIE_Pos, ... USBD_GINTEN_EPLIE_Pos to be consecutive.
