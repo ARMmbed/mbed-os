@@ -644,10 +644,14 @@ void LoRaWANStack::post_process_tx_no_reception()
     } else {
         _ctrl_flags |= TX_DONE_FLAG;
 
-        uint8_t prev_QOS_level = _loramac.get_prev_QOS_level();
+        // LoRaWAN spec 4.3.1.1: all NbTrans retransmissions use the same FCnt.
+        // FCnt is incremented only after all retransmissions are done.
+        // The _qos_cnt counter (reset to 1 per frame in handle_tx) controls
+        // the number of physical transmissions independently of any LinkADRReq
+        // transition, so no prev/current QOS comparison is needed here.
         uint8_t QOS_level = _loramac.get_QOS_level();
 
-        if (QOS_level > LORAWAN_DEFAULT_QOS && (prev_QOS_level == QOS_level)) {
+        if (QOS_level > LORAWAN_DEFAULT_QOS) {
             if (_qos_cnt < QOS_level) {
                 const int ret = _queue->call(this, &LoRaWANStack::state_controller,
                                              DEVICE_STATE_SCHEDULING);

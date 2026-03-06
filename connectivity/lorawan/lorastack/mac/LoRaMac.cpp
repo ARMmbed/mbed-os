@@ -1051,6 +1051,9 @@ lorawan_status_t LoRaMac::send(loramac_mhdr_t *machdr, const uint8_t fport,
     _mcps_confirmation.nb_retries = 0;
     _mcps_confirmation.ack_received = false;
     _mcps_confirmation.ul_frame_counter = _params.ul_frame_counter;
+    // Reset per-frame repetition counter so nb_retries in the TX confirmation
+    // reports the count for this frame only, not cumulative across all frames.
+    _params.ul_nb_rep_counter = 0;
 
     status = schedule_tx();
 
