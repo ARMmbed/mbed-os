@@ -1170,6 +1170,14 @@ void LoRaWANStack::process_scheduling_state(lorawan_status_t &op_status)
         _ctrl_flags &= ~TX_DONE_FLAG;
         _loramac.set_tx_ongoing(true);
         _device_current_state = DEVICE_STATE_SENDING;
+    } else if (_loramac.tx_ongoing()) {
+        // tx_ongoing was already true from a previous successful send (e.g. a
+        // QoS nb_trans retry queued via post_process_tx_no_reception). The
+        // re-send failed with a non-recoverable error and the return value of
+        // the queued _queue->call() is ignored, so no failure handler would
+        // otherwise run. Explicitly clean up so tx_ongoing does not get stuck.
+        _loramac.set_tx_ongoing(false);
+        _loramac.reset_ongoing_tx();
     }
 }
 

@@ -1134,14 +1134,19 @@ lorawan_status_t LoRaMac::schedule_tx()
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
             return status;
         case LORAWAN_STATUS_DUTYCYCLE_RESTRICTED:
-            if (backoff_time != 0) {
-                tr_debug("DC enforced: Transmitting in %lu ms", backoff_time);
-                _can_cancel_tx = true;
-                if (_device_class != CLASS_C) {
-                    _lora_phy->put_radio_to_sleep();
-                }
-                _lora_time.start(_params.timers.backoff_timer, backoff_time);
+            // Enforce a minimum backoff of 1ms so the timer always fires.
+            // If backoff_time is 0, no timer would be started, leaving
+            // tx_ongoing=true permanently and all future sends returning
+            // LORAWAN_STATUS_WOULD_BLOCK with no recovery path.
+            if (backoff_time == 0) {
+                backoff_time = 1;
             }
+            tr_debug("DC enforced: Transmitting in %lu ms", backoff_time);
+            _can_cancel_tx = true;
+            if (_device_class != CLASS_C) {
+                _lora_phy->put_radio_to_sleep();
+            }
+            _lora_time.start(_params.timers.backoff_timer, backoff_time);
             return LORAWAN_STATUS_OK;
         default:
             break;
@@ -1872,6 +1877,13 @@ void LoRaMac::disconnect()
     reset_mcps_confirmation();
     reset_mlme_confirmation();
     reset_mcps_indication();
+
+    // Clear any in-progress TX so that reconnecting after disconnect does not
+    // permanently return LORAWAN_STATUS_WOULD_BLOCK. All timers that would
+    // normally drive the state machine to call reset_ongoing_tx() (backoff,
+    // RX windows, ACK timeout) have already been stopped above, so without
+    // this explicit reset the tx_ongoing flag would be stuck at true.
+    reset_ongoing_tx(true);
 }
 
 uint8_t LoRaMac::get_max_possible_tx_size(uint8_t fopts_len)
